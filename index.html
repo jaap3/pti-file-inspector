@@ -1,0 +1,233 @@
+<!doctype html>
+<title>.pti file inspector</title>
+<link href="https://unpkg.com/sanitize.css" rel="stylesheet">
+<link href="https://unpkg.com/sanitize.css/forms.css" rel="stylesheet">
+<link href="https://unpkg.com/sanitize.css/assets.css" rel="stylesheet">
+<link href="https://unpkg.com/sanitize.css/typography.css" rel="stylesheet">
+<style>
+.container {
+    padding: 0 40px;
+}
+
+#pti-file-input {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+label[for=pti-file-input] {
+    display: block;
+    position: relative;
+    width: 100%;
+    margin: 25px 0;
+    outline: 1px dashed #cfcfcf;
+    border-radius: 25px;
+    padding: 25px;
+    font-weight: bold;
+    text-align: center;
+}
+label[for=pti-file-input]:focus,
+label[for=pti-file-input]:focus-within {
+    outline: 2px dashed #000;
+}
+
+
+table { width: 100%; }
+th, td {
+    text-align: left;
+    vertical-align: top;
+}
+
+canvas.waveform {
+    display: block;
+    margin-bottom: 12.5px;
+    height: 100px;
+    width: 100%;
+    border: 1px solid #cfcfcf;
+}
+
+button.ui {
+    width: 25px;
+    height: 25px;
+    border: 1px solid #cfcfcf;
+    padding: 0;
+}
+</style>
+
+<main class="container">
+    <section>
+        <label for="pti-file-input">
+            <span class="empty">Choose/Drop .pti file</span>
+            <span class="fname" hidden></span>
+            <input id="pti-file-input" type="file">
+        </label>
+    </section>
+
+    <section class="pti-file-data">
+
+    </section>
+</main>
+
+<template id="audio-preview-row">
+    <tr>
+        <th>Sample:</th>
+        <td>
+            <canvas class="waveform" height="100" width="300"></canvas>
+            <button type="button" class="ui start">▶</button>&nbsp;<button type="button" class="ui stop">■</button>
+        </td>
+    </tr>
+</template>
+
+<template id="data-row">
+    <tr>
+        <th></th>
+        <td></td>
+    </tr>
+</template>
+
+
+<script>
+(() => {
+    const $ = (sel, el = document) => el.querySelector(sel)
+
+    const ptiFileInput = $('#pti-file-input')
+    const ptiFileInputLabel = ptiFileInput.parentNode
+    const emptyLabel = $('.empty', ptiFileInputLabel)
+    const fnameLabel = $('.fname', ptiFileInputLabel)
+
+    const ptiFileDataSection = $('.pti-file-data')
+
+    ptiFileInput.addEventListener('change', fileSelected)
+
+    async function fileSelected() {
+        if (ptiFileInput.files.length) {
+            const selectedFile = ptiFileInput.files[0]
+            emptyLabel.setAttribute('hidden', '')
+            fnameLabel.innerText = selectedFile.name
+            fnameLabel.removeAttribute('hidden')
+            await displayPtiFileDataSection(selectedFile)
+        } else {
+            fnameLabel.setAttribute('hidden', '')
+            fnameLabel.innerText = ''
+            emptyLabel.removeAttribute('hidden')
+            clearPtiFileDataSection()
+        }
+    }
+
+    let audioCtxSource = null
+
+    const SAMPLE_PLAYBACK = {
+        0: '1-Shot',
+        1: 'Forward loop',
+        2: 'Backward loop',
+        3: 'PingPong loop',
+        4: 'Slice',
+        5: 'Beat slice',
+        6: 'Wavetable',
+        7: 'Granular',
+    }
+
+    async function displayPtiFileDataSection(file) {
+        clearPtiFileDataSection()
+
+        // Read the header
+        const header = await file.slice(0, 392)
+        // Read the first two bytes
+        const ti = await header.slice(0, 2).text()
+
+        if (header.size !== 392 || ti !== 'TI') {
+            ptiFileDataSection.innerHTML = '<p>The selected file does not appear to be a valid .pti file!</p>'
+
+        } else {
+            // Create a table to show all the PTI file data
+            const ptiDataTable = document.createElement('table')
+
+            ptiDataTable.appendChild(await getSampleDataRow(file))
+
+            const dataRowTemplate = $('#data-row').content
+
+            const nameRow = dataRowTemplate.cloneNode(true)
+            $('th', nameRow).innerText = 'Name:'
+            $('td', nameRow).innerText = await header.slice(21, 52).text()
+            ptiDataTable.appendChild(nameRow)
+
+            const sampleLengthRow = dataRowTemplate.cloneNode(true)
+            $('th', sampleLengthRow).innerText = 'Sample length:'
+            const sampleLengthInMs = new Int32Array(await header.slice(60, 64).arrayBuffer())[0] / 44.1
+            $('td', sampleLengthRow).innerText = sampleLengthInMs < 800 ? `${Math.floor(sampleLengthInMs)} ms` : `${Math.floor(sampleLengthInMs / 10) / 100} s`
+            ptiDataTable.appendChild(sampleLengthRow)
+
+            const playbackRow = dataRowTemplate.cloneNode(true)
+            $('th', playbackRow).innerText = 'Sample playback:'
+            const playback = new Uint8Array(await header.slice(76, 77).arrayBuffer())[0]
+            $('td', playbackRow).innerText = SAMPLE_PLAYBACK[playback]
+            ptiDataTable.appendChild(playbackRow)
+
+            // Show the table
+            ptiFileDataSection.appendChild(ptiDataTable)
+        }
+    }
+
+    async function getSampleDataRow(file) {
+        // Clone the template of a row with a canvas element and buttons to play/stop the audio
+        const audioPreviewRow = $('#audio-preview-row').content.cloneNode(true)
+
+        // Create audio context, used later to preview audio
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+            latencyHint: 'playback',
+            sampleRate: 44100,
+        })
+
+        // Create a buffer and allocate all the bytes
+        const ptiAudioBuffer = new Int16Array(await file.slice(392).arrayBuffer())
+        const audioCtxBuffer = audioCtx.createBuffer(1, ptiAudioBuffer.byteLength, 44100)
+        const bufferLength = ptiAudioBuffer.length
+
+        // Copy pti audio to 1st audio context buffer channel (mono audio)
+        // Piggy back on this loop to draw the waveform
+        // Create a canvas to draw a waveform on
+        const canvas = $('canvas.waveform', audioPreviewRow)
+        const canvasCtx = canvas.getContext('2d')
+        canvas.width  = $('.container').offsetWidth * .6
+        const yScale = canvas.height / 2
+        canvasCtx.fillStyle = 'black'
+        canvasCtx.strokeStyle = 'white'
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height)
+        canvasCtx.translate(0, yScale)
+        canvasCtx.beginPath()
+
+        const audioCtxBufferChannel = audioCtxBuffer.getChannelData(0)
+        for (let i = 0; i < bufferLength; i++) {
+            audioCtxBufferChannel[i] = ptiAudioBuffer[i] / 32767
+            if(i === 0) {
+                canvasCtx.lineTo(0, -audioCtxBufferChannel[i] * yScale)
+            } else {
+            canvasCtx.lineTo(i / bufferLength * canvas.width, -audioCtxBufferChannel[i] * yScale)
+            }
+        }
+        canvasCtx.stroke()
+
+        $('button.start', audioPreviewRow).addEventListener('click', () => {
+            audioCtxSource?.stop(0)
+            audioCtxSource = audioCtx.createBufferSource()
+            audioCtxSource.buffer = audioCtxBuffer
+            audioCtxSource.connect(audioCtx.destination)
+            audioCtxSource.start(0)
+        })
+
+        $('button.stop', audioPreviewRow).addEventListener('click', () => audioCtxSource?.stop(0))
+
+        return audioPreviewRow
+    }
+
+    function clearPtiFileDataSection() {
+        audioCtxSource?.stop(0)
+        ptiFileDataSection.innerHTML = ''
+    }
+})()
+</script>
