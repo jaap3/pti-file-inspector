@@ -3,13 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#cfcfcf">
+    <meta name="theme-color" content="#0A0A0A">
     <title>.pti file inspector</title>
     <link href="https://unpkg.com/sanitize.css" rel="stylesheet">
     <link href="https://unpkg.com/sanitize.css/forms.css" rel="stylesheet">
     <link href="https://unpkg.com/sanitize.css/assets.css" rel="stylesheet">
     <link href="https://unpkg.com/sanitize.css/typography.css" rel="stylesheet">
     <style>
+    body {
+        background: #121212;
+        color: #fff;
+        font-weight: lighter;
+    }
+
     .container {
         padding: 0 40px;
     }
@@ -31,21 +37,28 @@
         width: 100%;
         margin: 25px 0;
         outline: 1px dashed #cfcfcf;
+        background: #0A0A0A;
         border-radius: 25px;
         padding: 25px;
-        font-weight: bold;
         text-align: center;
     }
     label[for=pti-file-input]:focus,
     label[for=pti-file-input]:focus-within {
-        outline: 2px solid #cfcfcf;
+        outline: 1px solid #651F1F;
     }
-
 
     table { width: 100%; }
     th, td {
         text-align: left;
+        vertical-align: bottom;
+        padding: 6px 0;
+        border-bottom: 1px solid #323232;
+    }
+    th {
+        color: #777;
+        font-weight: normal;
         vertical-align: top;
+        padding-right: 12.5px;
     }
 
     canvas.waveform {
@@ -53,7 +66,7 @@
         margin-bottom: 12.5px;
         height: 100px;
         width: 100%;
-        border: 1px solid #cfcfcf;
+        border: 1px solid #0A0A0A;
     }
 
     button.ui {
@@ -73,7 +86,7 @@
 
     button.ui:focus {
         border-style: inset;
-        outline: 2px solid #cfcfcf;
+        outline: 1px solid #651F1F;
     }
     </style>
 </head>
@@ -94,7 +107,7 @@
 
 <template id="audio-preview-row">
     <tr>
-        <th>Sample:</th>
+        <th>Sample</th>
         <td>
             <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
             <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
@@ -278,7 +291,7 @@
         const canvasCtx = canvas.getContext('2d')
         canvas.width  = $('.container').offsetWidth * .6
         const yScale = canvas.height / 2
-        canvasCtx.fillStyle = 'black'
+        canvasCtx.fillStyle = '#323232'
         canvasCtx.strokeStyle = 'white'
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height)
         canvasCtx.translate(0, yScale)
