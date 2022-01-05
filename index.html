@@ -355,6 +355,8 @@
                     }
                 })
                 auditionButton.addEventListener('keyup', () => stopPlayback())
+                auditionButton.addEventListener('touchstart', () => auditonSample())
+                auditionButton.addEventListener('touchend', () => stopPlayback())
                 auditionButton.addEventListener('mousedown', () => auditonSample())
                 auditionButton.addEventListener('mouseup', () => stopPlayback())
                 auditionButton.addEventListener('mouseleave', () => stopPlayback())
