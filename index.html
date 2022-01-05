@@ -146,6 +146,10 @@
 
     const ROW_TEMPLATE = $('#data-row').content
 
+    const BUTTON_TEMPLATE = document.createElement('button')
+    BUTTON_TEMPLATE.setAttribute('type', 'button')
+    BUTTON_TEMPLATE.className = 'keypad'
+
     const ptiFileInput = $('#pti-file-input')
     const ptiFileInputLabel = ptiFileInput.parentNode
     const emptyLabel = $('.empty', ptiFileInputLabel)
@@ -275,7 +279,7 @@
                 ).map(relOffset)
             }
 
-            const [sampleRow, playSample] = await getSampleDataRow(file, slices)
+            const [sampleRow, startPlayback, stopPlayback] = await getSampleDataRow(file, slices)
             ptiDataTable.appendChild(sampleRow)
 
             addRow('Name', new TextDecoder('ascii').decode(
@@ -293,22 +297,49 @@
             const displayOffset = (offset) => _displayMs(convertOffset(offset))
 
             if (['1-Shot', 'Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
-                addRow('Playback start', displayOffset(new Uint16Array(header.slice(78, 80))[0]))
+                const playbackStart = new Uint16Array(header.slice(78, 80))[0]
+                addRow('Playback start', displayOffset(playbackStart))
 
-                if (['Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
-                    addRow('Loop start', displayOffset(new Uint16Array(header.slice(80, 82))[0] - 1))
+                let isLoop = ['Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)
+                let loopStart, loopEnd;
+                if (isLoop) {
+                    loopStart = new Uint16Array(header.slice(80, 82))[0] - 1
+                    addRow('Loop start', displayOffset(loopStart))
 
-                    addRow('Loop end', displayOffset(new Uint16Array(header.slice(82, 84))[0] + 1))
+                    loopEnd = new Uint16Array(header.slice(82, 84))[0] + 1
+                    addRow('Loop end', displayOffset(loopEnd))
                 }
 
-                addRow('Playback end', displayOffset(new Uint16Array(header.slice(84, 86))[0]))
+                const playBackEnd = new Uint16Array(header.slice(84, 86))[0]
+                addRow('Playback end', displayOffset(playBackEnd))
+
+                const auditionRow = ROW_TEMPLATE.cloneNode(true)
+                $('th', auditionRow).innerText = 'Audition'
+                const auditionCell = $('td', auditionRow)
+                const auditionButton = BUTTON_TEMPLATE.cloneNode(true)
+                auditionButton.setAttribute('title', `Audition instrument (hold)`)
+                const auditonSample = () => startPlayback(
+                    playbackStart, playBackEnd - playbackStart, {
+                        'loop': isLoop,
+                        //'playbackRate': -1,
+                        'loopStart': convertOffset(loopStart) / 1000,
+                        'loopEnd': convertOffset(loopEnd) / 1000
+                    })
+                auditionButton.addEventListener('keydown', (evt) => {
+                    if (evt.which === 32 /* space */ && !evt.repeat) {
+                        auditonSample()
+                    }
+                })
+                auditionButton.addEventListener('keyup', () => stopPlayback())
+                auditionButton.addEventListener('mousedown', () => auditonSample())
+                auditionButton.addEventListener('mouseup', () => stopPlayback())
+                auditionButton.addEventListener('mouseleave', () => stopPlayback())
+                auditionButton.addEventListener('blur', () => stopPlayback())
+                auditionCell.appendChild(auditionButton)
+                ptiDataTable.appendChild(auditionRow)
             }
 
             else if (isSliced) {
-                const BUTTON_TEMPLATE = document.createElement('button')
-                BUTTON_TEMPLATE.setAttribute('type', 'button')
-                BUTTON_TEMPLATE.className = 'keypad'
-
                 const slicesRow = ROW_TEMPLATE.cloneNode(true)
                 $('th', slicesRow).innerText = 'Slices'
 
@@ -317,7 +348,7 @@
                     const sliceButton = BUTTON_TEMPLATE.cloneNode(true)
                     const sliceEnd = absOffset(slices[idx + 1])
                     sliceButton.setAttribute('title', `Slice ${idx + 1}`)
-                    sliceButton.addEventListener('click', () => playSample(
+                    sliceButton.addEventListener('click', () => startPlayback(
                         sliceStart, sliceEnd ? sliceEnd - sliceStart : 0)
                     )
                     slicesCell.appendChild(sliceButton)
@@ -404,19 +435,23 @@
             canvasCtx.stroke()
         })
 
-        const playSample = (offset=0, duration) => {
+        const startPlayback = (offset=0, duration, options={}) => {
             audioCtxSource?.stop(0)
-            audioCtxSource = audioCtx.createBufferSource()
-            audioCtxSource.buffer = audioCtxBuffer
+            audioCtxSource = new AudioBufferSourceNode(audioCtx, {
+                ...options,
+                buffer: audioCtxBuffer
+            })
             audioCtxSource.connect(audioCtx.destination)
             audioCtxSource.start(0, offset / 1000, duration ? duration / 1000 : undefined)
         }
 
-        $('button.start', row).addEventListener('click',() => playSample())
+        const stopPlayback = () => audioCtxSource?.stop(0)
 
-        $('button.stop', row).addEventListener('click', () => audioCtxSource?.stop(0))
+        $('button.start', row).addEventListener('click',() => startPlayback())
 
-        return [row, playSample]
+        $('button.stop', row).addEventListener('click', () => stopPlayback())
+
+        return [row, startPlayback, stopPlayback]
     }
 
     function clearPtiFileDataSection() {
