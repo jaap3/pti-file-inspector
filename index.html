@@ -268,9 +268,15 @@
             const absOffset = (offset) => offset * sampleLengthInMs
             const convertOffset = (offset) => absOffset(relOffset(offset))
 
+            const isOneShot = samplePlayback == '1-Shot'
+            const isLoop = ['Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)
+            const isSliced = ['Slice', 'Beat slice'].includes(samplePlayback)
+
+            let markers
+            let region
+
             let numSlices = 0
             let slices = []
-            const isSliced = ['Slice', 'Beat slice'].includes(samplePlayback)
 
             if (isSliced) {
                 numSlices = new Uint8Array(header.slice(376, 377))[0]
@@ -279,7 +285,32 @@
                 ).map(relOffset)
             }
 
-            const [sampleRow, startPlayback, stopPlayback] = await getSampleDataRow(file, slices)
+            const playbackStart = new Uint16Array(header.slice(78, 80))[0]
+            const playBackEnd = new Uint16Array(header.slice(84, 86))[0]
+            let loopStart, loopEnd;
+
+            if (isOneShot || isLoop) {
+                markers = {
+                    start: relOffset(playbackStart),
+                    end: relOffset(playBackEnd)
+                }
+            }
+
+            if (isLoop) {
+                loopStart = new Uint16Array(header.slice(80, 82))[0] - 1
+                loopEnd = new Uint16Array(header.slice(82, 84))[0] + 1
+                region = {
+                    start: relOffset(loopStart),
+                    end: relOffset(loopEnd),
+                }
+            }
+
+            const [sampleRow, startPlayback, stopPlayback] = await getSampleDataRow(
+                file,
+                markers,
+                region,
+                slices,
+            )
             ptiDataTable.appendChild(sampleRow)
 
             addRow('Name', new TextDecoder('ascii').decode(
@@ -296,21 +327,14 @@
 
             const displayOffset = (offset) => _displayMs(convertOffset(offset))
 
-            if (['1-Shot', 'Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
-                const playbackStart = new Uint16Array(header.slice(78, 80))[0]
+            if (isOneShot || isLoop) {
                 addRow('Playback start', displayOffset(playbackStart))
 
-                let isLoop = ['Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)
-                let loopStart, loopEnd;
                 if (isLoop) {
-                    loopStart = new Uint16Array(header.slice(80, 82))[0] - 1
                     addRow('Loop start', displayOffset(loopStart))
-
-                    loopEnd = new Uint16Array(header.slice(82, 84))[0] + 1
                     addRow('Loop end', displayOffset(loopEnd))
                 }
 
-                const playBackEnd = new Uint16Array(header.slice(84, 86))[0]
                 addRow('Playback end', displayOffset(playBackEnd))
 
                 const auditionRow = ROW_TEMPLATE.cloneNode(true)
@@ -388,7 +412,7 @@
         return row
     }
 
-    async function getSampleDataRow(file, slices) {
+    async function getSampleDataRow(file, markers, region, slices) {
         const row = $('#audio-preview-row').content.cloneNode(true)
 
         // Create audio context, used later to preview audio
@@ -410,12 +434,51 @@
         canvas.width  = $('.container').offsetWidth * .6
         const xScale = canvas.width
         const yScale = canvas.height / 2
-        canvasCtx.fillStyle = '#0A0A0A'
-        canvasCtx.strokeStyle = 'white'
-        canvasCtx.fillRect(0, 0, canvas.width, canvas.height)
-        canvasCtx.translate(0, yScale)
-        canvasCtx.beginPath()
 
+        canvasCtx.fillStyle = '#0A0A0A'
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height)
+
+        if (region) {
+            const regionStart = region.start * canvas.width
+            const regionEnd = region.end * canvas.width
+            canvasCtx.fillStyle = '#323232'
+            canvasCtx.fillRect(regionStart, 0, regionEnd - regionStart, canvas.height)
+            canvasCtx.strokeStyle = 'white'
+            canvasCtx.lineWidth = 2
+            canvasCtx.beginPath()
+            canvasCtx.moveTo(regionStart, 0)
+            canvasCtx.lineTo(regionStart, canvas.height)
+            canvasCtx.lineTo(regionStart + 3, canvas.height - 3)
+            canvasCtx.lineTo(regionStart, canvas.height - 6)
+            canvasCtx.moveTo(regionEnd, 0)
+            canvasCtx.lineTo(regionEnd, canvas.height)
+            canvasCtx.lineTo(regionEnd - 3, canvas.height - 3)
+            canvasCtx.lineTo(regionEnd, canvas.height - 6)
+            canvasCtx.stroke()
+        }
+
+        if (markers) {
+            const markStart = markers.start * canvas.width
+            const markEnd = markers.end * canvas.width
+            canvasCtx.strokeStyle = 'white'
+            canvasCtx.lineWidth = 2
+            canvasCtx.beginPath()
+            canvasCtx.moveTo(markStart, canvas.height)
+            canvasCtx.lineTo(markStart, 0)
+            canvasCtx.lineTo(markStart + 3, 3)
+            canvasCtx.lineTo(markStart, 6)
+            canvasCtx.moveTo(markEnd, canvas.height)
+            canvasCtx.lineTo(markEnd, 0)
+            canvasCtx.lineTo(markEnd - 3, 3)
+            canvasCtx.lineTo(markEnd, 6)
+            canvasCtx.stroke()
+        }
+
+        canvasCtx.translate(0, yScale)
+
+        canvasCtx.beginPath()
+        canvasCtx.strokeStyle = 'white'
+        canvasCtx.lineWidth = 1
         const audioCtxBufferChannel = audioCtxBuffer.getChannelData(0)
         for (let i = 0; i < bufferLength; i++) {
             audioCtxBufferChannel[i] = ptiAudioBuffer[i] / 32767
@@ -427,13 +490,16 @@
         }
         canvasCtx.stroke()
 
+        canvasCtx.beginPath()
         slices.forEach((slice) => {
-            canvasCtx.beginPath()
             canvasCtx.strokeStyle = '#65491f'
-            canvasCtx.moveTo(slice * xScale, -yScale)
+            canvasCtx.moveTo(slice * xScale, -yScale + 3)
+            canvasCtx.lineTo(slice * xScale - 3, -yScale)
+            canvasCtx.lineTo(slice * xScale + 3, -yScale)
+            canvasCtx.lineTo(slice * xScale, -yScale + 3)
             canvasCtx.lineTo(slice * xScale, yScale)
-            canvasCtx.stroke()
         })
+        canvasCtx.stroke()
 
         const startPlayback = (offset=0, duration, options={}) => {
             audioCtxSource?.stop(0)
