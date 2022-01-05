@@ -38,7 +38,7 @@
     }
     label[for=pti-file-input]:focus,
     label[for=pti-file-input]:focus-within {
-        outline: 2px dashed #000;
+        outline: 2px solid #cfcfcf;
     }
 
 
@@ -57,10 +57,16 @@
     }
 
     button.ui {
-        width: 25px;
-        height: 25px;
+        width: 40px;
+        height: 40px;
         border: 1px solid #cfcfcf;
+        border-radius: 25px;
         padding: 0;
+        cursor: pointer;
+    }
+
+    button.ui:focus {
+        outline: 2px solid #cfcfcf;
     }
     </style>
 </head>
@@ -83,8 +89,8 @@
     <tr>
         <th>Sample:</th>
         <td>
-            <canvas class="waveform" height="100" width="300"></canvas>
-            <button type="button" class="ui start">▶</button>&nbsp;<button type="button" class="ui stop">■</button>
+            <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
+            <button type="button" class="ui start" title="Play">▶</button>&nbsp;<button type="button" class="ui stop" title="Stop">■</button>
         </td>
     </tr>
 </template>
