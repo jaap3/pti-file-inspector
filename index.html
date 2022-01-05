@@ -17,7 +17,9 @@
     }
 
     .container {
-        padding: 0 40px;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 25px;
     }
 
     #pti-file-input {
@@ -47,7 +49,13 @@
         outline: 1px solid #651F1F;
     }
 
-    table { width: 100%; }
+    .preview {
+        margin: 25px 0 5px;
+    }
+
+    table {
+        width: 100%;
+    }
     th, td {
         text-align: left;
         vertical-align: bottom;
@@ -59,6 +67,7 @@
         font-weight: normal;
         vertical-align: top;
         padding-right: 12.5px;
+        width: 12em;
     }
 
     canvas.waveform {
@@ -123,13 +132,10 @@
 </main>
 
 <template id="audio-preview-row">
-    <tr>
-        <th>Sample</th>
-        <td>
-            <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
-            <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
-        </td>
-    </tr>
+    <section class="preview">
+        <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
+        <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
+    </section>
 </template>
 
 <template id="data-row">
@@ -311,7 +317,7 @@
                 region,
                 slices,
             )
-            ptiDataTable.appendChild(sampleRow)
+            ptiFileDataSection.appendChild(sampleRow)
 
             addRow('Name', new TextDecoder('ascii').decode(
                 new Uint8Array(header.slice(21, 52))
@@ -331,6 +337,13 @@
                 addRow('Playback start', displayOffset(playbackStart))
 
                 if (isLoop) {
+                    // Web Audio API seems to only allow forwards loops.
+                    // TODO: Figure out how to support backwards and pingpong loops
+                    //       Would reversing the loop region audio data work?
+                    //       I.e. append a reversed section to the audio (after the
+                    //       loop endpoint) and fudge the loop start / end points
+                    //       so only the reversed part plays (or forwards/backwards in
+                    //       case of pingpong loops)
                     addRow('Loop start', displayOffset(loopStart))
                     addRow('Loop end', displayOffset(loopEnd))
                 }
@@ -345,7 +358,6 @@
                 const auditonSample = () => startPlayback(
                     playbackStart, playBackEnd - playbackStart, {
                         'loop': isLoop,
-                        //'playbackRate': -1,
                         'loopStart': convertOffset(loopStart) / 1000,
                         'loopEnd': convertOffset(loopEnd) / 1000
                     })
@@ -433,7 +445,7 @@
         // Create a canvas to draw a waveform on
         const canvas = $('canvas.waveform', row)
         const canvasCtx = canvas.getContext('2d')
-        canvas.width  = $('.container').offsetWidth * .6
+        canvas.width = $('.container').offsetWidth - 50
         const xScale = canvas.width
         const yScale = canvas.height / 2
 
@@ -516,7 +528,6 @@
         const stopPlayback = () => audioCtxSource?.stop(0)
 
         $('button.start', row).addEventListener('click',() => startPlayback())
-
         $('button.stop', row).addEventListener('click', () => stopPlayback())
 
         return [row, startPlayback, stopPlayback]
