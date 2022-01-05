@@ -121,6 +121,29 @@ button.ui {
 
     let audioCtxSource = null
 
+    const KNOWN_MAGIC = {
+        0: 84, // 'T'
+        1: 73, // 'I'
+        2: 1,
+        3: 0,
+        4: 1,
+        5: [4, 5],
+        6: [0, 1],
+        7: 1,
+        8: 9,
+        9: 9,
+        10: 9,
+        11: 9,
+        12: 116,
+        13: 1,
+        14: [102, 110],
+        15: 102,
+        16: 1,
+        17: 0,
+        18: 0,
+        19: 0
+    }
+
     const SAMPLE_PLAYBACK = {
         0: '1-Shot',
         1: 'Forward loop',
@@ -132,17 +155,35 @@ button.ui {
         7: 'Granular',
     }
 
+    async function validateHeader(header) {
+        if (header.size !== 392) {
+            return [false, 'Wrong size']
+        }
+
+        const magic = new Uint8Array(await header.slice(0, 20).arrayBuffer())
+
+        for (let i = 0; i < 20; i++) {
+            if (!(KNOWN_MAGIC[i].includes?.(magic[i]) ?? KNOWN_MAGIC[i] == magic[i])) {
+                return [false, `Bad magic ${i}`]
+            }
+        }
+
+        return [true, null]
+    }
+
     async function displayPtiFileDataSection(file) {
         clearPtiFileDataSection()
 
         // Read the header
         const header = await file.slice(0, 392)
-        // Read the first two bytes
-        const ti = await header.slice(0, 2).text()
 
-        if (header.size !== 392 || ti !== 'TI') {
-            ptiFileDataSection.innerHTML = '<p>The selected file does not appear to be a valid .pti file!</p>'
-
+        const [validHeader, headerValidationMessage] = await validateHeader(header)
+        if (!validHeader) {
+            ptiFileDataSection.innerHTML = `<p>
+                This file does not appear to be a valid .pti file!
+                ${headerValidationMessage ? ` (<small>${headerValidationMessage}</small>)` : ''}
+            </p>`
+            return
         } else {
             // Create a table to show all the PTI file data
             const ptiDataTable = document.createElement('table')
