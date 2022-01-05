@@ -189,6 +189,18 @@
         7: 'Granular',
     }
 
+    const GRANULAR_SHAPE = {
+        0: 'Square',
+        1: 'Triangle',
+        2: 'Gauss'
+    }
+
+    const GRANULAR_LOOP_MODE = {
+        0: 'Forward',
+        1: 'Backward',
+        2: 'PingPong'
+    }
+
     function validateHeader(header) {
         if (header.byteLength !== 392) {
             return [false, 'Wrong size']
@@ -221,52 +233,77 @@
         } else {
             // Create a table to show all the PTI file data
             const ptiDataTable = document.createElement('table')
+            const addRow = (label, value) => ptiDataTable.appendChild(_createRow(label, value))
 
             ptiDataTable.appendChild(await getSampleDataRow(file))
 
-            const dataRowTemplate = $('#data-row').content
+            addRow('Name', new TextDecoder('ascii').decode(
+                new Uint8Array(header.slice(21, 52))
+            ))
 
-            ptiDataTable.appendChild(
-                _createRow('Name', new TextDecoder('ascii').decode(
-                    new Uint8Array(header.slice(21, 52))
-                ))
+            const sampleLengthInMs = new Int32Array(
+                header.slice(60, 64)
+            )[0] / 44.1
+
+            addRow(
+                'Sample length',
+                sampleLengthInMs < 800 ?
+                    `${Math.floor(sampleLengthInMs)} ms` :
+                    `${Math.floor(sampleLengthInMs / 10) / 100} s`
             )
 
-            ptiDataTable.appendChild(
-                _createRow(
-                    'Sample length',
-                    () => {
-                        const sampleLengthInMs = new Int32Array(
-                            header.slice(60, 64)
-                        )[0] / 44.1
+            const samplePlayback = SAMPLE_PLAYBACK[
+                new Uint8Array(header.slice(76, 77))[0]
+            ]
 
-                        return (
-                            sampleLengthInMs < 800 ?
-                                `${Math.floor(sampleLengthInMs)} ms` :
-                                `${Math.floor(sampleLengthInMs / 10) / 100} s`
-                        )
-                    }
-                )
+            const isWavetable = (
+                new Uint8Array(header.slice(20, 21))[0] === 1 && samplePlayback === 'Wavetable'
             )
 
-            ptiDataTable.appendChild(
-                _createRow(
-                    'Playback',
-                    SAMPLE_PLAYBACK[
-                        new Uint8Array(header.slice(76, 77))[0]
-                    ]
-                )
+            addRow(
+                'Playback',
+                samplePlayback
             )
+
+            if (['1-Shot', 'Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
+                addRow('Playback start', new Uint16Array(header.slice(78, 80))[0])  // TODO: convert
+
+                if (['Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
+                    addRow('Loop start', new Uint16Array(header.slice(80, 82))[0])  // TODO: convert
+
+                    addRow('Loop end', new Uint16Array(header.slice(82, 84))[0])  // TODO: convert
+                }
+
+                addRow('Playback end', new Uint16Array(header.slice(84, 86))[0])  // TODO: convert
+            }
+
+            else if (['Slice', 'Beat slice'].includes(samplePlayback)) {
+                addRow('Number of slices', new Uint8Array(header.slice(376, 377))[0])
+            }
+
+            else if (isWavetable) {
+                addRow('Window size', new Uint16Array(header.slice(64, 66))[0])
+                addRow('Total positions', new Uint16Array(header.slice(68, 70))[0])
+                addRow('Position', new Uint16Array(header.slice(88, 90))[0])
+
+            }
+
+            else if (samplePlayback === 'Granular') {
+                addRow('Length', new Uint16Array(header.slice(378, 380))[0])  // TODO: convert
+                addRow('Position', new Uint16Array(header.slice(380, 382))[0])  // TODO: convert
+                addRow('Shape', GRANULAR_SHAPE[new Uint8Array(header.slice(382, 383))[0]])
+                addRow('Loop mode', GRANULAR_LOOP_MODE[new Uint8Array(header.slice(383, 384))[0]])
+            }
 
             // Show the table
             ptiFileDataSection.appendChild(ptiDataTable)
         }
     }
 
-    function _createRow(label, valueOrFunction) {
+    function _createRow(label, value) {
         const row = ROW_TEMPLATE.cloneNode(true)
-        $('th', row).innerText = `${label}:`
-        $('td', row).innerText = valueOrFunction.call?.() ?? valueOrFunction
+        $('th', row).innerText = label
+        $('td', row).innerText = value
         return row
     }
 
