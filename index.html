@@ -95,6 +95,8 @@ button.ui {
 (() => {
     const $ = (sel, el = document) => el.querySelector(sel)
 
+    const ROW_TEMPLATE = $('#data-row').content
+
     const ptiFileInput = $('#pti-file-input')
     const ptiFileInputLabel = ptiFileInput.parentNode
     const emptyLabel = $('.empty', ptiFileInputLabel)
@@ -192,31 +194,52 @@ button.ui {
 
             const dataRowTemplate = $('#data-row').content
 
-            const nameRow = dataRowTemplate.cloneNode(true)
-            $('th', nameRow).innerText = 'Name:'
-            $('td', nameRow).innerText = await header.slice(21, 52).text()
-            ptiDataTable.appendChild(nameRow)
+            ptiDataTable.appendChild(
+                await _createRow('Name', header.slice(21, 52).text())
+            )
 
-            const sampleLengthRow = dataRowTemplate.cloneNode(true)
-            $('th', sampleLengthRow).innerText = 'Sample length:'
-            const sampleLengthInMs = new Int32Array(await header.slice(60, 64).arrayBuffer())[0] / 44.1
-            $('td', sampleLengthRow).innerText = sampleLengthInMs < 800 ? `${Math.floor(sampleLengthInMs)} ms` : `${Math.floor(sampleLengthInMs / 10) / 100} s`
-            ptiDataTable.appendChild(sampleLengthRow)
+            ptiDataTable.appendChild(
+                await _createRow(
+                    'Sample length',
+                    async () => {
+                        const sampleLengthInMs = new Int32Array(
+                            await header.slice(60, 64).arrayBuffer()
+                        )[0] / 44.1
 
-            const playbackRow = dataRowTemplate.cloneNode(true)
-            $('th', playbackRow).innerText = 'Sample playback:'
-            const playback = new Uint8Array(await header.slice(76, 77).arrayBuffer())[0]
-            $('td', playbackRow).innerText = SAMPLE_PLAYBACK[playback]
-            ptiDataTable.appendChild(playbackRow)
+                        return (
+                            sampleLengthInMs < 800 ?
+                                `${Math.floor(sampleLengthInMs)} ms` :
+                                `${Math.floor(sampleLengthInMs / 10) / 100} s`
+                        )
+                    }
+                )
+            )
+
+            ptiDataTable.appendChild(
+                await _createRow(
+                    'Playback',
+                    SAMPLE_PLAYBACK[
+                        new Uint8Array(
+                            await header.slice(76, 77).arrayBuffer()
+                        )[0]
+                    ]
+                )
+            )
 
             // Show the table
             ptiFileDataSection.appendChild(ptiDataTable)
         }
     }
 
+    async function _createRow(label, valuePromiseOrFunction) {
+        const row = ROW_TEMPLATE.cloneNode(true)
+        $('th', row).innerText = `${label}:`
+        $('td', row).innerText = await (valuePromiseOrFunction.call?.() ?? valuePromiseOrFunction)
+        return row
+    }
+
     async function getSampleDataRow(file) {
-        // Clone the template of a row with a canvas element and buttons to play/stop the audio
-        const audioPreviewRow = $('#audio-preview-row').content.cloneNode(true)
+        const row = $('#audio-preview-row').content.cloneNode(true)
 
         // Create audio context, used later to preview audio
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
@@ -232,7 +255,7 @@ button.ui {
         // Copy pti audio to 1st audio context buffer channel (mono audio)
         // Piggy back on this loop to draw the waveform
         // Create a canvas to draw a waveform on
-        const canvas = $('canvas.waveform', audioPreviewRow)
+        const canvas = $('canvas.waveform', row)
         const canvasCtx = canvas.getContext('2d')
         canvas.width  = $('.container').offsetWidth * .6
         const yScale = canvas.height / 2
@@ -253,7 +276,7 @@ button.ui {
         }
         canvasCtx.stroke()
 
-        $('button.start', audioPreviewRow).addEventListener('click', () => {
+        $('button.start', row).addEventListener('click', () => {
             audioCtxSource?.stop(0)
             audioCtxSource = audioCtx.createBufferSource()
             audioCtxSource.buffer = audioCtxBuffer
@@ -261,9 +284,9 @@ button.ui {
             audioCtxSource.start(0)
         })
 
-        $('button.stop', audioPreviewRow).addEventListener('click', () => audioCtxSource?.stop(0))
+        $('button.stop', row).addEventListener('click', () => audioCtxSource?.stop(0))
 
-        return audioPreviewRow
+        return row
     }
 
     function clearPtiFileDataSection() {
