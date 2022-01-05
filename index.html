@@ -57,15 +57,22 @@
     }
 
     button.ui {
-        width: 40px;
-        height: 40px;
-        border: 1px solid #cfcfcf;
-        border-radius: 25px;
-        padding: 0;
+        background: linear-gradient(to top,#3b3b43,#1b191a);
+        color: white;
+        font-size: 3mm;
+        display: inline-flex;
+        align-items: flex-end;
+        width: 1.50cm;
+        height: 1.50cm;
+        border: 1mm outset #3b3b43;
+        border-radius: 1mm;
+        padding: 1mm;
+        text-align: left;
         cursor: pointer;
     }
 
     button.ui:focus {
+        border-style: inset;
         outline: 2px solid #cfcfcf;
     }
     </style>
@@ -90,7 +97,7 @@
         <th>Sample:</th>
         <td>
             <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
-            <button type="button" class="ui start" title="Play">▶</button>&nbsp;<button type="button" class="ui stop" title="Stop">■</button>
+            <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
         </td>
     </tr>
 </template>
