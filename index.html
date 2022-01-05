@@ -157,12 +157,12 @@ button.ui {
         7: 'Granular',
     }
 
-    async function validateHeader(header) {
-        if (header.size !== 392) {
+    function validateHeader(header) {
+        if (header.byteLength !== 392) {
             return [false, 'Wrong size']
         }
 
-        const magic = new Uint8Array(await header.slice(0, 20).arrayBuffer())
+        const magic = new Uint8Array(header.slice(0, 20))
 
         for (let i = 0; i < 20; i++) {
             if (!(KNOWN_MAGIC[i].includes?.(magic[i]) ?? KNOWN_MAGIC[i] == magic[i])) {
@@ -177,9 +177,9 @@ button.ui {
         clearPtiFileDataSection()
 
         // Read the header
-        const header = await file.slice(0, 392)
+        const header = await file.slice(0, 392).arrayBuffer()
 
-        const [validHeader, headerValidationMessage] = await validateHeader(header)
+        const [validHeader, headerValidationMessage] = validateHeader(header)
         if (!validHeader) {
             ptiFileDataSection.innerHTML = `<p>
                 This file does not appear to be a valid .pti file!
@@ -195,15 +195,17 @@ button.ui {
             const dataRowTemplate = $('#data-row').content
 
             ptiDataTable.appendChild(
-                await _createRow('Name', header.slice(21, 52).text())
+                _createRow('Name', new TextDecoder('ascii').decode(
+                    new Uint8Array(header.slice(21, 52))
+                ))
             )
 
             ptiDataTable.appendChild(
-                await _createRow(
+                _createRow(
                     'Sample length',
-                    async () => {
+                    () => {
                         const sampleLengthInMs = new Int32Array(
-                            await header.slice(60, 64).arrayBuffer()
+                            header.slice(60, 64)
                         )[0] / 44.1
 
                         return (
@@ -216,12 +218,10 @@ button.ui {
             )
 
             ptiDataTable.appendChild(
-                await _createRow(
+                _createRow(
                     'Playback',
                     SAMPLE_PLAYBACK[
-                        new Uint8Array(
-                            await header.slice(76, 77).arrayBuffer()
-                        )[0]
+                        new Uint8Array(header.slice(76, 77))[0]
                     ]
                 )
             )
@@ -231,10 +231,10 @@ button.ui {
         }
     }
 
-    async function _createRow(label, valuePromiseOrFunction) {
+    function _createRow(label, valueOrFunction) {
         const row = ROW_TEMPLATE.cloneNode(true)
         $('th', row).innerText = `${label}:`
-        $('td', row).innerText = await (valuePromiseOrFunction.call?.() ?? valuePromiseOrFunction)
+        $('td', row).innerText = valueOrFunction.call?.() ?? valueOrFunction
         return row
     }
 
