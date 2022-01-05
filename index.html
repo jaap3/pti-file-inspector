@@ -252,22 +252,37 @@
             const ptiDataTable = document.createElement('table')
             const addRow = (label, value) => ptiDataTable.appendChild(_createRow(label, value))
 
-            const [sampleRow, playSample] = await getSampleDataRow(file)
+            const samplePlayback = SAMPLE_PLAYBACK[
+                new Uint8Array(header.slice(76, 77))[0]
+            ]
+
+            const sampleLengthInMs = new Int32Array(
+                header.slice(60, 64)
+            )[0] / 44.1
+
+            const relOffset = (offset) => offset / 65535
+            const absOffset = (offset) => offset * sampleLengthInMs
+            const convertOffset = (offset) => absOffset(relOffset(offset))
+
+            let numSlices = 0
+            let slices = []
+            const isSliced = ['Slice', 'Beat slice'].includes(samplePlayback)
+
+            if (isSliced) {
+                numSlices = new Uint8Array(header.slice(376, 377))[0]
+                slices = Array.from(
+                    new Uint16Array(header.slice(280, 376)).slice(0, numSlices)
+                ).map(relOffset)
+            }
+
+            const [sampleRow, playSample] = await getSampleDataRow(file, slices)
             ptiDataTable.appendChild(sampleRow)
 
             addRow('Name', new TextDecoder('ascii').decode(
                 new Uint8Array(header.slice(21, 52))
             ))
 
-            const sampleLengthInMs = new Int32Array(
-                header.slice(60, 64)
-            )[0] / 44.1
-
             addRow('Sample length', _displayMs(sampleLengthInMs))
-
-            const samplePlayback = SAMPLE_PLAYBACK[
-                new Uint8Array(header.slice(76, 77))[0]
-            ]
 
             const isWavetable = (
                 new Uint8Array(header.slice(20, 21))[0] === 1 && samplePlayback === 'Wavetable'
@@ -275,7 +290,6 @@
 
             addRow('Playback', samplePlayback)
 
-            const convertOffset = (offset) => offset / 65535 * sampleLengthInMs
             const displayOffset = (offset) => _displayMs(convertOffset(offset))
 
             if (['1-Shot', 'Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
@@ -290,7 +304,7 @@
                 addRow('Playback end', displayOffset(new Uint16Array(header.slice(84, 86))[0]))
             }
 
-            else if (['Slice', 'Beat slice'].includes(samplePlayback)) {
+            else if (isSliced) {
                 const BUTTON_TEMPLATE = document.createElement('button')
                 BUTTON_TEMPLATE.setAttribute('type', 'button')
                 BUTTON_TEMPLATE.className = 'keypad'
@@ -298,17 +312,14 @@
                 const slicesRow = ROW_TEMPLATE.cloneNode(true)
                 $('th', slicesRow).innerText = 'Slices'
 
-                const numSlices = new Uint8Array(header.slice(376, 377))[0]
-                const slices = Array.from(
-                    new Uint16Array(header.slice(280, 376)).slice(0, numSlices)
-                ).map(convertOffset)
-
                 const slicesCell = $('td', slicesRow)
-                slices.forEach((sliceStart, idx) => {
+                slices.map(absOffset).forEach((sliceStart, idx) => {
                     const sliceButton = BUTTON_TEMPLATE.cloneNode(true)
-                    const sliceEnd = slices[idx + 1]
+                    const sliceEnd = absOffset(slices[idx + 1])
                     sliceButton.setAttribute('title', `Slice ${idx + 1}`)
-                    sliceButton.addEventListener('click', () => playSample(sliceStart, sliceEnd ? sliceEnd - sliceStart : 0))
+                    sliceButton.addEventListener('click', () => playSample(
+                        sliceStart, sliceEnd ? sliceEnd - sliceStart : 0)
+                    )
                     slicesCell.appendChild(sliceButton)
                 })
                 ptiDataTable.appendChild(slicesRow)
@@ -346,7 +357,7 @@
         return row
     }
 
-    async function getSampleDataRow(file) {
+    async function getSampleDataRow(file, slices) {
         const row = $('#audio-preview-row').content.cloneNode(true)
 
         // Create audio context, used later to preview audio
@@ -366,8 +377,9 @@
         const canvas = $('canvas.waveform', row)
         const canvasCtx = canvas.getContext('2d')
         canvas.width  = $('.container').offsetWidth * .6
+        const xScale = canvas.width
         const yScale = canvas.height / 2
-        canvasCtx.fillStyle = '#323232'
+        canvasCtx.fillStyle = '#0A0A0A'
         canvasCtx.strokeStyle = 'white'
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height)
         canvasCtx.translate(0, yScale)
@@ -377,12 +389,20 @@
         for (let i = 0; i < bufferLength; i++) {
             audioCtxBufferChannel[i] = ptiAudioBuffer[i] / 32767
             if(i === 0) {
-                canvasCtx.lineTo(0, -audioCtxBufferChannel[i] * yScale)
+                canvasCtx.moveTo(0, -audioCtxBufferChannel[i] * yScale)
             } else {
-            canvasCtx.lineTo(i / bufferLength * canvas.width, -audioCtxBufferChannel[i] * yScale)
+                canvasCtx.lineTo(i / bufferLength * xScale, -audioCtxBufferChannel[i] * yScale)
             }
         }
         canvasCtx.stroke()
+
+        slices.forEach((slice) => {
+            canvasCtx.beginPath()
+            canvasCtx.strokeStyle = '#65491f'
+            canvasCtx.moveTo(slice * xScale, -yScale)
+            canvasCtx.lineTo(slice * xScale, yScale)
+            canvasCtx.stroke()
+        })
 
         const playSample = (offset=0, duration) => {
             audioCtxSource?.stop(0)
