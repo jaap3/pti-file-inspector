@@ -245,12 +245,7 @@
                 header.slice(60, 64)
             )[0] / 44.1
 
-            addRow(
-                'Sample length',
-                sampleLengthInMs < 800 ?
-                    `${Math.floor(sampleLengthInMs)} ms` :
-                    `${Math.floor(sampleLengthInMs / 10) / 100} s`
-            )
+            addRow('Sample length', _displayMs(sampleLengthInMs))
 
             const samplePlayback = SAMPLE_PLAYBACK[
                 new Uint8Array(header.slice(76, 77))[0]
@@ -260,21 +255,20 @@
                 new Uint8Array(header.slice(20, 21))[0] === 1 && samplePlayback === 'Wavetable'
             )
 
-            addRow(
-                'Playback',
-                samplePlayback
-            )
+            addRow('Playback', samplePlayback)
+
+            const displayOffset = (offset) => _displayMs(offset / 65535 * sampleLengthInMs)
 
             if (['1-Shot', 'Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
-                addRow('Playback start', new Uint16Array(header.slice(78, 80))[0])  // TODO: convert
+                addRow('Playback start', displayOffset(new Uint16Array(header.slice(78, 80))[0]))
 
                 if (['Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
-                    addRow('Loop start', new Uint16Array(header.slice(80, 82))[0])  // TODO: convert
+                    addRow('Loop start', displayOffset(new Uint16Array(header.slice(80, 82))[0] - 1))
 
-                    addRow('Loop end', new Uint16Array(header.slice(82, 84))[0])  // TODO: convert
+                    addRow('Loop end', displayOffset(new Uint16Array(header.slice(82, 84))[0] + 1))
                 }
 
-                addRow('Playback end', new Uint16Array(header.slice(84, 86))[0])  // TODO: convert
+                addRow('Playback end', displayOffset(new Uint16Array(header.slice(84, 86))[0]))
             }
 
             else if (['Slice', 'Beat slice'].includes(samplePlayback)) {
@@ -289,8 +283,8 @@
             }
 
             else if (samplePlayback === 'Granular') {
-                addRow('Length', new Uint16Array(header.slice(378, 380))[0])  // TODO: convert
-                addRow('Position', new Uint16Array(header.slice(380, 382))[0])  // TODO: convert
+                addRow('Length', _displayMs(new Uint16Array(header.slice(378, 380))[0] / 44.1))
+                addRow('Position', displayOffset(new Uint16Array(header.slice(380, 382))[0]))
                 addRow('Shape', GRANULAR_SHAPE[new Uint8Array(header.slice(382, 383))[0]])
                 addRow('Loop mode', GRANULAR_LOOP_MODE[new Uint8Array(header.slice(383, 384))[0]])
             }
@@ -298,6 +292,12 @@
             // Show the table
             ptiFileDataSection.appendChild(ptiDataTable)
         }
+    }
+
+    function _displayMs(ms) {
+        return ms < 800 ?
+            `${Math.round(ms * 10) / 10} ms` :
+            `${Math.round(ms) / 1000} s`
     }
 
     function _createRow(label, value) {
