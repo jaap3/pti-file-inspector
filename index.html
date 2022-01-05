@@ -88,6 +88,23 @@
         border-style: inset;
         outline: 1px solid #651F1F;
     }
+
+    button.keypad {
+        background: radial-gradient(#e2e4cc, #9e9e92);
+        width: 0.7cm;
+        height: 0.7cm;
+        margin-right: 2.5mm;
+        margin-bottom: 2.5mm;
+        border: 1px outset #3b3b43;
+        padding: 0;
+    }
+
+
+    button.keypad:focus {
+        background: radial-gradient(#fcfdee, #e7e7d3);
+        border-style: inset;
+        outline: 1px solid #651F1F;
+    }
     </style>
 </head>
 <body>
@@ -235,7 +252,8 @@
             const ptiDataTable = document.createElement('table')
             const addRow = (label, value) => ptiDataTable.appendChild(_createRow(label, value))
 
-            ptiDataTable.appendChild(await getSampleDataRow(file))
+            const [sampleRow, playSample] = await getSampleDataRow(file)
+            ptiDataTable.appendChild(sampleRow)
 
             addRow('Name', new TextDecoder('ascii').decode(
                 new Uint8Array(header.slice(21, 52))
@@ -257,7 +275,8 @@
 
             addRow('Playback', samplePlayback)
 
-            const displayOffset = (offset) => _displayMs(offset / 65535 * sampleLengthInMs)
+            const convertOffset = (offset) => offset / 65535 * sampleLengthInMs
+            const displayOffset = (offset) => _displayMs(convertOffset(offset))
 
             if (['1-Shot', 'Forward loop', 'Backward loop', 'PingPong loop'].includes(samplePlayback)) {
                 addRow('Playback start', displayOffset(new Uint16Array(header.slice(78, 80))[0]))
@@ -272,7 +291,27 @@
             }
 
             else if (['Slice', 'Beat slice'].includes(samplePlayback)) {
-                addRow('Number of slices', new Uint8Array(header.slice(376, 377))[0])
+                const BUTTON_TEMPLATE = document.createElement('button')
+                BUTTON_TEMPLATE.setAttribute('type', 'button')
+                BUTTON_TEMPLATE.className = 'keypad'
+
+                const slicesRow = ROW_TEMPLATE.cloneNode(true)
+                $('th', slicesRow).innerText = 'Slices'
+
+                const numSlices = new Uint8Array(header.slice(376, 377))[0]
+                const slices = Array.from(
+                    new Uint16Array(header.slice(280, 376)).slice(0, numSlices)
+                ).map(convertOffset)
+
+                const slicesCell = $('td', slicesRow)
+                slices.forEach((sliceStart, idx) => {
+                    const sliceButton = BUTTON_TEMPLATE.cloneNode(true)
+                    const sliceEnd = slices[idx + 1]
+                    sliceButton.setAttribute('title', `Slice ${idx + 1}`)
+                    sliceButton.addEventListener('click', () => playSample(sliceStart, sliceEnd ? sliceEnd - sliceStart : 0))
+                    slicesCell.appendChild(sliceButton)
+                })
+                ptiDataTable.appendChild(slicesRow)
             }
 
             else if (isWavetable) {
@@ -345,17 +384,19 @@
         }
         canvasCtx.stroke()
 
-        $('button.start', row).addEventListener('click', () => {
+        const playSample = (offset=0, duration) => {
             audioCtxSource?.stop(0)
             audioCtxSource = audioCtx.createBufferSource()
             audioCtxSource.buffer = audioCtxBuffer
             audioCtxSource.connect(audioCtx.destination)
-            audioCtxSource.start(0)
-        })
+            audioCtxSource.start(0, offset / 1000, duration ? duration / 1000 : undefined)
+        }
+
+        $('button.start', row).addEventListener('click',() => playSample())
 
         $('button.stop', row).addEventListener('click', () => audioCtxSource?.stop(0))
 
-        return row
+        return [row, playSample]
     }
 
     function clearPtiFileDataSection() {
