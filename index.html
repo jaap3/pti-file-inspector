@@ -415,8 +415,12 @@
                 addRow('Loop mode', GRANULAR_LOOP_MODE[new Uint8Array(header.slice(383, 384))[0]])
             }
 
-            addRow('Volume', new Uint8Array(header.slice(272, 273))[0])
-            addRow('Panning', new Uint8Array(header.slice(276, 277))[0])
+            const converVolume = (value) => {
+                return Math.round(((value * 12 / 25) - 24) * 100) / 100
+            }
+
+            addRow('Volume', `${converVolume(new Uint8Array(header.slice(272, 273))[0])} dB`)
+            addRow('Panning', new Uint8Array(header.slice(276, 277))[0] - 50)
             addRow('Tune', new Int8Array(header.slice(270, 271))[0])
             addRow('Finetune', new Int8Array(header.slice(271, 272))[0])
 
@@ -429,10 +433,16 @@
                 addRow('Resonance', Math.round(new Float32Array(header.slice(264, 268))[0] / 4.3 * 100))
             }
 
+            const convertSend = (value) => {
+                const level = Math.round((-40 + value * 2 / 5) * 100) / 100
+                if (level === -40) return -Infinity
+                return level
+            }
+
             addRow('Overdrive', new Uint8Array(header.slice(385, 386))[0])
             addRow('Bit depth', new Uint8Array(header.slice(386, 387))[0])
-            addRow('Delay send', new Uint8Array(header.slice(278, 279))[0])
-            addRow('Reverb send', new Uint8Array(header.slice(384, 385))[0])
+            addRow('Reverb send', `${convertSend(new Uint8Array(header.slice(384, 385))[0])} dB`)
+            addRow('Delay send', `${convertSend(new Uint8Array(header.slice(278, 279))[0])} dB`)
 
             // Show the table
             ptiFileDataSection.appendChild(ptiDataTable)
