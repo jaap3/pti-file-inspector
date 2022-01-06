@@ -5,150 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0A0A0A">
     <title>.pti file inspector</title>
-    <link href="https://unpkg.com/sanitize.css" rel="stylesheet">
-    <link href="https://unpkg.com/sanitize.css/forms.css" rel="stylesheet">
-    <link href="https://unpkg.com/sanitize.css/assets.css" rel="stylesheet">
-    <link href="https://unpkg.com/sanitize.css/typography.css" rel="stylesheet">
-    <style>
-    body {
-        background: #121212;
-        color: #fff;
-        font-weight: lighter;
-    }
-
-    .container {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 0 25px;
-    }
-
-    #pti-file-input {
-        position: absolute;
-        overflow: hidden;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-    }
-
-    label[for=pti-file-input] {
-        display: block;
-        position: relative;
-        width: 100%;
-        margin: 25px 0;
-        outline: 1px dashed #cfcfcf;
-        background: #0A0A0A;
-        border-radius: 25px;
-        padding: 25px;
-        text-align: center;
-    }
-    label[for=pti-file-input]:focus,
-    label[for=pti-file-input]:focus-within {
-        outline: 1px solid #651F1F;
-    }
-
-    .preview {
-        margin: 25px 0 5px;
-        text-align: right;
-    }
-
-    table {
-        width: 100%;
-    }
-    th, td {
-        text-align: left;
-        vertical-align: bottom;
-        padding: 6px 0;
-        border-bottom: 1px solid #323232;
-    }
-    th {
-        color: #777;
-        font-weight: normal;
-        vertical-align: top;
-        padding-right: 12.5px;
-        width: 8em;
-    }
-
-    canvas.waveform {
-        display: block;
-        margin-bottom: 12.5px;
-        height: 100px;
-        width: 100%;
-        border: 1px solid #0A0A0A;
-    }
-
-    button.ui {
-        background: linear-gradient(to top,#3b3b43,#1b191a);
-        color: white;
-        font-size: 3mm;
-        display: inline-flex;
-        align-items: flex-end;
-        width: 1.50cm;
-        height: 1.50cm;
-        border: 1mm outset #3b3b43;
-        border-radius: 1mm;
-        padding: 1mm;
-        text-align: left;
-        cursor: pointer;
-    }
-
-    button.ui:focus {
-        border-style: inset;
-        outline: 1px solid #651F1F;
-    }
-
-    button.keypad {
-        background: radial-gradient(#e2e4cc, #9e9e92);
-        width: 0.7cm;
-        height: 0.7cm;
-        margin-right: 2.5mm;
-        margin-bottom: 2.5mm;
-        border: 1px outset #3b3b43;
-        padding: 0;
-    }
-
-
-    button.keypad:focus {
-        background: radial-gradient(#fcfdee, #e7e7d3);
-        border-style: inset;
-        outline: 1px solid #651F1F;
-    }
-    </style>
+    <link href="./css/sanitize.css" rel="stylesheet">
+    <link href="./css/style.css" rel="stylesheet">
 </head>
 <body>
 <main class="container">
-    <section>
-        <label for="pti-file-input">
-            <span class="empty">Choose/Drop .pti file</span>
-            <span class="fname" hidden></span>
-            <input id="pti-file-input" type="file">
-        </label>
-    </section>
+  <section>
+    <label for="pti-file-input">
+      <span class="empty">Choose/Drop .pti file</span>
+      <span class="fname" hidden></span>
+      <input id="pti-file-input" type="file">
+    </label>
+  </section>
 
-    <section class="pti-file-data">
+  <section class="pti-file-data">
 
-    </section>
+  </section>
 </main>
 
 <template id="audio-preview-row">
-    <section class="preview">
-        <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
-        <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
-    </section>
+  <section class="preview">
+    <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
+    <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
+  </section>
 </template>
 
 <template id="data-row">
-    <tr>
-        <th></th>
-        <td></td>
-    </tr>
+  <tr>
+    <th></th>
+    <td></td>
+  </tr>
 </template>
 
 
 <script>
-(() => {
+  (() => {
     const $ = (sel, el = document) => el.querySelector(sel)
 
     const ROW_TEMPLATE = $('#data-row').content
