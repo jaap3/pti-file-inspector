@@ -228,6 +228,12 @@
         2: 'PingPong'
     }
 
+    const FILTER_TYPE = {
+        0: 'Low-pass',
+        1: 'High-pass',
+        2: 'Band-pass'
+    }
+
     function validateHeader(header) {
         if (header.byteLength !== 392) {
             return [false, 'Wrong size']
@@ -412,6 +418,16 @@
             addRow('Panning', new Uint8Array(header.slice(276, 277))[0])
             addRow('Tune', new Int8Array(header.slice(270, 271))[0])
             addRow('Finetune', new Int8Array(header.slice(271, 272))[0])
+
+            const filterType = new Uint8Array(header.slice(268, 270))
+            if (filterType[1] === 0) {
+                addRow('Filter', 'Disabled')
+            } else if (filterType[1] === 1) {
+                addRow('Filter', FILTER_TYPE[filterType[0]])
+                addRow('Cutoff', Math.round(new Float32Array(header.slice(260, 264))[0] * 100))
+                addRow('Resonance', Math.round(new Float32Array(header.slice(264, 268))[0] / 4.3 * 100))
+            }
+
             addRow('Overdrive', new Uint8Array(header.slice(385, 386))[0])
             addRow('Bit depth', new Uint8Array(header.slice(386, 387))[0])
             addRow('Delay send', new Uint8Array(header.slice(278, 279))[0])
