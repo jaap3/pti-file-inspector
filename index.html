@@ -51,6 +51,7 @@
 
     .preview {
         margin: 25px 0 5px;
+        text-align: right;
     }
 
     table {
@@ -67,7 +68,7 @@
         font-weight: normal;
         vertical-align: top;
         padding-right: 12.5px;
-        width: 12em;
+        width: 8em;
     }
 
     canvas.waveform {
@@ -329,7 +330,7 @@
                 new Uint8Array(header.slice(21, 52))
             ))
 
-            addRow('Sample length', _displayMs(sampleLengthInMs))
+            addRow('Length', _displayMs(sampleLengthInMs))
 
             const isWavetable = (
                 new Uint8Array(header.slice(20, 21))[0] === 1 && samplePlayback === 'Wavetable'
@@ -340,7 +341,7 @@
             const displayOffset = (offset) => _displayMs(convertOffset(offset))
 
             if (isOneShot || isLoop) {
-                addRow('Playback start', displayOffset(playbackStart))
+                addRow('Start', displayOffset(playbackStart))
 
                 if (isLoop) {
                     // Web Audio API seems to only allow forwards loops.
@@ -354,7 +355,7 @@
                     addRow('Loop end', displayOffset(loopEnd))
                 }
 
-                addRow('Playback end', displayOffset(playBackEnd))
+                addRow('End', displayOffset(playBackEnd))
 
                 const auditionRow = ROW_TEMPLATE.cloneNode(true)
                 $('th', auditionRow).innerText = 'Audition'
