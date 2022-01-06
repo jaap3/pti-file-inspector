@@ -23,6 +23,10 @@ body {
   cursor: pointer;
 }
 
+#pti-file-input[disabled] {
+  cursor: not-allowed;
+}
+
 label[for="pti-file-input"] {
   display: block;
   position: relative;

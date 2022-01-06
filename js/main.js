@@ -8,13 +8,14 @@
   BUTTON_TEMPLATE.className = 'keypad'
 
   const ptiFileInput = $('#pti-file-input')
+  ptiFileInput.addEventListener('change', fileSelected)
+  ptiFileInput.removeAttribute('disabled')
+
   const ptiFileInputLabel = ptiFileInput.parentNode
   const emptyLabel = $('.empty', ptiFileInputLabel)
   const fnameLabel = $('.fname', ptiFileInputLabel)
 
   const ptiFileDataSection = $('.pti-file-data')
-
-  ptiFileInput.addEventListener('change', fileSelected)
 
   async function fileSelected() {
     if (ptiFileInput.files.length) {
