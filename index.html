@@ -408,6 +408,15 @@
                 addRow('Loop mode', GRANULAR_LOOP_MODE[new Uint8Array(header.slice(383, 384))[0]])
             }
 
+            addRow('Volume', new Uint8Array(header.slice(272, 273))[0])
+            addRow('Panning', new Uint8Array(header.slice(276, 277))[0])
+            addRow('Tune', new Int8Array(header.slice(270, 271))[0])
+            addRow('Finetune', new Int8Array(header.slice(271, 272))[0])
+            addRow('Overdrive', new Uint8Array(header.slice(385, 386))[0])
+            addRow('Bit depth', new Uint8Array(header.slice(386, 387))[0])
+            addRow('Delay send', new Uint8Array(header.slice(278, 279))[0])
+            addRow('Reverb send', new Uint8Array(header.slice(384, 385))[0])
+
             // Show the table
             ptiFileDataSection.appendChild(ptiDataTable)
         }
