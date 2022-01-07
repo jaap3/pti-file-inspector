@@ -57,7 +57,7 @@ const GRANULAR_SHAPE = {
  * @returns {number}
  */
 function convertVolume(value) {
-  const relative = value * 2 / 100
+  const relative = value / 50
   switch (relative) {
     case 0: return -Infinity
     case 0.02: return -24
@@ -72,9 +72,8 @@ function convertVolume(value) {
  * @returns {string}
  */
 function convertSend(value) {
-  const level = Math.round((-40 + value * 2 / 5) * 100) / 100
-  if (level === -40) return -Infinity
-  return level
+  if (value === 0) return -Infinity
+  return -40 + 2 * value / 5
 }
 
 /**
