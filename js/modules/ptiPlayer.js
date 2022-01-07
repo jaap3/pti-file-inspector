@@ -39,6 +39,7 @@ export function load(ctx, buffer, headerData) {
     source.start(0)
   }
 
+  const detune = headerData.tune * 100 + headerData.finetune
   const oneShot = isOneShot(headerData.samplePlayback)
   const loop = isLoop(headerData.samplePlayback)
   const startOffset = oneShot || loop ? absOffset(headerData.playbackStart) : undefined
@@ -48,6 +49,7 @@ export function load(ctx, buffer, headerData) {
   const slices = Array.from(headerData.slices).map(absOffset)
 
   const instrumentOptions = {
+    detune,
     loop,
     loopEnd,
     loopStart
