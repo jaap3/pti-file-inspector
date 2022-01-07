@@ -101,9 +101,10 @@ export const InstrumentDataTable = {
    * @param {HTMLElement} parent
    * @param {Object} options
    * @param {ptiTools.HeaderParseResult} options.headerData
+   * @param {ArrayBuffer} audio
    * @returns
    */
-  mount(parent, { headerData }) {
+  mount(parent, { headerData, audio }) {
     const table = getTemplate(parent).cloneNode(true)
     const rowTemplate = table.querySelector('tr')
     rowTemplate.remove()  // Detach this template from the cloned table
@@ -119,17 +120,22 @@ export const InstrumentDataTable = {
 
     const addRow = (label, value) => table.tBodies[0].appendChild(createRow(label, value))
 
-    const sampleLengthInMs = headerData.sampleLength / 44.1
+    const sampleLengthInMs = audio.byteLength / 2 / 44.1
+    const headerLengthInMs = headerData.sampleLength / 44.1
     const displayOffset = (offset) => displayMilliseconds(relOffset(offset) * sampleLengthInMs)
 
     const samplePlayback = headerData.samplePlayback
 
     addRow('Name', headerData.name)
-    addRow('Length', displayMilliseconds(sampleLengthInMs))
+    addRow('Length',
+      displayMilliseconds(sampleLengthInMs) +
+      (headerLengthInMs != sampleLengthInMs ?
+        ` (header says: ${displayMilliseconds(headerLengthInMs)})` : '')
+    )
     addRow('Playback', SAMPLE_PLAYBACK[samplePlayback])
 
     if (isOneShot(samplePlayback) || isLoop(samplePlayback)) {
-      addRow('Start', headerData.playbackStart)
+      addRow('Start', displayOffset(headerData.playbackStart))
 
       if (isLoop(samplePlayback)) {
         addRow('Loop start', displayOffset(headerData.loopStart))

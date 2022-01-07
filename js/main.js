@@ -49,6 +49,7 @@ async function fileSelected(file) {
   }))
   mounted.push(InstrumentDataTable.mount(dataSection, {
     headerData,
+    audio
   }))
 }
 
