@@ -85,7 +85,8 @@ export function load(ctx, buffer, headerData) {
     instrumentAudioBuffer = audioBuffer
   }
 
-  console.log(loopStart, loopEnd)
+  const gain = new GainNode(ctx, { gain: headerData.volume * 2 / 100 })
+  gain.connect(ctx.destination)
 
   const instrumentOptions = {
     detune,
@@ -100,7 +101,7 @@ export function load(ctx, buffer, headerData) {
       ...instrumentOptions,
       buffer: instrumentAudioBuffer,
     })
-    source.connect(ctx.destination)
+    source.connect(gain)
     source.start(0, offset, duration)
   }
 
