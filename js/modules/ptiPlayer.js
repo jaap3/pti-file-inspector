@@ -85,8 +85,11 @@ export function load(ctx, buffer, headerData) {
     instrumentAudioBuffer = audioBuffer
   }
 
-  const gain = new GainNode(ctx, { gain: headerData.volume * 2 / 100 })
-  gain.connect(ctx.destination)
+  const gain = new GainNode(ctx, { gain: headerData.volume / 50 })
+  const pan = new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 })
+
+  gain.connect(pan)
+  pan.connect(ctx.destination)
 
   const instrumentOptions = {
     detune,
