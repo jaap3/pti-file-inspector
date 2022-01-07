@@ -52,37 +52,38 @@ export function load(ctx, buffer, headerData) {
   let loopEnd = loop ? absOffset(headerData.loopEnd) : undefined
 
   let instrumentAudioBuffer
-  if (
-    headerData.samplePlayback === SamplePlayback.BACKWARD_LOOP ||
-    headerData.samplePlayback === SamplePlayback.PINGPONG_LOOP
-  ) {
-    // AudioBufferSourceNode does not support backward of ping-pong loops,
-    // so we'll have to improvise. First find the loop region...
-    const regionStart = Math.round(relOffset(headerData.loopStart) * bufferLength)
-    const regionEnd = Math.round(relOffset(headerData.loopEnd) * bufferLength)
+  switch (headerData.samplePlayback) {
+    case SamplePlayback.BACKWARD_LOOP:
+    case SamplePlayback.PINGPONG_LOOP:
+      // AudioBufferSourceNode does not support backward of ping-pong loops,
+      // so we'll have to improvise. First find the loop region...
+      const regionStart = Math.round(relOffset(headerData.loopStart) * bufferLength)
+      const regionEnd = Math.round(relOffset(headerData.loopEnd) * bufferLength)
 
-    // Get the audio data for the loop region and reverse it...
-    const loopRegion = buffer.slice(regionStart, regionEnd)
-    loopRegion.reverse()
+      // Get the audio data for the loop region and reverse it...
+      const loopRegion = buffer.slice(regionStart, regionEnd)
+      loopRegion.reverse()
 
-    // Insert the reversed loop region after the original region
-    const loopBuffer = new Float32Array(regionEnd + loopRegion.length)
-    loopBuffer.set(buffer.slice(0, regionEnd + 1))
-    loopBuffer.set(loopRegion, regionEnd)
+      // Insert the reversed loop region after the original region
+      const loopBuffer = new Float32Array(regionEnd + loopRegion.length)
+      loopBuffer.set(buffer.slice(0, regionEnd + 1))
+      loopBuffer.set(loopRegion, regionEnd)
 
-    instrumentAudioBuffer = ctx.createBuffer(1, loopBuffer.length, 44100)
-    instrumentAudioBuffer.copyToChannel(loopBuffer, 0)
+      instrumentAudioBuffer = ctx.createBuffer(1, loopBuffer.length, 44100)
+      instrumentAudioBuffer.copyToChannel(loopBuffer, 0)
 
-    if (headerData.samplePlayback === SamplePlayback.BACKWARD_LOOP) {
-      // Move the loop start to what used to be the loop's end,
-      // this is where the reversed region now is.
-      loopStart = loopEnd
-    }
+      if (headerData.samplePlayback === SamplePlayback.BACKWARD_LOOP) {
+        // Move the loop start to what used to be the loop's end,
+        // this is where the reversed region now is.
+        loopStart = loopEnd
+      }
 
-    // Move the loop point end to the end of the modified sample
-    loopEnd = loopBuffer.length / 44100
-  } else {
-    instrumentAudioBuffer = audioBuffer
+      // Move the loop point end to the end of the modified sample
+      loopEnd = loopBuffer.length / 44100
+      break
+
+    default:
+      instrumentAudioBuffer = audioBuffer
   }
 
   const gain = new GainNode(ctx, { gain: headerData.volume / 50 })
