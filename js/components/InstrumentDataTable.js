@@ -57,7 +57,12 @@ const GRANULAR_SHAPE = {
  * @returns {number}
  */
 function convertVolume(value) {
-  return ((value * 12 / 25) - 24)
+  const relative = value * 2 / 100
+  switch (relative) {
+    case 0: return -Infinity
+    case 0.02: return -24
+    default: return (relative - 1) * 24
+  }
 }
 
 /**
