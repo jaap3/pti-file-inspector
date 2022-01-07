@@ -7,7 +7,7 @@ body {
 .container {
   max-width: 960px;
   margin: 0 auto;
-  padding: 0 25px;
+  padding: 0 25px 25px;
 }
 
 /* File select */
@@ -43,23 +43,72 @@ label[for="pti-file-input"]:focus-within {
   outline: 1px solid #651f1f;
 }
 
-/* Sample preview */
-.preview {
-  margin: 25px 0 5px;
-  text-align: right;
+/* Instrument preview */
+
+#pti-file-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 25px 0;
 }
 
 canvas.waveform {
   display: block;
-  margin-bottom: 12.5px;
-  height: 100px;
+  margin-bottom: 25px;
+  height: 150px;
   width: 100%;
   border: 1px solid #0a0a0a;
+}
+
+.keypad {
+  flex: 1 1 1cm;
+}
+
+.keypad button {
+  background: radial-gradient(#e2e4cc, #9e9e92);
+  width: 0.7cm;
+  height: 0.7cm;
+  margin-right: 2.5mm;
+  margin-bottom: 2.5mm;
+  border: 1px outset #3b3b43;
+  padding: 0;
+}
+
+.keypad button:focus {
+  background: radial-gradient(#fcfdee, #e7e7d3);
+  border-style: inset;
+  outline: 1px solid #651f1f;
+}
+
+.controls {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.controls button {
+  background: linear-gradient(to top, #3b3b43, #1b191a);
+  color: white;
+  font-size: 3mm;
+  display: inline-flex;
+  align-items: flex-end;
+  margin-left: 2mm;
+  width: 1.5cm;
+  height: 1.5cm;
+  border: 1mm outset #3b3b43;
+  border-radius: 1mm;
+  padding: 1mm;
+  text-align: left;
+  cursor: pointer;
+}
+
+.controls button:focus {
+  border-style: inset;
+  outline: 1px solid #651f1f;
 }
 
 /* Header data */
 table {
   width: 100%;
+  margin-bottom: 25px;
 }
 th,
 td {
@@ -74,40 +123,4 @@ th {
   vertical-align: top;
   padding-right: 12.5px;
   width: 8em;
-}
-
-button.ui {
-  background: linear-gradient(to top, #3b3b43, #1b191a);
-  color: white;
-  font-size: 3mm;
-  display: inline-flex;
-  align-items: flex-end;
-  width: 1.5cm;
-  height: 1.5cm;
-  border: 1mm outset #3b3b43;
-  border-radius: 1mm;
-  padding: 1mm;
-  text-align: left;
-  cursor: pointer;
-}
-
-button.ui:focus {
-  border-style: inset;
-  outline: 1px solid #651f1f;
-}
-
-button.keypad {
-  background: radial-gradient(#e2e4cc, #9e9e92);
-  width: 0.7cm;
-  height: 0.7cm;
-  margin-right: 2.5mm;
-  margin-bottom: 2.5mm;
-  border: 1px outset #3b3b43;
-  padding: 0;
-}
-
-button.keypad:focus {
-  background: radial-gradient(#fcfdee, #e7e7d3);
-  border-style: inset;
-  outline: 1px solid #651f1f;
 }

@@ -7,7 +7,7 @@
   <title>.pti file inspector</title>
   <link href="./css/sanitize.css" rel="stylesheet">
   <link href="./css/style.css" rel="stylesheet">
-  <script src="js/main.js" type="module" defer></script>
+  <script src="js/main.js" type="module"></script>
 </head>
 <body>
   <main class="container">
@@ -19,21 +19,29 @@
       </label>
     </section>
 
-    <section class="pti-file-data"></section>
+    <section id="pti-file-preview"></section>
+    <section id="pti-file-data"></section>
   </main>
 
-  <template id="audio-preview-row">
-    <section class="preview">
-      <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
-      <button type="button" class="ui start">Play</button>&nbsp;<button type="button" class="ui stop">Stop</button>
-    </section>
+  <template id="template:instrument-preview">
+    <canvas class="waveform" height="100" width="300" title="Waveform"></canvas>
+      <div class="keypad">
+        <button type="button"></button>
+      </div>
+      <div class="controls">
+        <button type="button" class="start" title="Play sample">Play</button>
+        <button type="button" class="stop" title="Stop all playback">Stop</button>
+      </div>
+    </div>
   </template>
 
-  <template id="data-row">
-    <tr>
-      <th></th>
-      <td></td>
-    </tr>
+  <template id="template:instrument-data-table">
+    <table>
+      <tr>
+        <th></th>
+        <td></td>
+      </tr>
+    </table>
   </template>
 </body>
 </html>

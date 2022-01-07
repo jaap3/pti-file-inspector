@@ -1,4 +1,17 @@
-export function drawWaveform(canvas, buffer, markers, region, slices) {
+/**
+ * Draw instrument waveform, markers, loop region, slices etc.
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {Float32Array} buffer
+ * @param {Object} markers
+ * @param {number} markers.start
+ * @param {number} markers.end
+ * @param {Object} region
+ * @param {number} region.start
+ * @param {number} region.end
+ * @param {Array[Number]} slices
+ */
+export function drawInstrument(canvas, buffer, markers, region, slices) {
   const ctx = canvas.getContext('2d', {
     alpha: false,
     desynchronized: true
@@ -11,24 +24,29 @@ export function drawWaveform(canvas, buffer, markers, region, slices) {
   ctx.fillRect(0, 0, width, height)
 
   if (region) {
-    _drawRegion(ctx, region.start * width, region.end * width, height)
+    drawRegion(ctx, region.start * width, region.end * width, height)
   }
 
-  _drawWaveform(ctx, buffer, width, height)
+  drawWaveform(ctx, buffer, width, height)
 
   if (markers) {
-    _drawMarkers(ctx, markers.start * width, markers.end * width, height)
+    drawMarkers(ctx, markers.start * width, markers.end * width, height)
   }
 
   if (slices) {
-    _drawSlices(ctx, slices, width, height)
+    drawSlices(ctx, slices, width, height)
   }
 }
 
 /**
- * Draw loop region and loop start/end markers
+ * Draw loop region and loop start/end markers.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} regionStart
+ * @param {number} regionEnd
+ * @param {number} height
  */
-function _drawRegion(ctx, regionStart, regionEnd, height) {
+function drawRegion(ctx, regionStart, regionEnd, height) {
   ctx.fillStyle = '#323232'
   ctx.strokeStyle = 'white'
   ctx.lineWidth = 2
@@ -36,20 +54,25 @@ function _drawRegion(ctx, regionStart, regionEnd, height) {
   ctx.fillRect(regionStart, 0, regionEnd - regionStart, height)
 
   ctx.beginPath()
-  ;[regionStart, regionEnd].forEach((marker, idx) => {
-    ctx.moveTo(marker, 0)
-    ctx.lineTo(marker, height)  // line
-    // right/left pointing triangle (at the bottom)
-    ctx.lineTo(marker + (idx ? -3 : 3), height - 3)
-    ctx.lineTo(marker, height - 6)
-  })
+    ;[regionStart, regionEnd].forEach((marker, idx) => {
+      ctx.moveTo(marker, 0)
+      ctx.lineTo(marker, height)  // line
+      // right/left pointing triangle (at the bottom)
+      ctx.lineTo(marker + (idx ? -3 : 3), height - 3)
+      ctx.lineTo(marker, height - 6)
+    })
   ctx.stroke()
 }
 
 /**
- * Draw the sample waveform
+ * Draw the sample waveform.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Float32Array} buffer
+ * @param {Number} width
+ * @param {Number} height
  */
-function _drawWaveform(ctx, buffer, width, height) {
+function drawWaveform(ctx, buffer, width, height) {
   const yScale = -height / 2
   const bufferLength = buffer.length
 
@@ -58,11 +81,22 @@ function _drawWaveform(ctx, buffer, width, height) {
   ctx.lineWidth = 1
 
   ctx.beginPath()
-  for (let i = 0; i < bufferLength; i++) {
+  let x, y, prevY
+  let skipped = false
+  const samplesToDraw = Math.min(width * 100, bufferLength)
+  for (let i = 0; i <= samplesToDraw; i++) {
     if (i === 0) {
-      ctx.moveTo(0, buffer[i] * yScale)
+      ctx.moveTo(0, prevY = (buffer[0] * yScale).toFixed(3))
     } else {
-      ctx.lineTo(i / bufferLength * width, buffer[i] * yScale)
+      y = (buffer[Math.floor(i / samplesToDraw * bufferLength)] * yScale).toFixed(3)
+      if (y !== prevY) {
+        x = i / samplesToDraw * width
+        if (skipped) ctx.lineTo(x, prevY)
+        ctx.lineTo(x, prevY = y)
+        skipped = false
+      } else {
+        skipped = true
+      }
     }
   }
   ctx.stroke()
@@ -71,27 +105,37 @@ function _drawWaveform(ctx, buffer, width, height) {
 }
 
 /**
- * Draw playback start/end markers
+ * Draw playback start/end markers.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} start
+ * @param {number} end
+ * @param {number} height
  */
-function _drawMarkers(ctx, markStart, markEnd, height) {
+function drawMarkers(ctx, start, end, height) {
   ctx.strokeStyle = 'white'
   ctx.lineWidth = 2
 
   ctx.beginPath()
-  ;[markStart, markEnd].forEach((marker, idx) => {
-    ctx.moveTo(marker, height)
-    ctx.lineTo(marker, 0)  // line
-    // right/left pointing triangle (at the top)
-    ctx.lineTo(marker + (idx ? -3 : 3), 3)
-    ctx.lineTo(marker, 6)
-  })
+    ;[start, end].forEach((marker, idx) => {
+      ctx.moveTo(marker, height)
+      ctx.lineTo(marker, 0)  // line
+      // right/left pointing triangle (at the top)
+      ctx.lineTo(marker + (idx ? -3 : 3), 3)
+      ctx.lineTo(marker, 6)
+    })
   ctx.stroke()
 }
 
 /**
- * Draw slice markers
+ * Draw slice markers.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Array[Number]} slices
+ * @param {number} width
+ * @param {number} height
  */
-function _drawSlices(ctx, slices, width, height) {
+function drawSlices(ctx, slices, width, height) {
   ctx.strokeStyle = '#65491f'
   ctx.lineWidth = 1
 
