@@ -56,7 +56,7 @@ const GRANULAR_SHAPE = {
  * @param {number} value
  * @returns {number}
  */
-function convertVolume (value) {
+function convertVolume(value) {
   return ((value * 12 / 25) - 24)
 }
 
@@ -66,7 +66,7 @@ function convertVolume (value) {
  * @param {number} value
  * @returns {string}
  */
-function convertSend (value) {
+function convertSend(value) {
   const level = Math.round((-40 + value * 2 / 5) * 100) / 100
   if (level === -40) return -Infinity
   return level
@@ -78,7 +78,7 @@ function convertSend (value) {
  * @param {number} value
  * @returns {string}
  */
- export function displayMilliseconds(value) {
+export function displayMilliseconds(value) {
   return value < 800 ?
     `${value.toFixed(2)} ms` :
     `${(value / 1000).toFixed(2)} s`
@@ -90,7 +90,7 @@ function convertSend (value) {
  * @param {number} value
  * @returns {string}
  */
- export function displaydB(value) {
+export function displaydB(value) {
   return `${value.toFixed(2)} dB`
 }
 
