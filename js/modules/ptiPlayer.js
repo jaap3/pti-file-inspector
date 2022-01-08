@@ -124,11 +124,12 @@ export async function load(ctx, buffer, headerData) {
     loopEnd,
   }
 
-  function playInstrument(offset = startOffset, duration = endOffset ? endOffset - startOffset : undefined) {
+  function playInstrument({ offset = startOffset, duration = endOffset ? endOffset - startOffset : undefined, detune=0 }) {
     stop()
     source = new AudioBufferSourceNode(ctx, {
       ...instrumentOptions,
       buffer: instrumentAudioBuffer,
+      detune: instrumentOptions.detune + detune
     })
     source.connect(input)
     source.start(0, offset, duration)
@@ -137,7 +138,7 @@ export async function load(ctx, buffer, headerData) {
   function playSlice(sliceIdx) {
     const start = slices[sliceIdx]
     const end = slices[sliceIdx + 1]
-    playInstrument(start, end ? end - start : undefined)
+    playInstrument({ offset: start, duration: end ? end - start : undefined })
   }
 
   return {
