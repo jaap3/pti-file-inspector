@@ -87,29 +87,35 @@ export async function load(ctx, buffer, headerData) {
   }
 
   const input = new GainNode(ctx) // Do nothing, used to connect buffer to the chain
-  let bitcrusher  // optional
-  const gain = new GainNode(ctx, { gain: headerData.volume / 50 }) // Volume control
-  const pan = new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 })
+  let chain = input
 
   if (headerData.bitDepth !== 16) {
     await ctx.audioWorklet.addModule('/js/modules/bitcrusher.js')
-    bitcrusher = new AudioWorkletNode(ctx, 'bitcrusher', {
-      parameterData: { bitDepth: headerData.bitDepth }
-    })
-    input.connect(bitcrusher)
+    chain = chain.connect(
+      new AudioWorkletNode(ctx, 'bitcrusher', {
+        parameterData: { bitDepth: headerData.bitDepth }
+      })
+    )
   }
 
-  (bitcrusher || input).connect(gain)
+  if (headerData.overdrive) {
+    const drive = headerData.overdrive
+    const curve = new Float32Array(256)
+    for (var i = 0; i < 256; i++) {
+      const x = i * 2 / 256 - 1
+      curve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x))
+    }
+    chain = chain.connect(new WaveShaperNode(ctx, { curve }))
+  }
 
-  // bitcrusher.connect(overdrive)
-  // overdrive.connect(filter)
-  // filter.connect(gain)
-  gain.connect(pan)
-  // gain.connect(delay)
-  // delay.connect(pan)
-  // gain.connect(reverb)
-  // reverb.connect(pan)
-  pan.connect(ctx.destination)
+  chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))
+
+  // chain = chain.connect(filter)
+  chain = chain.connect(new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 }))
+
+  // chain.connect(delay).connect(ctx.destination)
+  // chain.connect(reverb).connect(ctx.destination)
+  chain.connect(ctx.destination)
 
   const instrumentOptions = {
     detune,
