@@ -41,7 +41,7 @@ async function fileSelected(file) {
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
 
-  mounted.push(InstrumentPreview.mount(previewSection, {
+  mounted.push(await InstrumentPreview.mount(previewSection, {
     headerData,
     audio,
     audioCtx: getAudioContext(),

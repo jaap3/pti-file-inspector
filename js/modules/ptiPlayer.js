@@ -17,7 +17,7 @@ const { isOneShot, isLoop, relOffset } = ptiTools
  * @param {ptiTools.HeaderParseResult} headerData
  * @return {PtiPlayer}
  */
-export function load(ctx, buffer, headerData) {
+export async function load(ctx, buffer, headerData) {
   const bufferLength = buffer.length
   const audioBuffer = ctx.createBuffer(1, bufferLength, 44100)
   audioBuffer.copyToChannel(buffer, 0)
@@ -86,10 +86,29 @@ export function load(ctx, buffer, headerData) {
       instrumentAudioBuffer = audioBuffer
   }
 
-  const gain = new GainNode(ctx, { gain: headerData.volume / 50 })
+  const input = new GainNode(ctx) // Do nothing, used to connect buffer to the chain
+  let bitcrusher  // optional
+  const gain = new GainNode(ctx, { gain: headerData.volume / 50 }) // Volume control
   const pan = new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 })
 
+  if (headerData.bitDepth !== 16) {
+    await ctx.audioWorklet.addModule('/js/modules/bitcrusher.js')
+    bitcrusher = new AudioWorkletNode(ctx, 'bitcrusher', {
+      parameterData: { bitDepth: headerData.bitDepth }
+    })
+    input.connect(bitcrusher)
+  }
+
+  (bitcrusher || input).connect(gain)
+
+  // bitcrusher.connect(overdrive)
+  // overdrive.connect(filter)
+  // filter.connect(gain)
   gain.connect(pan)
+  // gain.connect(delay)
+  // delay.connect(pan)
+  // gain.connect(reverb)
+  // reverb.connect(pan)
   pan.connect(ctx.destination)
 
   const instrumentOptions = {
@@ -105,7 +124,7 @@ export function load(ctx, buffer, headerData) {
       ...instrumentOptions,
       buffer: instrumentAudioBuffer,
     })
-    source.connect(gain)
+    source.connect(input)
     source.start(0, offset, duration)
   }
 

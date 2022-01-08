@@ -29,7 +29,7 @@ export const InstrumentPreview = {
    * @param {number} canvasWidth
    * @returns
    */
-  mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
+  async mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
     const samplePlayback = headerData.samplePlayback
 
     const buffer = ptiTools.convert(audio)
@@ -58,7 +58,7 @@ export const InstrumentPreview = {
 
     requestAnimationFrame(() => drawInstrument(canvas, buffer, markers, region, slices))
 
-    const player = ptiPlayer.load(audioCtx, buffer, headerData)
+    const player = await ptiPlayer.load(audioCtx, buffer, headerData)
 
     frag.querySelector('button.start').addEventListener('click', () => player.playSample())
     frag.querySelector('button.stop').addEventListener('click', () => player.stop())
