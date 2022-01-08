@@ -159,3 +159,19 @@ function createDelay(ctx, input, sendLevel, delayTime, feedback, output) {
   delay.connect(new GainNode(ctx, { gain: feedback })).connect(delay)
   send.connect(delay).connect(output)
 }
+
+/**
+ * @param {AudioContext} ctx
+ * @param {AudioNode} input
+ * @param {number} sendLevel
+ * @param {AudioNode} output
+ */
+async function createReverb(ctx, input, sendLevel, output) {
+  const response = await fetch('/js/modules/impulse.wav')
+  const buffer = await response.arrayBuffer()
+
+  input.connect(new GainNode(ctx, { gain: sendLevel }))
+    .connect(new ConvolverNode(ctx, { buffer:   await ctx.decodeAudioData(buffer), normalize: true }))
+    .connect(output)
+}
+
