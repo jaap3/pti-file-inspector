@@ -108,14 +108,18 @@ export async function load(ctx, buffer, headerData) {
     chain = chain.connect(new WaveShaperNode(ctx, { curve }))
   }
 
-  chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))
+  chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))  // volume
 
   // chain = chain.connect(filter)
-  chain = chain.connect(new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 }))
 
-  // chain.connect(delay).connect(ctx.destination)
+  const pan = chain.connect(new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 }))
+
+  if (headerData.delaySend) {
+    createDelay(ctx, chain, headerData.delaySend / 100, .5, .5, pan)
+  }
+
   // chain.connect(reverb).connect(ctx.destination)
-  chain.connect(ctx.destination)
+  pan.connect(ctx.destination)
 
   const instrumentOptions = {
     detune,
@@ -147,4 +151,11 @@ export async function load(ctx, buffer, headerData) {
     playSlice,
     stop,
   }
+}
+
+function createDelay(ctx, input, sendLevel, delayTime, feedback, output) {
+  const send = input.connect(new GainNode(ctx, { gain: sendLevel }))
+  const delay = new DelayNode(ctx, { delayTime})
+  delay.connect(new GainNode(ctx, { gain: feedback })).connect(delay)
+  send.connect(delay).connect(output)
 }
