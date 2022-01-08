@@ -49,8 +49,11 @@ export const InstrumentPreview = {
       : null
     )
 
-    const frag = getTemplate(parent).cloneNode(true)
+    const frag = parent.ownerDocument.adoptNode(
+      getTemplate(parent).cloneNode(true)
+    )
     const canvas = frag.querySelector('canvas.waveform')
+    const audioEl = frag.querySelector('audio')
     const keypad = frag.querySelector('.keypad')
     const buttonTemplate = keypad.querySelector('button')
     buttonTemplate.remove()  // disconnect from fragment
@@ -58,7 +61,7 @@ export const InstrumentPreview = {
 
     requestAnimationFrame(() => drawInstrument(canvas, buffer, markers, region, slices))
 
-    const player = await ptiPlayer.load(audioCtx, buffer, headerData)
+    const player = await ptiPlayer.load(audioEl, audioCtx, buffer, headerData)
 
     frag.querySelector('button.start').addEventListener('click', () => player.playSample())
     frag.querySelector('button.stop').addEventListener('click', () => player.stop())

@@ -3,6 +3,8 @@ import * as ptiTools from './ptiTools.js'
 
 const { isOneShot, isLoop, relOffset } = ptiTools
 
+let root
+
 /**
  * @typedef {Object} PtiPlayer
  * @property {function} playSample
@@ -12,12 +14,14 @@ const { isOneShot, isLoop, relOffset } = ptiTools
  */
 
 /**
+ * @param {HTMLAudioElement} audioEl
  * @param {AudioContext} ctx
  * @param {Float32Array} buffer
  * @param {ptiTools.HeaderParseResult} headerData
  * @return {Promise<PtiPlayer>}
  */
-export async function load(ctx, buffer, headerData) {
+export async function load(audioEl, ctx, buffer, headerData) {
+  root = `${audioEl.ownerDocument.location.pathname}js/modules/`
   const bufferLength = buffer.length
   const audioBuffer = ctx.createBuffer(1, bufferLength, 44100)
   audioBuffer.copyToChannel(buffer, 0)
@@ -90,22 +94,11 @@ export async function load(ctx, buffer, headerData) {
   let chain = input
 
   if (headerData.bitDepth !== 16) {
-    await ctx.audioWorklet.addModule('/js/modules/bitcrusher.js')
-    chain = chain.connect(
-      new AudioWorkletNode(ctx, 'bitcrusher', {
-        parameterData: { bitDepth: headerData.bitDepth }
-      })
-    )
+    chain = await createBitcrusher(ctx, chain, headerData.bitDepth)
   }
 
   if (headerData.overdrive) {
-    const drive = headerData.overdrive
-    const curve = new Float32Array(256)
-    for (var i = 0; i < 256; i++) {
-      const x = i * 2 / 256 - 1
-      curve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x))
-    }
-    chain = chain.connect(new WaveShaperNode(ctx, { curve }))
+    chain = createOverdrive(ctx, { drive: headerData.overdrive })
   }
 
   chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))  // volume
@@ -153,6 +146,29 @@ export async function load(ctx, buffer, headerData) {
     stop,
   }
 }
+/**
+ * @param {AudioContext} ctx
+ * @param {AudioNode} input
+ * @param {number} drive
+ */
+ async function createOverdrive(ctx, input, drive) {
+    const curve = new Float32Array(256)
+    for (var i = 0; i < 256; i++) {
+      const x = i * 2 / 256 - 1
+      curve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x))
+    }
+    return input.connect(new WaveShaperNode(ctx, { curve }))
+}
+
+/**
+ * @param {AudioContext} ctx
+ * @param {AudioNode} input
+ * @param {number} bitDepth
+ */
+async function createBitcrusher(ctx, input, bitDepth) {
+  await ctx.audioWorklet.addModule(root + 'bitcrusher.js')
+  return input.connect(new AudioWorkletNode(ctx, 'bitcrusher', { parameterData: { bitDepth } }))
+}
 
 /**
  * @param {AudioContext} ctx
@@ -176,7 +192,7 @@ function createDelay(ctx, input, sendLevel, delayTime, feedback, output) {
  * @param {AudioNode} output
  */
 async function createReverb(ctx, input, sendLevel, output) {
-  const response = await fetch('/js/modules/impulse.wav')
+  const response = await fetch(root + 'impulse.wav')
   const buffer = await response.arrayBuffer()
 
   input.connect(new GainNode(ctx, { gain: sendLevel }))
