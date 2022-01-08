@@ -4,6 +4,7 @@ import * as ptiTools from './ptiTools.js'
 const { isOneShot, isLoop, relOffset } = ptiTools
 
 let root
+let reverbBuffer
 
 /**
  * @typedef {Object} PtiPlayer
@@ -111,7 +112,10 @@ export async function load(audioEl, ctx, buffer, headerData) {
     createDelay(ctx, chain, headerData.delaySend / 100, .5, .5, pan)
   }
 
-  await createReverb(ctx, chain, headerData.reverbSend / 100, pan)
+  if (headerData.reverbSend) {
+    const reverb = await createReverb(ctx, chain, headerData.reverbSend / 100)
+    reverb.connect(pan)
+  }
 
   pan.connect(ctx.destination)
 
@@ -187,16 +191,26 @@ function createDelay(ctx, input, sendLevel, delayTime, feedback, output) {
 
 /**
  * @param {AudioContext} ctx
- * @param {AudioNode} input
- * @param {number} sendLevel
- * @param {AudioNode} output
+ * @return {Promise<AudioBuffer>}
  */
-async function createReverb(ctx, input, sendLevel, output) {
+async function getReverbBuffer(ctx) {
   const response = await fetch(root + 'impulse.wav')
   const buffer = await response.arrayBuffer()
-
-  input.connect(new GainNode(ctx, { gain: sendLevel }))
-    .connect(new ConvolverNode(ctx, { buffer:   await ctx.decodeAudioData(buffer), normalize: true }))
-    .connect(output)
+  return await ctx.decodeAudioData(
+    buffer
+  )
 }
 
+/**
+ * @param {AudioContext} ctx
+ * @param {AudioNode} input
+ * @param {number} sendLevel
+ * @return {Promise<AudioNode>}
+ */
+ export async function createReverb(ctx, input, sendLevel) {
+  return input.connect(new GainNode(ctx, { gain: sendLevel }))
+    .connect(new ConvolverNode(ctx, {
+      buffer: reverbBuffer ?? (reverbBuffer = await getReverbBuffer(ctx)),
+      normalize: true
+    }))
+}
