@@ -88,7 +88,6 @@ export const InstrumentPreview = {
         button.addEventListener('mousedown', () => player.playInstrument({ detune: i * 100 }))
         button.addEventListener('mouseup', () => player.stop())
         button.addEventListener('mouseleave', () => player.stop())
-        //button.addEventListener('blur', () => player.stop())
         keypad.appendChild(button)
       }
     }

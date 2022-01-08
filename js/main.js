@@ -8,7 +8,7 @@ let audioCtx;
 
 function getAudioContext() {
   return audioCtx = audioCtx ?? new (AudioContext || webkitAudioContext)({
-    latencyHint: 'playback',
+    latencyHint: 'interactive',
     sampleRate: 44100,
   })
 }

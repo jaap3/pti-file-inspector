@@ -15,7 +15,7 @@ const { isOneShot, isLoop, relOffset } = ptiTools
  * @param {AudioContext} ctx
  * @param {Float32Array} buffer
  * @param {ptiTools.HeaderParseResult} headerData
- * @return {PtiPlayer}
+ * @return {Promise<PtiPlayer>}
  */
 export async function load(ctx, buffer, headerData) {
   const bufferLength = buffer.length
@@ -118,7 +118,8 @@ export async function load(ctx, buffer, headerData) {
     createDelay(ctx, chain, headerData.delaySend / 100, .5, .5, pan)
   }
 
-  // chain.connect(reverb).connect(ctx.destination)
+  await createReverb(ctx, chain, headerData.reverbSend / 100, pan)
+
   pan.connect(ctx.destination)
 
   const instrumentOptions = {
@@ -153,6 +154,14 @@ export async function load(ctx, buffer, headerData) {
   }
 }
 
+/**
+ * @param {AudioContext} ctx
+ * @param {AudioNode} input
+ * @param {number} sendLevel
+ * @param {number} delayTime
+ * @param {number} feedback
+ * @param {AudioNode} output
+ */
 function createDelay(ctx, input, sendLevel, delayTime, feedback, output) {
   const send = input.connect(new GainNode(ctx, { gain: sendLevel }))
   const delay = new DelayNode(ctx, { delayTime})
