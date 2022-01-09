@@ -167,7 +167,7 @@ async function createOutputChain(ctx, headerData) {
   const pan = chain.connect(new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 }))
 
   if (headerData.delaySend) {
-    const delay = createDelay(ctx, chain, headerData.delaySend / 100, .5, .5)
+    const delay = createDelay(ctx, chain, headerData.delaySend / 100, .5, .35)
     delay.connect(pan)
   }
 
