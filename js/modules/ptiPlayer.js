@@ -143,7 +143,7 @@ async function createOutputChain(ctx, headerData) {
   }
 
   if (headerData.overdrive) {
-    chain = createOverdrive(ctx, { drive: headerData.overdrive })
+    chain = createOverdrive(ctx, chain, headerData.overdrive)
   }
 
   chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))  // volume
@@ -173,7 +173,7 @@ async function createOutputChain(ctx, headerData) {
  * @param {AudioNode} input
  * @param {number} drive
  */
-async function createOverdrive(ctx, input, drive) {
+function createOverdrive(ctx, input, drive) {
   const curve = new Float32Array(256)
   for (var i = 0; i < 256; i++) {
     const x = i * 2 / 256 - 1
