@@ -91,6 +91,50 @@ export async function load(audioEl, ctx, buffer, headerData) {
       instrumentAudioBuffer = audioBuffer
   }
 
+  const output = await createOutputChain(ctx, headerData)
+
+  const instrumentOptions = {
+    detune,
+    loop,
+    loopStart,
+    loopEnd,
+  }
+
+  function playInstrument({ offset = startOffset, duration = endOffset ? endOffset - startOffset : undefined, detune = 0 }) {
+    stop()
+    source = new AudioBufferSourceNode(ctx, {
+      ...instrumentOptions,
+      buffer: instrumentAudioBuffer,
+      detune: instrumentOptions.detune + detune
+    })
+    source.connect(output)
+    source.start(0, offset, duration)
+  }
+
+  function playSlice(sliceIdx) {
+    const start = slices[sliceIdx]
+    const end = slices[sliceIdx + 1]
+    playInstrument({ offset: start, duration: end ? end - start : undefined })
+  }
+
+  return {
+    playSample,
+    playInstrument,
+    playSlice,
+    stop,
+  }
+}
+
+
+/**
+ * Setup instrument output chain
+ *
+ * @param {AudioContext} ctx
+ * @param {AudioNode} input
+ * @param {ptiTools.HeaderParseResult} headerData
+ * @return {Promise<AudioNode>}
+ */
+async function createOutputChain(ctx, headerData) {
   const input = new GainNode(ctx) // Do nothing, used to connect buffer to the chain
   let chain = input
 
@@ -119,49 +163,22 @@ export async function load(audioEl, ctx, buffer, headerData) {
 
   pan.connect(ctx.destination)
 
-  const instrumentOptions = {
-    detune,
-    loop,
-    loopStart,
-    loopEnd,
-  }
-
-  function playInstrument({ offset = startOffset, duration = endOffset ? endOffset - startOffset : undefined, detune=0 }) {
-    stop()
-    source = new AudioBufferSourceNode(ctx, {
-      ...instrumentOptions,
-      buffer: instrumentAudioBuffer,
-      detune: instrumentOptions.detune + detune
-    })
-    source.connect(input)
-    source.start(0, offset, duration)
-  }
-
-  function playSlice(sliceIdx) {
-    const start = slices[sliceIdx]
-    const end = slices[sliceIdx + 1]
-    playInstrument({ offset: start, duration: end ? end - start : undefined })
-  }
-
-  return {
-    playSample,
-    playInstrument,
-    playSlice,
-    stop,
-  }
+  return input
 }
+
+
 /**
  * @param {AudioContext} ctx
  * @param {AudioNode} input
  * @param {number} drive
  */
- async function createOverdrive(ctx, input, drive) {
-    const curve = new Float32Array(256)
-    for (var i = 0; i < 256; i++) {
-      const x = i * 2 / 256 - 1
-      curve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x))
-    }
-    return input.connect(new WaveShaperNode(ctx, { curve }))
+async function createOverdrive(ctx, input, drive) {
+  const curve = new Float32Array(256)
+  for (var i = 0; i < 256; i++) {
+    const x = i * 2 / 256 - 1
+    curve[i] = (Math.PI + drive) * x / (Math.PI + drive * Math.abs(x))
+  }
+  return input.connect(new WaveShaperNode(ctx, { curve }))
 }
 
 /**
@@ -180,13 +197,13 @@ async function createBitcrusher(ctx, input, bitDepth) {
  * @param {number} sendLevel
  * @param {number} delayTime
  * @param {number} feedback
- * @param {AudioNode} output
+ * @return {AudioNode}
  */
-function createDelay(ctx, input, sendLevel, delayTime, feedback, output) {
+function createDelay(ctx, input, sendLevel, delayTime, feedback) {
   const send = input.connect(new GainNode(ctx, { gain: sendLevel }))
-  const delay = new DelayNode(ctx, { delayTime})
+  const delay = new DelayNode(ctx, { delayTime })
   delay.connect(new GainNode(ctx, { gain: feedback })).connect(delay)
-  send.connect(delay).connect(output)
+  return send.connect(delay)
 }
 
 /**
@@ -207,10 +224,11 @@ async function getReverbBuffer(ctx) {
  * @param {number} sendLevel
  * @return {Promise<AudioNode>}
  */
- export async function createReverb(ctx, input, sendLevel) {
-  return input.connect(new GainNode(ctx, { gain: sendLevel }))
-    .connect(new ConvolverNode(ctx, {
-      buffer: reverbBuffer ?? (reverbBuffer = await getReverbBuffer(ctx)),
-      normalize: true
-    }))
+export async function createReverb(ctx, input, sendLevel) {
+  const send = input.connect(new GainNode(ctx, { gain: sendLevel }))
+  const reverb = send.connect(new ConvolverNode(ctx, {
+    buffer: reverbBuffer ?? (reverbBuffer = await getReverbBuffer(ctx)),
+    normalize: true
+  }))
+  return reverb
 }
