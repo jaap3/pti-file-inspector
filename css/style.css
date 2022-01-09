@@ -61,6 +61,7 @@ canvas.waveform {
 
 .keypad {
   flex: 1 1 1cm;
+  flex-wrap: wrap;
 }
 
 .keypad button {
@@ -81,16 +82,20 @@ canvas.waveform {
 
 .controls {
   display: flex;
-  flex: 0 0 auto;
+  flex: 0 0 3.4cm;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: flex-end;
 }
 
 .controls button {
   background: linear-gradient(to top, #3b3b43, #1b191a);
   color: white;
   font-size: 3mm;
+  line-height: 1.25;
   display: inline-flex;
   align-items: flex-end;
-  margin-left: 2mm;
+  margin: 0 0 2mm 2mm;
   width: 1.5cm;
   height: 1.5cm;
   border: 1mm outset #3b3b43;
