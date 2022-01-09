@@ -158,7 +158,7 @@ async function createOutputChain(ctx, headerData) {
   }
 
   if (headerData.reverbSend) {
-    const reverb = await createReverb(ctx, chain, headerData.reverbSend / 100)
+    const reverb = await createReverb(ctx, chain, headerData.reverbSend / 100, .0125)
     reverb.connect(pan)
   }
 
@@ -215,7 +215,7 @@ async function getReverbBuffer(ctx) {
   const response = await fetch(root + 'impulse.wav')
   const buffer = await response.arrayBuffer()
   return await ctx.decodeAudioData(
-    buffer
+    buffer,
   )
 }
 
@@ -225,11 +225,11 @@ async function getReverbBuffer(ctx) {
  * @param {number} sendLevel
  * @return {Promise<AudioNode>}
  */
-export async function createReverb(ctx, input, sendLevel) {
+export async function createReverb(ctx, input, sendLevel, delayTime) {
   const send = input.connect(new GainNode(ctx, { gain: sendLevel }))
-  const reverb = send.connect(new ConvolverNode(ctx, {
+  const preDelay = send.connect(new DelayNode(ctx, { delayTime }))
+  const reverb = preDelay.connect(new ConvolverNode(ctx, {
     buffer: reverbBuffer ?? (reverbBuffer = await getReverbBuffer(ctx)),
-    normalize: true
   }))
   return reverb
 }
