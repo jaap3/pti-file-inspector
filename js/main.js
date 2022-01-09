@@ -27,10 +27,11 @@ async function fileSelected(file) {
   const { valid: validHeader, message: headerValidationMessage } = ptiTools.validateHeader(header)
 
   if (!validHeader) {
-    dataSection.innerHTML = `<p>
-        This file does not appear to be a valid .pti file!
-        ${headerValidationMessage ? ` (<small>${headerValidationMessage}</small>)` : ''}
-    </p>`
+    const p = document.createElement('p')
+    p.innerHTML = `This file does not appear to be a valid .pti file!
+      ${headerValidationMessage ? ` (<small>${headerValidationMessage}</small>)` : ''}`
+    dataSection.appendChild(p)
+    mounted.push(() => p.remove())
 
     return
   }
