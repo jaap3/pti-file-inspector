@@ -1,7 +1,12 @@
-import { SamplePlayback } from './constants.js'
+import { SamplePlayback, FilterType } from './constants.js'
 import * as ptiTools from './ptiTools.js'
 
 const { isOneShot, isLoop, relOffset } = ptiTools
+const filterType = {
+  [FilterType.LOW_PASS]: 'lowpass',
+  [FilterType.BAND_PASS]: 'bandpass',
+  [FilterType.HIGH_PASS]: 'highpass',
+}
 
 let root
 let reverbBuffer
@@ -148,7 +153,16 @@ async function createOutputChain(ctx, headerData) {
 
   chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))  // volume
 
-  // chain = chain.connect(filter)
+  if (false && headerData.filterEnabled) {
+    // Disabled for now
+    chain = chain.connect(createFilter(
+      ctx,
+      input,
+      filterType[headerData.filterType],
+      headerData.cutoff,
+      headerData.resonance
+    ))
+  }
 
   const pan = chain.connect(new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 }))
 
@@ -190,6 +204,26 @@ function createOverdrive(ctx, input, drive) {
 async function createBitcrusher(ctx, input, bitDepth) {
   await ctx.audioWorklet.addModule(root + 'bitcrusher.js')
   return input.connect(new AudioWorkletNode(ctx, 'bitcrusher', { parameterData: { bitDepth } }))
+}
+
+function createFilter(ctx, input, filterType, cutoff, resonance) {
+  // This is wrong, but the Tracker's filters are not documented
+  const frequency = cutoff * 1000
+
+  const filter = input.connect(new BiquadFilterNode(ctx, {
+    type: filterType,
+    q: .25,
+    frequency,
+  }))
+
+  filter.connect(new BiquadFilterNode(ctx, {
+    type: 'peaking',
+    q: .25,
+    gain: resonance,
+    frequency,
+  }))
+
+  return input.connect(filter)
 }
 
 /**
