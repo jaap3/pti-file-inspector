@@ -31,6 +31,10 @@ const mounted = (() => {
 
 let audioCtx;
 
+/**
+ * Get or create an AudioContext
+ * @returns {AudioContext}
+ */
 function getAudioContext() {
   return audioCtx = audioCtx ?? new (AudioContext || webkitAudioContext)({
     latencyHint: 'interactive',
@@ -82,31 +86,50 @@ async function renderInstrument(headerData, audio) {
 async function fileSelected(file) {
   const ptiTools = await import('./modules/ptiTools.js')
 
+  let headerData, audio
+
   if (file.name.endsWith('.pti')) {
     const header = await ptiTools.getHeader(file)
 
     const { valid: validHeader, message: headerValidationMessage } = ptiTools.validateHeader(header)
 
     if (!validHeader) {
-      renderError(
-        `This file does not appear to be a valid .pti file!
-        ${headerValidationMessage ? ` (<small>${headerValidationMessage}</small>)` : ''}`,
+      renderError('This file does not appear to be a valid .pti file!')
+      headerValidationMessage && renderError(
+        `(<small>${headerValidationMessage}</small>)</p>`,
         { userDangerousHTML: true }
       )
     }
 
     else {
-      const headerData = ptiTools.parseHeader(header)
-      const audio = await ptiTools.getAudio(file)
-
-      renderInstrument(headerData, audio)
+      headerData = ptiTools.parseHeader(header)
+      audio = ptiTools.convert(await ptiTools.getAudio(file))
     }
   }
 
   else {
-    renderError(
-      'Please select a .pti file.'
-    )
+    const audioCtx = getAudioContext()
+
+    let audioBuffer
+
+    try {
+      audioBuffer = await audioCtx.decodeAudioData(await file.arrayBuffer())
+    } catch (err) {
+      renderError('Please select a .pti or audio file file.')
+      renderError(
+        `<small>${err.name}: ${err.message} (code: ${err.code})</small>`,
+        { userDangerousHTML: true }
+      )
+    }
+
+    if (audioBuffer !== undefined) {
+      headerData = ptiTools.parseHeader(new ArrayBuffer(392))
+      audio = audioBuffer.getChannelData(0)
+    }
+  }
+
+  if (headerData !== undefined && audio !== undefined) {
+    renderInstrument(headerData, audio)
   }
 }
 

@@ -24,15 +24,13 @@ export const InstrumentPreview = {
    * @param {HTMLElement} parent
    * @param {Object} options
    * @param {ptiTools.HeaderParseResult} options.headerData
-   * @param {ArrayBuffer} options.audio
+   * @param {Float32Array} options.audio
    * @param {AudioContext} audioCtx
    * @param {number} canvasWidth
    * @returns
    */
   async mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
     const samplePlayback = headerData.samplePlayback
-
-    const buffer = ptiTools.convert(audio)
 
     const markers = (isOneShot(samplePlayback) || isLoop(samplePlayback)) ? {
       start: ptiTools.relOffset(headerData.playbackStart),
@@ -59,14 +57,14 @@ export const InstrumentPreview = {
     buttonTemplate.remove()  // disconnect from fragment
     canvas.width = canvasWidth
 
-    requestAnimationFrame(() => drawInstrument(canvas, buffer, markers, region, slices))
+    requestAnimationFrame(() => drawInstrument(canvas, audio, markers, region, slices))
 
-    const player = await ptiPlayer.load(audioEl, audioCtx, buffer, headerData)
+    const player = await ptiPlayer.load(audioEl, audioCtx, audio, headerData)
 
     frag.querySelector('button.start').addEventListener('click', () => player.playSample())
     frag.querySelector('button.stop').addEventListener('click', () => player.stop())
     frag.querySelector('button.export').addEventListener('click', () => {
-      const file = ptiTools.getWavFile(buffer, headerData.name)
+      const file = ptiTools.getWavFile(audio, headerData.name)
       const url = URL.createObjectURL(file)
       const a = parent.ownerDocument.createElement('a')
       a.setAttribute('download', `${headerData.name.replaceAll('\x00', '')}.wav`)
