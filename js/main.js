@@ -2,7 +2,32 @@ import { FileSelect } from './components/FileSelect.js'
 
 const dataSection = document.getElementById('pti-file-data')
 const previewSection = document.getElementById('pti-file-preview')
-const mounted = []
+
+const mounted = (() => {
+  /** @type Array<Function> */
+  const mounted = []
+
+  return {
+    /**
+     * Add mounted elements
+     *
+     * @param {Function} teardown Function that removes the mounted element(s)
+     */
+    push(teardown) {
+      mounted.push(teardown)
+    },
+
+    /**
+    * Remove mounted elements
+    */
+    async teardown() {
+      let unmount
+      while (unmount = mounted.shift()) {
+        unmount()
+      }
+    }
+  }
+})()
 
 let audioCtx;
 
@@ -14,31 +39,27 @@ function getAudioContext() {
 }
 
 /**
+ * Display an error message
+ *
+ * @param {string} message Error message as string
+ * @param {object} options
+ * @param {bool} options.userDangerousHTML Use innerHTML to set the message (DANGER: never include user input!)
+ */
+function renderError(message, { userDangerousHTML = false } = {}) {
+  const p = document.createElement('p')
+  p.className = 'error'
+  p[userDangerousHTML ? 'innerHTML' : 'innerText'] = message
+  dataSection.appendChild(p)
+  mounted.push(() => p.remove())
+}
+
+/**
  * Display .pti file data.
  *
- * @param {File} file
- * @returns
+ * @param {import('./modules/ptiTools.js').HeaderParseResult} headerData
+ * @param {ArrayBuffer} audio
  */
-async function fileSelected(file) {
-  const ptiTools = await import('./modules/ptiTools.js')
-
-  const header = await ptiTools.getHeader(file)
-
-  const { valid: validHeader, message: headerValidationMessage } = ptiTools.validateHeader(header)
-
-  if (!validHeader) {
-    const p = document.createElement('p')
-    p.innerHTML = `This file does not appear to be a valid .pti file!
-      ${headerValidationMessage ? ` (<small>${headerValidationMessage}</small>)` : ''}`
-    dataSection.appendChild(p)
-    mounted.push(() => p.remove())
-
-    return
-  }
-
-  const headerData = ptiTools.parseHeader(header)
-  const audio = await ptiTools.getAudio(file)
-
+async function renderInstrument(headerData, audio) {
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
 
@@ -54,23 +75,48 @@ async function fileSelected(file) {
   }))
 }
 
-/**
- * Remove mounted elements
+/*
+ * File selection handler
+ * @param {File} file
  */
-async function teardown() {
-  let unmount
-  while (unmount = mounted.shift()) {
-    unmount()
+async function fileSelected(file) {
+  const ptiTools = await import('./modules/ptiTools.js')
+
+  if (file.name.endsWith('.pti')) {
+    const header = await ptiTools.getHeader(file)
+
+    const { valid: validHeader, message: headerValidationMessage } = ptiTools.validateHeader(header)
+
+    if (!validHeader) {
+      renderError(
+        `This file does not appear to be a valid .pti file!
+        ${headerValidationMessage ? ` (<small>${headerValidationMessage}</small>)` : ''}`,
+        { userDangerousHTML: true }
+      )
+    }
+
+    else {
+      const headerData = ptiTools.parseHeader(header)
+      const audio = await ptiTools.getAudio(file)
+
+      renderInstrument(headerData, audio)
+    }
+  }
+
+  else {
+    renderError(
+      'Please select a .pti file.'
+    )
   }
 }
 
 /**
- * Handle file selection
+ * Handle file selection (bootstrap)
  */
 FileSelect.mount(document.getElementById('pti-file-input'), {
   async onSelect(file) {
-    await teardown()
+    await mounted.teardown()
     await fileSelected(file)
   },
-  onClear: teardown
+  onClear: mounted.teardown
 })
