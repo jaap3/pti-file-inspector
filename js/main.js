@@ -89,6 +89,7 @@ async function fileSelected(file) {
   let headerData, audio
 
   if (file.name.endsWith('.pti')) {
+    // It's a .pti file
     const header = await ptiTools.getHeader(file)
 
     const { valid: validHeader, message: headerValidationMessage } = ptiTools.validateHeader(header)
@@ -108,6 +109,7 @@ async function fileSelected(file) {
   }
 
   else {
+    // Some audio file
     const audioCtx = getAudioContext()
 
     let audioBuffer
@@ -125,6 +127,15 @@ async function fileSelected(file) {
     if (audioBuffer !== undefined) {
       headerData = ptiTools.parseHeader(new ArrayBuffer(392))
       audio = audioBuffer.getChannelData(0)
+
+      const nChannels = audioBuffer.numberOfChannels
+      if (nChannels > 1) {
+        // Audio file isn't mono, sum all channels
+
+        // The audio var already contains channel one, get the data from the other channels
+        const channels = Array.from(Array(nChannels - 1), (_, i) => audioBuffer.getChannelData(i + 1))
+        audio.forEach((v, i) => audio[i] = channels.reduce((sum, channel) => sum += channel[i] / nChannels, v / nChannels))
+      }
     }
   }
 
