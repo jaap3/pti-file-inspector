@@ -133,10 +133,12 @@ async function fileSelected(file) {
       if (nChannels > 1) {
         // Audio file isn't mono, sum all channels
 
-        // The audio var already contains channel one, get the data from the other channels
+        // The audio var already contains channel one, sum the data from the other channels
         const channels = Array.from(Array(nChannels - 1), (_, i) => audioBuffer.getChannelData(i + 1))
         audio.forEach((v, i) => audio[i] = channels.reduce((sum, channel) => sum += channel[i] / nChannels, v / nChannels))
       }
+
+      headerData.sampleLength = audio.length
     }
   }
 

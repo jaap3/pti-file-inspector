@@ -124,7 +124,7 @@ export const InstrumentDataTable = {
 
     const addRow = (label, value) => table.tBodies[0].appendChild(createRow(label, value))
 
-    const sampleLengthInMs = audio.byteLength / 2 / 44.1
+    const sampleLengthInMs = audio.length / 44.1
     const headerLengthInMs = headerData.sampleLength / 44.1
     const displayOffset = (offset) => displayMilliseconds(relOffset(offset) * sampleLengthInMs)
 

@@ -164,6 +164,7 @@ export function validateHeader(header) {
  * @property {number} reverbSend
  * @property {number} overdrive
  * @property {number} bitDepth
+ * @property {ArrayBuffer} buffer Header data including parameter edits
  */
 
 /**
@@ -177,15 +178,14 @@ export function parseHeader(header) {
   const headerData = {}
 
   const asciiEncoder = new TextEncoder('ascii')
+  const view = new DataView(newHeader)
   const int8a = (start, length) => new Int8Array(newHeader, start, length)
   const uint8a = (start, length) => new Uint8Array(newHeader, start, length)
   const uint16a = (start, length) => new Uint16Array(newHeader, start, length)
-  const uint32a = (start, length) => new Uint32Array(newHeader, start, length)
   const float32a = (start, length) => new Float32Array(newHeader, start, length)
   const signedCharAt = (n) => int8a(n, 1)[0]
   const charAt = (n) => uint8a(n, 1)[0]
   const uint16At = (n) => uint16a(n, 1)[0]
-  const uint32At = (n) => uint32a(n, 1)[0]
   const float32At = (n) => float32a(n, 1)[0]
 
   return {
@@ -203,7 +203,12 @@ export function parseHeader(header) {
     },
 
     get sampleLength() {
-      return headerData.sampleLength ?? (headerData.sampleLength = uint32At(60))
+      return headerData.sampleLength ?? (headerData.sampleLength = view.getUint32(60, true))
+    },
+
+    set sampleLength(value) {
+      headerData.sampleLength = value
+      view.setUint32(60, value, true)
     },
 
     get wavetableWindowSize() {
