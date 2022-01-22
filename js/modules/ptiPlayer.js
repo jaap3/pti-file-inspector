@@ -1,5 +1,7 @@
-import { SamplePlayback, FilterType } from './constants.js'
+import constants from './constants.js'
 import * as ptiTools from './ptiTools.js'
+
+const { SamplePlayback, FilterType } = constants
 
 const { isOneShot, isLoop, relOffset } = ptiTools
 const filterType = {

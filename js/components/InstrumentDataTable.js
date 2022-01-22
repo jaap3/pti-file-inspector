@@ -1,6 +1,7 @@
-import { SamplePlayback, FilterType, GranularShape, GranularLoopMode } from '../modules/constants.js'
+import constants from '../modules/constants.js'
 import * as ptiTools from '../modules/ptiTools.js'
 
+const { SamplePlayback, FilterType, GranularShape, GranularLoopMode } = constants
 const { isOneShot, isLoop, isSliced, isWavetable, isGranular, relOffset } = ptiTools
 
 const templateCache = new WeakMap()
