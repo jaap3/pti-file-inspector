@@ -11,16 +11,23 @@
 </head>
 <body>
   <main class="container">
+
     <section>
       <label for="pti-file-input">
-        <span class="empty">Choose/Drop a Polyend Tracker instrument <small>(<code>.pti</code>)</small> or audio <small>(<code>.wav</code>, <code>.mp3</code>, <code>.flac</code>)</small> file</span>
+        <span class="empty">
+          Choose/Drop
+          a&nbsp;Polyend&nbsp;Tracker instrument&nbsp;<small>(<code>.pti</code>)</small>
+          or&nbsp;audio file <small>(<code>.wav</code>,&nbsp;<code>.mp3</code>,&nbsp;<code>.flac</code>)</small>
+        </span>
         <span class="fname" hidden></span>
         <input id="pti-file-input" type="file" accept=".pti, audio/*" disabled>
       </label>
     </section>
 
     <section id="pti-file-preview"></section>
+    <section id="toolbar"></section>
     <section id="pti-file-data"></section>
+
   </main>
 
   <template id="template:instrument-preview">
@@ -32,10 +39,15 @@
     <div class="controls">
       <button type="button" class="start" title="Play sample">Play</button>
       <button type="button" class="stop" title="Stop all playback">Stop</button>
+    </div>
+  </div>
+  </template>
+
+  <template id="template:toolbar">
+    <div class="controls">
       <button type="button" class="export-pti" title="Download instrument as .pti file">Export .pti</button>
       <button type="button" class="export-wav" title="Download sample as .wav file">Export .wav</button>
     </div>
-  </div>
   </template>
 
   <template id="template:instrument-data-table">

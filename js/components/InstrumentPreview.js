@@ -64,31 +64,6 @@ export const InstrumentPreview = {
     frag.querySelector('button.start').addEventListener('click', () => player.playSample())
     frag.querySelector('button.stop').addEventListener('click', () => player.stop())
 
-    function downloadFile(file, name) {
-      const url = URL.createObjectURL(file)
-      const a = parent.ownerDocument.createElement('a')
-      a.setAttribute('download', name)
-      a.setAttribute('href', url)
-      a.setAttribute('hidden', '')
-      parent.appendChild(a)
-      a.click()
-      URL.revokeObjectURL(url)
-    }
-
-    frag.querySelector('button.export-pti').addEventListener('click', () => {
-      downloadFile(
-        ptiTools.getPtiFile(audio, headerData),
-        `${headerData.name.replaceAll('\x00', '')}.pti`
-      )
-    })
-
-    frag.querySelector('button.export-wav').addEventListener('click', () => {
-      downloadFile(
-        ptiTools.getWavFile(audio, headerData),
-        `${headerData.name.replaceAll('\x00', '')}.wav`
-      )
-    })
-
     if (slices) {
       slices.forEach((_, idx) => {
         const sliceButton = buttonTemplate.cloneNode(true)

@@ -1,6 +1,7 @@
 import { FileSelect } from './components/FileSelect.js'
 
 const dataSection = document.getElementById('pti-file-data')
+const toolbar = document.getElementById('toolbar')
 const previewSection = document.getElementById('pti-file-preview')
 
 const mounted = (() => {
@@ -65,6 +66,7 @@ function renderError(message, { userDangerousHTML = false } = {}) {
  */
 async function renderInstrument(headerData, audio) {
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
+  const { Toolbar } = await import('./components/Toolbar.js')
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
 
   mounted.push(await InstrumentPreview.mount(previewSection, {
@@ -73,6 +75,12 @@ async function renderInstrument(headerData, audio) {
     audioCtx: getAudioContext(),
     canvasWidth: dataSection.offsetWidth
   }))
+
+  mounted.push(Toolbar.mount(toolbar, {
+    headerData,
+    audio
+  }))
+
   mounted.push(InstrumentDataTable.mount(dataSection, {
     headerData,
     audio

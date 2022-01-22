@@ -48,7 +48,6 @@ label[for="pti-file-input"]:focus-within {
 #pti-file-preview {
   display: flex;
   flex-wrap: wrap;
-  margin: 25px 0;
 }
 
 canvas.waveform {
@@ -66,8 +65,8 @@ canvas.waveform {
 
 .keypad button {
   background: radial-gradient(#e2e4cc, #9e9e92);
-  width: 0.7cm;
-  height: 0.7cm;
+  width: 0.75cm;
+  height: 0.75cm;
   margin-right: 2.5mm;
   margin-bottom: 2.5mm;
   border: 1px outset #3b3b43;
