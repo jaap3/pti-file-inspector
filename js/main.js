@@ -125,7 +125,8 @@ async function fileSelected(file) {
     }
 
     if (audioBuffer !== undefined) {
-      headerData = ptiTools.parseHeader(new ArrayBuffer(392))
+      headerData = ptiTools.parseHeader(ptiTools.DEFAULT_HEADER)
+      headerData.name = file.name.substring(0, 32)
       audio = audioBuffer.getChannelData(0)
 
       const nChannels = audioBuffer.numberOfChannels

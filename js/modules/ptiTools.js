@@ -13,7 +13,7 @@ const MAGIC = {
   2: 1,
   3: 0,
   4: 1,
-  5: [4, 5],
+  5: [5, 4],
   6: [0, 1],
   7: 1,
   8: 9,
@@ -22,13 +22,70 @@ const MAGIC = {
   11: 9,
   12: 116,
   13: 1,
-  14: [102, 110],
-  15: 102,
+  14: [0, 102, 110],
+  15: [0, 102],
   16: 1,
   17: 0,
   18: 0,
   19: 0
 }
+
+export const DEFAULT_HEADER = (() => {
+  const header = new ArrayBuffer(392)
+  new Uint8Array(header).set(Object.values(MAGIC).map((v) => v[0] ?? v))
+  const view = new DataView(header)
+  view.setInt16(64, 2048, true)  // Wavetable window size
+  view.setInt16(80, 1, true) // Loop start
+  view.setInt16(82, 65534, true) // Loop end
+  view.setInt16(84, 65535, true) // Playback end
+  // Volume automation
+  view.setFloat32(92, 1.0, true) // Amount
+  view.setFloat32(104, 1.0, true) // Sustain
+  view.setUint16(108, 1000, true) // Release
+  view.setUint8(111, 1, true) // Envelope
+  view.setUint8(212, 2, true) // LFO type
+  view.setFloat32(216, 0.5, true) // LFO Amount
+  // Panning automation
+  view.setFloat32(112, 1.0, true) // Amount
+  view.setFloat32(124, 1.0, true) // Sustain
+  view.setInt16(128, 1000, true) // Release
+  view.setUint8(220, 2, true) // LFO type
+  view.setFloat32(224, 0.5, true) // LFO Amount
+  // Cutoff automation
+  view.setFloat32(132, 1.0, true) // Amount
+  view.setFloat32(144, 1.0, true) // Sustain
+  view.setInt16(148, 1000, true) // Release
+  view.setUint8(228, 2, true) // LFO type
+  view.setFloat32(232, 0.5, true) // LFO Amount
+  // Wavetable position automation
+  view.setFloat32(152, 1.0, true) // Amount
+  view.setFloat32(164, 1.0, true) // Sustain
+  view.setInt16(168, 1000, true) // Release
+  view.setUint8(236, 2, true) // LFO type
+  view.setFloat32(240, 0.5, true) // LFO Amount
+  // Granular position automation
+  view.setFloat32(172, 1.0, true) // Amount
+  view.setFloat32(184, 1.0, true) // Sustain
+  view.setInt16(188, 1000, true) // Release
+  view.setUint8(244, 2, true) // LFO type
+  view.setFloat32(248, 0.5, true) // LFO Amount
+  // Finetune automation
+  view.setFloat32(192, 1.0, true) // Amount
+  view.setFloat32(204, 1.0, true) // Sustain
+  view.setInt16(208, 1000, true) // Release
+  view.setUint8(252, 2, true) // LFO type
+  view.setFloat32(256, 0.5, true) // LFO Amount
+  // Filter
+  view.setFloat32(260, 1.0, true) // Cutoff
+  // Parameters
+  view.setUint8(272, 50, true) // Volume
+  view.setUint8(276, 50, true) // Panning
+  // Granular
+  view.setInt16(378, 441, true) // Granular length
+  // Effects
+  view.setUint8(386, 16, true) // Bit depth
+  return header
+})()
 
 /**
  * Get the header from a .pti
@@ -116,165 +173,151 @@ export function validateHeader(header) {
  * @returns {HeaderParseResult}
  */
 export function parseHeader(header) {
-  const slice = header.slice.bind(header)
+  const newHeader = header.slice(0)
+  const headerData = {}
 
-  const int8a = (start, stop) => new Int8Array(slice(start, stop))
-  const uint8a = (start, stop) => new Uint8Array(slice(start, stop))
-  const uint16a = (start, stop) => new Uint16Array(slice(start, stop))
-  const uint32a = (start, stop) => new Uint32Array(slice(start, stop))
-  const float32a = (start, stop) => new Float32Array(slice(start, stop))
-  const signedCharAt = (n) => int8a(n, n + 1)[0]
-  const charAt = (n) => uint8a(n, n + 1)[0]
-  const uint16At = (n) => uint16a(n, n + 2)[0]
-  const uint32At = (n) => uint32a(n, n + 4)[0]
-  const float32At = (n) => float32a(n, n + 4)[0]
+  const asciiEncoder = new TextEncoder('ascii')
+  const int8a = (start, length) => new Int8Array(newHeader, start, length)
+  const uint8a = (start, length) => new Uint8Array(newHeader, start, length)
+  const uint16a = (start, length) => new Uint16Array(newHeader, start, length)
+  const uint32a = (start, length) => new Uint32Array(newHeader, start, length)
+  const float32a = (start, length) => new Float32Array(newHeader, start, length)
+  const signedCharAt = (n) => int8a(n, 1)[0]
+  const charAt = (n) => uint8a(n, 1)[0]
+  const uint16At = (n) => uint16a(n, 1)[0]
+  const uint32At = (n) => uint32a(n, 1)[0]
+  const float32At = (n) => float32a(n, 1)[0]
 
   return {
     get isWavetable() {
-      delete this.isWavetable
-      return this.isWavetable = charAt(20)
+      return headerData.isWavetable ?? (headerData.isWavetable = charAt(20))
     },
 
     get name() {
-      delete this.name
-      return this.name = new TextDecoder('ascii').decode(uint8a(21, 52))
+      return headerData.name ?? (headerData.name = new TextDecoder('ascii').decode(uint8a(21, 32)))
+    },
+
+    set name(value) {
+      headerData.name = value
+      uint8a(21, 32).set(asciiEncoder.encode(value))
     },
 
     get sampleLength() {
-      delete this.sampleLength
-      return this.sampleLength = uint32At(60)
+      return headerData.sampleLength ?? (headerData.sampleLength = uint32At(60))
     },
 
     get wavetableWindowSize() {
-      delete this.wavetableWindowSize
-      return this.wavetableWindowSize = uint16At(64)
+      return headerData.wavetableWindowSize ?? (headerData.wavetableWindowSize = uint16At(64))
     },
 
     get wavetableTotalPositions() {
-      delete this.waveTableTotalPositions
-      return this.waveTableTotalPositions = uint16At(68)
+      return headerData.waveTableTotalPositions ?? (headerData.waveTableTotalPositions = uint16At(68))
     },
 
     get samplePlayback() {
-      delete this.samplePlayback
-      return this.samplePlayback = charAt(76)
+      return headerData.samplePlayback ?? (headerData.samplePlayback = charAt(76))
     },
 
     get playbackStart() {
-      delete this.playbackStart
-      return this.playbackStart = uint16At(78)
+      return headerData.playbackStart ?? (headerData.playbackStart = uint16At(78))
     },
 
     get loopStart() {
-      delete this.loopStart
-      return this.loopStart = uint16At(80)
+      return headerData.loopStart ?? (headerData.loopStart = uint16At(80))
     },
 
     get loopEnd() {
-      delete this.loopEnd
-      return this.loopEnd = uint16At(82)
+      return headerData.loopEnd ?? (headerData.loopEnd = uint16At(82))
     },
 
     get playbackEnd() {
-      delete this.playbackEnd
-      return this.playbackEnd = uint16At(84)
+      return headerData.playbackEnd ?? (headerData.playbackEnd = uint16At(84))
     },
 
     get wavetablePosition() {
-      delete this.waveTablePosition
-      return this.waveTablePosition = uint16At(88)
+      return headerData.waveTablePosition ?? (headerData.waveTablePosition = uint16At(88))
     },
 
     get cutoff() {
-      delete this.cutoff
-      return this.cutoff = float32At(260)
+      return headerData.cutoff ?? (headerData.cutoff = float32At(260))
     },
 
     get resonance() {
-      delete this.resonance
-      return this.resonance = float32At(264)
+      return headerData.resonance ?? (headerData.resonance = float32At(264))
     },
 
     get filterType() {
-      delete this.filterType
-      return this.filterType = charAt(268)
+      return headerData.filterType ?? (headerData.filterType = charAt(268))
     },
 
     get filterEnabled() {
-      delete this.filterEnabled
-      return this.filterEnabled = charAt(269)
+      return headerData.filterEnabled ?? (headerData.filterEnabled = charAt(269))
     },
 
     get tune() {
-      delete this.tune
-      return this.tune = signedCharAt(270)
+      return headerData.tune ?? (headerData.tune = signedCharAt(270))
     },
 
     get finetune() {
-      delete this.finetune
-      return this.finetune = signedCharAt(271)
+      return headerData.finetune ?? (headerData.finetune = signedCharAt(271))
     },
 
     get volume() {
-      delete this.volume
-      return this.volume = charAt(272)
+      return headerData.volume ?? (headerData.volume = charAt(272))
     },
 
     get panning() {
-      delete this.panning
-      return this.panning = charAt(276)
+      return headerData.panning ?? (headerData.panning = charAt(276))
     },
 
     get delaySend() {
-      delete this.delaySend
-      return this.delaySend = charAt(278)
+      return headerData.delaySend ?? (headerData.delaySend = charAt(278))
     },
 
     get slices() {
-      delete this.slices
-      return this.slices = uint16a(280, 280 + this.numSlices * 2)
+      return headerData.slices ?? (headerData.slices = uint16a(280, this.numSlices))
     },
 
     get numSlices() {
-      delete this.numSlices
-      return this.numSlices = charAt(376)
+      return headerData.numSlices ?? (headerData.numSlices = charAt(376))
     },
 
     get granularLength() {
-      delete this.granularLength
-      return this.granularLength = uint16At(378)
+      return headerData.granularLength ?? (headerData.granularLength = uint16At(378))
     },
 
     get granularPosition() {
-      delete this.granularPosition
-      return this.granularPosition = uint16At(380)
+      return headerData.granularPosition ?? (headerData.granularPosition = uint16At(380))
     },
 
     get granularShape() {
-      delete this.granularShape
-      return this.granularShape = charAt(382)
+      return headerData.granularShape ?? (headerData.granularShape = charAt(382))
     },
 
     get granularLoopMode() {
-      delete this.granularLoopMode
-      return this.granularLoopMode = charAt(383)
+      return headerData.granularLoopMode ?? (headerData.granularLoopMode = charAt(383))
     },
 
     get reverbSend() {
-      delete this.reverbSend
-      return this.reverbSend = charAt(384)
+      return headerData.reverbSend ?? (headerData.reverbSend = charAt(384))
     },
 
     get overdrive() {
-      delete this.overdrive
-      return this.overdrive = charAt(385)
+      return headerData.overdrive ?? (headerData.overdrive = charAt(385))
     },
 
     get bitDepth() {
-      delete this.bitDepth
-      return this.bitDepth = charAt(386)
+      return headerData.bitDepth ?? (headerData.bitDepth = charAt(386))
     },
+
+    get buffer() {
+      return newHeader
+    }
   }
+}
+
+function writeHeader(header, headerData) {
+
 }
 
 export const isOneShot = samplePlayback => samplePlayback === ONE_SHOT
@@ -298,11 +341,31 @@ export function relOffset(offset) {
  * @param {ArrayBuffer} audio
  * @return {Float32Array}
  */
- export function convert(audio) {
+export function convert(audio) {
   return new Float32Array(
     Array.from(new Int16Array(audio)).map(value => value / 32767)
   )
 }
+
+/**
+ * @param {Float32Array} audio
+ * @param {HeaderParseResult} headerData
+ * @returns {Blob}
+ */
+export function getPtiFile(audio, headerData) {
+  const buffer = new ArrayBuffer(
+    392 + // header size
+    audio.byteLength / 2 // 32 -> 16 bit audio
+  )
+
+  // Write header
+  new Uint8Array(buffer).set(new Uint8Array(headerData.buffer))
+  // Write audio
+  new Int16Array(buffer).set(Array.from(audio).map(v => v * 32767), 392 / 2)
+
+  return new Blob([buffer], { 'type': 'application/octet-stream' });
+}
+
 
 /**
  * @param {Float32Array} audio
@@ -350,5 +413,5 @@ export function getWavFile(audio) {
     uint16Array[44 + i] = audio[i] * 32767
   }
 
-  return new Blob([buffer], {'type': 'audio/wav'});
+  return new Blob([buffer], { 'type': 'audio/wav' });
 }

@@ -63,8 +63,21 @@ export const InstrumentPreview = {
 
     frag.querySelector('button.start').addEventListener('click', () => player.playSample())
     frag.querySelector('button.stop').addEventListener('click', () => player.stop())
-    frag.querySelector('button.export').addEventListener('click', () => {
-      const file = ptiTools.getWavFile(audio, headerData.name)
+
+    frag.querySelector('button.export-pti').addEventListener('click', () => {
+      const file = ptiTools.getPtiFile(audio, headerData)
+      const url = URL.createObjectURL(file)
+      const a = parent.ownerDocument.createElement('a')
+      a.setAttribute('download', `${headerData.name.replaceAll('\x00', '')}.pti`)
+      a.setAttribute('href', url)
+      a.setAttribute('hidden', '')
+      parent.appendChild(a)
+      a.click()
+      URL.revokeObjectURL(url)
+    })
+
+    frag.querySelector('button.export-wav').addEventListener('click', () => {
+      const file = ptiTools.getWavFile(audio)
       const url = URL.createObjectURL(file)
       const a = parent.ownerDocument.createElement('a')
       a.setAttribute('download', `${headerData.name.replaceAll('\x00', '')}.wav`)
