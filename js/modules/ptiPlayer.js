@@ -67,7 +67,7 @@ export async function load(audioEl, ctx, buffer, headerData) {
   switch (headerData.samplePlayback) {
     case SamplePlayback.BACKWARD_LOOP:
     case SamplePlayback.PINGPONG_LOOP:
-      // AudioBufferSourceNode does not support backward of ping-pong loops,
+      // AudioBufferSourceNode does not support backward or ping-pong loops,
       // so we'll have to improvise. First find the loop region...
       const regionStart = Math.round(relOffset(headerData.loopStart) * bufferLength)
       const regionEnd = Math.round(relOffset(headerData.loopEnd) * bufferLength)
@@ -244,6 +244,7 @@ function createDelay(ctx, input, sendLevel, delayTime, feedback) {
 }
 
 /**
+ * Get the impulse response data
  * @param {AudioContext} ctx
  * @return {Promise<AudioBuffer>}
  */

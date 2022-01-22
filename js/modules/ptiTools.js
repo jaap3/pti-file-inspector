@@ -49,7 +49,7 @@ const {
  * @param {ArrayBuffer} header
  * @returns {HeaderParseResult}
  */
- export function parseHeader(header) {
+export function parseHeader(header) {
   const newHeader = header.slice(0)
   const headerData = {}
 
@@ -287,11 +287,12 @@ export function convert(audio) {
 export function getPtiFile(audio, headerData) {
   const buffer = new ArrayBuffer(
     392 + // header size
-    audio.byteLength / 2 // 32 -> 16 bit audio
+    audio.byteLength / 2 // From 32 -> 16 bit
   )
 
   // Write header
   new Uint8Array(buffer).set(new Uint8Array(headerData.buffer))
+
   // Write audio
   new Int16Array(buffer).set(Array.from(audio).map(v => v * 32767), 392 / 2)
 
@@ -305,45 +306,19 @@ export function getPtiFile(audio, headerData) {
  */
 export function getWavFile(audio) {
   const audioLength = audio.byteLength / 2 // From 32 -> 16 bit
-  const buffer = new ArrayBuffer(audioLength + 44) // 44 = header size
-  const view = new DataView(buffer)
-  const uint8Array = new Uint8Array(buffer)
-  const uint16Array = new Uint16Array(buffer)
-  const textEncoder = new TextEncoder()
+  const buffer = new ArrayBuffer(
+    44 + // header size
+    audioLength
+  )
 
-  // The ASCII text string "RIFF"
-  textEncoder.encodeInto('RIFF', uint8Array)
-  // The file size LESS the size of the "RIFF" description (4 bytes)
-  // and the size of file description (4 bytes).
-  view.setUint32(4, buffer.byteLength - 8, true)
-  // The ascii text string "WAVE".
-  textEncoder.encodeInto('WAVE', uint8Array.subarray(8))
-  // The ascii text string "fmt " (note the trailing space).
-  textEncoder.encodeInto('fmt ', uint8Array.subarray(12))
-  // The size of the WAV type format (2 bytes) + mono/stereo flag (2 bytes) +
-  // sample rate (4 bytes) + bytes/sec (4 bytes) + block alignment (2 bytes) +
-  // bits/sample (2 bytes). This is usually 16.
-  view.setUint32(16, 16, true) // fmt chunk length
-  // Type of WAV format. This is a PCM header, or a value of 0x01.
-  view.setUint16(20, 1, true) // PCM
-  // mono (0x01) or stereo (0x02)
-  view.setUint16(22, 1, true) // mono
-  // The sample frequency.
-  view.setUint32(24, 44100, true) // sample rate
-  // The audio data rate in bytes/sec.
-  view.setUint32(28, 44100 * 2, true)
-  // The block alignment.
-  view.setUint16(32, 2, true)
-  // The number of bits per sample.
-  view.setUint16(34, 16, true)
-  // The ascii text string "data".
-  textEncoder.encodeInto('data', uint8Array.subarray(36))
+  // Write header
+  new Uint8Array(buffer).set(new Uint8Array(constants.DEFAULT_WAV_HEADER))
+  const view = new DataView(buffer)
   // Number of bytes of data is included in the data section.
   view.setUint32(40, audioLength, true)
-  // The audio data.
-  for (let i = 0; i < audio.length; i++) {
-    uint16Array[44 + i] = audio[i] * 32767
-  }
+
+  // Write audio
+  new Int16Array(buffer).set(Array.from(audio).map(v => v * 32767), 44 / 2)
 
   return new Blob([buffer], { 'type': 'audio/wav' });
 }
