@@ -1,6 +1,6 @@
 import * as ptiTools from '../modules/ptiTools.js'
 
-const { displaydB, convertVolume } = ptiTools
+const { displaydB, convertSend, convertVolume } = ptiTools
 
 const templateCache = new WeakMap()
 
@@ -85,6 +85,16 @@ export const InstrumentEditor = {
 
     /* bitDepth */
     activateSlider(form.bitDepth, headerData, { defaultValue: 16 })
+
+    /* Reverb send */
+    activateSlider(form.reverbSend, headerData, {
+      formatValue: (value) => displaydB(convertSend(value))
+    })
+
+    /* Delay send */
+    activateSlider(form.delaySend, headerData, {
+      formatValue: (value) => displaydB(convertSend(value))
+    })
 
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
