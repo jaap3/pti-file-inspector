@@ -87,7 +87,7 @@ async function renderInstrument(headerData, audio) {
   }))
 }
 
-/*
+/**
  * File selection handler
  * @param {File} file
  */
@@ -134,7 +134,28 @@ async function fileSelected(file) {
 
     if (audioBuffer !== undefined) {
       headerData = ptiTools.getDefeaultHeader()
-      headerData.name = file.name.substring(0, 32)
+
+      const ext = file.name.split('.').at(-1)
+      let fname
+
+      switch (ext) {
+        case 'wav':
+        case 'mp3':
+        case 'mp4':
+        case 'm4a':
+        case 'ogg':
+        case 'aac':
+          fname = file.name.slice(0, -4)
+          break
+        case 'flac':
+        case 'webm':
+          fname = file.name.slice(0, -5)
+          break
+        default:
+          fname = file.name
+      }
+
+      headerData.name = fname.substring(0, 32)
       audio = audioBuffer.getChannelData(0)
 
       const nChannels = audioBuffer.numberOfChannels
