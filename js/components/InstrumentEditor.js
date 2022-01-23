@@ -55,6 +55,29 @@ export const InstrumentEditor = {
       showVolume()
     })
 
+    /* Panning */
+    const showPanning = () => {
+      form.panning.valueAsNumber = headerData.panning
+      const displayValue = headerData.panning - 50
+      form['panning-result'].value = `${displayValue} (${displayValue < 0 ? 'left' : displayValue === 0 ? 'center' :  'right'})`
+    }
+    showPanning()
+
+    form.panning.addEventListener('wheel', (e) => {
+      headerData.panning = Math.min(Math.max(0, headerData.panning - Math.sign(e.deltaY) * 1), 100)
+      showPanning()
+    })
+
+    form.panning.addEventListener('change', () => {
+      headerData.panning = form.panning.valueAsNumber
+      showPanning()
+    })
+
+    form.panning.addEventListener('dblclick', () => {
+      headerData.panning = 50
+      showPanning()
+    })
+
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {
