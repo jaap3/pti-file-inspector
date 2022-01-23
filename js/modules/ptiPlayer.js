@@ -3,7 +3,7 @@ import * as ptiTools from './ptiTools.js'
 
 const { SamplePlayback, FilterType } = constants
 
-const { isOneShot, isLoop, relOffset } = ptiTools
+const { convertSend, convertVolume, isOneShot, isLoop, relOffset } = ptiTools
 const filterType = {
   [FilterType.LOW_PASS]: 'lowpass',
   [FilterType.BAND_PASS]: 'bandpass',
@@ -37,6 +37,7 @@ export async function load(audioEl, ctx, buffer, headerData) {
   const sampleLength = bufferLength / 44100
   const absOffset = (offset) => relOffset(offset) * sampleLength
 
+  /** @type {AudioBufferSourceNode} */
   let source;
 
   function stop() {
@@ -150,7 +151,7 @@ async function createOutputChain(ctx, headerData) {
     chain = createOverdrive(ctx, chain, headerData.overdrive)
   }
 
-  chain = chain.connect(new GainNode(ctx, { gain: headerData.volume / 50 }))  // volume
+  chain = chain.connect(new GainNode(ctx, { gain: Math.pow(10, convertVolume(headerData.volume) / 20) }))  // volume
 
   if (false && headerData.filterEnabled) {
     // Disabled for now
@@ -166,12 +167,12 @@ async function createOutputChain(ctx, headerData) {
   const pan = chain.connect(new StereoPannerNode(ctx, { pan: headerData.panning / 50 - 1 }))
 
   if (headerData.delaySend) {
-    const delay = createDelay(ctx, chain, headerData.delaySend / 100, .5, .35)
+    const delay = createDelay(ctx, chain, Math.pow(10, convertSend(headerData.delaySend) / 20), .5, .33)
     delay.connect(pan)
   }
 
   if (headerData.reverbSend) {
-    const reverb = await createReverb(ctx, chain, headerData.reverbSend / 100, .0125)
+    const reverb = await createReverb(ctx, chain, Math.pow(10, convertSend(headerData.reverbSend) / 20), .0125)
     reverb.connect(pan)
   }
 
