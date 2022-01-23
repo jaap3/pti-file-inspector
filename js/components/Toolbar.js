@@ -76,6 +76,8 @@ export const Toolbar = {
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {
+      dataSection.removeAttribute('hidden')
+      editorSection.setAttribute('hidden', '')
       mounted.forEach(el => el.remove())
     }
   }
