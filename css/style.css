@@ -45,7 +45,7 @@ label[for="pti-file-input"]:focus-within {
 
 /* Instrument preview */
 
-#pti-file-preview {
+#pti-instrument-preview {
   display: flex;
   flex-wrap: wrap;
 }
@@ -59,16 +59,17 @@ canvas.waveform {
 }
 
 .keypad {
-  flex: 1 1 1cm;
+  flex: 1 1 72px;
   flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 .keypad button {
   background: radial-gradient(#e2e4cc, #9e9e92);
-  width: 0.75cm;
-  height: 0.75cm;
-  margin-right: 2.5mm;
-  margin-bottom: 2.5mm;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  margin-bottom: 8px;
   border: 1px outset #3b3b43;
   padding: 0;
 }
@@ -81,7 +82,6 @@ canvas.waveform {
 
 .controls {
   display: flex;
-  flex: 0 0 3.4cm;
   flex-wrap: wrap;
   align-content: flex-start;
   justify-content: flex-end;
@@ -94,9 +94,9 @@ canvas.waveform {
   line-height: 1.25;
   display: inline-flex;
   align-items: flex-end;
-  margin: 0 0 2mm 2mm;
-  width: 1.5cm;
-  height: 1.5cm;
+  margin: 0 0 8px 8px;
+  width: 64px;
+  height: 64px;
   border: 1mm outset #3b3b43;
   border-radius: 1mm;
   padding: 1mm;
