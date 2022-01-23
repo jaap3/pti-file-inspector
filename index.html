@@ -41,7 +41,7 @@
       <button type="button" class="start" title="Play sample">Play</button>
       <button type="button" class="stop" title="Stop all playback">Stop</button>
     </div>
-  </div>
+    </div>
   </template>
 
   <template id="template:toolbar">
@@ -74,29 +74,37 @@
           <tr>
             <th><label for="pti-instrument-volume">Volume</label></th>
             <td>
-              <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
-              <output name="volume-result" for="pti-instrument-volume"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
+                <output name="volume-result" for="pti-instrument-volume"></output>
+              </div>
             </td>
           </tr>
           <tr>
             <th><label for="pti-instrument-panning">Panning</label></th>
             <td>
-              <input type="range" id="pti-instrument-panning" name="panning" min="-24" max="24">
-              <output name="panning-result" for="pti-instrument-panning"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-panning" name="panning" min="-24" max="24">
+                <output name="panning-result" for="pti-instrument-panning"></output>
+              </div>
             </td>
           </tr>
           <tr>
             <th><label for="pti-instrument-tune">Tune</label></th>
             <td>
-              <input type="range" id="pti-instrument-tune" name="tune" min="-100" max="100">
-              <output name="tune-result" for="pti-instrument-tune"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-tune" name="tune" min="-100" max="100">
+                <output name="tune-result" for="pti-instrument-tune"></output>
+              </div>
             </td>
           </tr>
           <tr>
             <th><label for="pti-instrument-finetune">Finetune</label></th>
             <td>
-              <input type="range" id="pti-instrument-finetune" name="finetune" min="0" max="100">
-              <output name="finetune-result" for="pti-instrument-finetune"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-finetune" name="finetune" min="0" max="100">
+                <output name="finetune-result" for="pti-instrument-finetune"></output>
+              </div>
             </td>
           </tr>
         </table>
@@ -107,29 +115,37 @@
           <tr>
             <th><label for="pti-instrument-overdrive">Overdrive</label></th>
             <td>
-              <input type="range" id="pti-instrument-overdrive" name="overdrive" min="0" max="100">
-              <output name="overdrive-result" for="pti-instrument-overdrive"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-overdrive" name="overdrive" min="0" max="100">
+                <output name="overdrive-result" for="pti-instrument-overdrive"></output>
+              </div>
             </td>
           </tr>
           <tr>
             <th><label for="pti-instrument-bitdepth">Bit depth</label></th>
             <td>
-              <input type="range" id="pti-instrument-bitdepth" name="bitdepth" min="1" max="16">
-              <output name="bitdepth-result" for="pti-instrument-bitdepth"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-bitdepth" name="bitdepth" min="1" max="16">
+                <output name="bitdepth-result" for="pti-instrument-bitdepth"></output>
+              </div>
             </td>
           </tr>
           <tr>
             <th><label for="pti-instrument-reverb-send">Reverb send</label></th>
             <td>
-              <input type="range" id="pti-instrument-reverb-send"" name="reverb-send"" min="0" max="100">
-              <output name="reverb-send"-result" for="pti-instrument-reverb-send""></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-reverb-send"" name=" reverb-send"" min="0" max="100">
+                <output name="reverb-send" -result" for="pti-instrument-reverb-send""></output>
+              </div>
             </td>
           </tr>
           <tr>
-            <th><label for="pti-instrument-delay-send">Delay send</label></th>
+            <th><label for=" pti-instrument-delay-send">Delay send</label></th>
             <td>
-              <input type="range" id="pti-instrument-delay-send" name="delay-send" min="0" max="100">
-              <output name="delay-send-result" for="pti-instrument-delay-send"></output>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-delay-send" name="delay-send" min="0" max="100">
+                <output name="delay-send-result" for="pti-instrument-delay-send"></output>
+              </div>
             </td>
           </tr>
         </table>

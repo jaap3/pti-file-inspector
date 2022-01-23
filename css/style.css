@@ -159,6 +159,19 @@ fieldset th {
 input[type=text] {
   border: 1px solid #777;
   background-color: #101010;
+  width: 100%;
+}
+
+.range-output {
+  display: flex;
+}
+
+.range-output output {
+  flex-basis: 5em;
+  flex-shrink: 0;
+  margin-left: 6px;
+  align-self: center;
+  text-align: right;
 }
 
 input[type=range] {
@@ -168,6 +181,7 @@ input[type=range] {
   height: 32px;
   background-color: #101010;
   cursor: pointer;
+  width: 100%;
 }
 
 input[type=range]::-webkit-slider-thumb {
