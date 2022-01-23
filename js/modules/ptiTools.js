@@ -68,11 +68,18 @@ export function parseHeader(header) {
     },
 
     get name() {
-      return headerData.name ?? (headerData.name = new TextDecoder('ascii').decode(new Uint8Array(newHeader, 21, 31)))
+      return headerData.name ?? (
+        headerData.name = new TextDecoder('ascii').decode(
+          new Uint8Array(newHeader, 21, 31)
+        ).replaceAll('\x00', '')
+      )
     },
 
+    /**
+     * @param {string} value
+     */
     set name(value) {
-      new Uint8Array(newHeader, 21, 31).set(asciiEncoder.encode(value))
+      new Uint8Array(newHeader, 21, 31).set(asciiEncoder.encode(value.padEnd(31, '\x00')))
       headerData.name = value
     },
 

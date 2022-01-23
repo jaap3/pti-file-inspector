@@ -25,6 +25,10 @@ export const InstrumentEditor = {
   mount(parent, { headerData, audio }) {
     const frag = getTemplate(parent).cloneNode(true)
 
+    const form = frag.querySelector('form')
+    form.name.value = headerData.name
+    form.name.addEventListener('change', () => headerData.name = form.name.value)
+
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {

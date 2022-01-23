@@ -99,6 +99,107 @@ export function displaydB(value) {
   return `${value.toFixed(2)} dB`
 }
 
+/**
+ * Render the instrument data table.
+ *
+ * @param {HTMLElement} parent
+ * @param {Object} options
+ * @param {ptiTools.HeaderParseResult} options.headerData
+ * @param {ArrayBuffer} audio
+ * @returns
+ */
+function render(parent, { headerData, audio }) {
+  const table = getTemplate(parent).cloneNode(true)
+  const rowTemplate = table.querySelector('tr')
+  rowTemplate.remove()  // Detach this template from the cloned table
+
+  const createElement = parent.ownerDocument.createElement.bind(parent.ownerDocument)
+
+  const createRow = (label, value) => {
+    const row = rowTemplate.cloneNode(true)
+    row.querySelector('th').innerText = label
+    row.querySelector('td').innerText = value
+    return row
+  }
+
+  const addRow = (label, value) => table.tBodies[0].appendChild(createRow(label, value))
+
+  const sampleLengthInMs = audio.length / 44.1
+  const headerLengthInMs = headerData.sampleLength / 44.1
+  const displayOffset = (offset) => displayMilliseconds(relOffset(offset) * sampleLengthInMs)
+
+  const samplePlayback = headerData.samplePlayback
+
+  addRow('Name', headerData.name)
+  addRow('Length',
+    displayMilliseconds(sampleLengthInMs) +
+    (headerLengthInMs != sampleLengthInMs ?
+      ` (header says: ${displayMilliseconds(headerLengthInMs)})` : '')
+  )
+  addRow('Playback', SAMPLE_PLAYBACK[samplePlayback])
+
+  if (isOneShot(samplePlayback) || isLoop(samplePlayback)) {
+    addRow('Start', displayOffset(headerData.playbackStart))
+
+    if (isLoop(samplePlayback)) {
+      addRow('Loop start', displayOffset(headerData.loopStart))
+      addRow('Loop end', displayOffset(headerData.loopEnd))
+    }
+
+    addRow('End', displayOffset(headerData.playbackEnd))
+  }
+
+  else if (isSliced(samplePlayback)) {
+    const slicesRow = createRow('Slices', '')
+    const slicesCell = slicesRow.querySelector('td')
+    const slicesDetails = createElement('details')
+    const slicesSummary = slicesDetails.appendChild(createElement('summary'))
+    slicesSummary.innerText = headerData.numSlices
+    const slicesList = slicesDetails.appendChild(createElement('ol'))
+    headerData.slices.forEach(offset => {
+      const sliceLi = slicesList.appendChild(createElement('li'))
+      sliceLi.innerText = displayOffset(offset)
+    })
+    slicesDetails.appendChild(slicesList)
+    slicesCell.appendChild(slicesDetails)
+    table.tBodies[0].appendChild(slicesRow)
+  }
+
+  else if (headerData.isWavetable && isWavetable(samplePlayback)) {
+    addRow('Window size', headerData.wavetableWindowSize)
+    addRow('Total positions', headerData.wavetableTotalPositions)
+    addRow('Position', headerData.wavetablePosition)
+  }
+
+  else if (isGranular(samplePlayback)) {
+    addRow('Length', displayMilliseconds(headerData.granularLength / 44.1))
+    addRow('Position', displayOffset(headerData.granularPosition))
+    addRow('Shape', GRANULAR_SHAPE[headerData.granularShape])
+    addRow('Loop mode', GRANULAR_LOOP_MODE[headerData.granularLoopMode])
+  }
+
+  addRow('Volume', displaydB(convertVolume(headerData.volume)))
+  addRow('Panning', headerData.panning - 50)
+  addRow('Tune', headerData.tune)
+  addRow('Finetune', headerData.finetune)
+
+  if (!headerData.filterEnabled) {
+    addRow('Filter', 'Disabled')
+  } else {
+    addRow('Filter', FILTER_TYPE[headerData.filterType])
+    addRow('Cutoff', Math.floor(headerData.cutoff * 100))
+    addRow('Resonance', (headerData.resonance / 4.300000190734863 * 100).toFixed(0))
+  }
+
+  addRow('Overdrive', headerData.overdrive)
+  addRow('Bit depth', headerData.bitDepth)
+
+  addRow('Reverb send', displaydB(convertSend(headerData.reverbSend)))
+  addRow('Delay send', displaydB(convertSend(headerData.delaySend)))
+
+  return table
+}
+
 export const InstrumentDataTable = {
   /**
    * Mount the instrument data table.
@@ -110,98 +211,20 @@ export const InstrumentDataTable = {
    * @returns
    */
   mount(parent, { headerData, audio }) {
-    const table = getTemplate(parent).cloneNode(true)
-    const rowTemplate = table.querySelector('tr')
-    rowTemplate.remove()  // Detach this template from the cloned table
+    let mounted = parent.appendChild(render(parent, { headerData, audio }))
 
-    const createElement = parent.ownerDocument.createElement.bind(parent.ownerDocument)
-
-    const createRow = (label, value) => {
-      const row = rowTemplate.cloneNode(true)
-      row.querySelector('th').innerText = label
-      row.querySelector('td').innerText = value
-      return row
-    }
-
-    const addRow = (label, value) => table.tBodies[0].appendChild(createRow(label, value))
-
-    const sampleLengthInMs = audio.length / 44.1
-    const headerLengthInMs = headerData.sampleLength / 44.1
-    const displayOffset = (offset) => displayMilliseconds(relOffset(offset) * sampleLengthInMs)
-
-    const samplePlayback = headerData.samplePlayback
-
-    addRow('Name', headerData.name)
-    addRow('Length',
-      displayMilliseconds(sampleLengthInMs) +
-      (headerLengthInMs != sampleLengthInMs ?
-        ` (header says: ${displayMilliseconds(headerLengthInMs)})` : '')
-    )
-    addRow('Playback', SAMPLE_PLAYBACK[samplePlayback])
-
-    if (isOneShot(samplePlayback) || isLoop(samplePlayback)) {
-      addRow('Start', displayOffset(headerData.playbackStart))
-
-      if (isLoop(samplePlayback)) {
-        addRow('Loop start', displayOffset(headerData.loopStart))
-        addRow('Loop end', displayOffset(headerData.loopEnd))
+    // Create an observer instance linked to the callback function
+    const observer = new MutationObserver((mutations) => {
+      if (parent.getAttribute('hidden') === null) {
+        mounted.remove()
+        mounted = parent.appendChild(render(parent, { headerData, audio }))
       }
-
-      addRow('End', displayOffset(headerData.playbackEnd))
-    }
-
-    else if (isSliced(samplePlayback)) {
-      const slicesRow = createRow('Slices', '')
-      const slicesCell = slicesRow.querySelector('td')
-      const slicesDetails = createElement('details')
-      const slicesSummary = slicesDetails.appendChild(createElement('summary'))
-      slicesSummary.innerText = headerData.numSlices
-      const slicesList = slicesDetails.appendChild(createElement('ol'))
-      headerData.slices.forEach(offset => {
-        const sliceLi = slicesList.appendChild(createElement('li'))
-        sliceLi.innerText = displayOffset(offset)
-      })
-      slicesDetails.appendChild(slicesList)
-      slicesCell.appendChild(slicesDetails)
-      table.tBodies[0].appendChild(slicesRow)
-    }
-
-    else if (headerData.isWavetable && isWavetable(samplePlayback)) {
-      addRow('Window size', headerData.wavetableWindowSize)
-      addRow('Total positions', headerData.wavetableTotalPositions)
-      addRow('Position', headerData.wavetablePosition)
-    }
-
-    else if (isGranular(samplePlayback)) {
-      addRow('Length', displayMilliseconds(headerData.granularLength / 44.1))
-      addRow('Position', displayOffset(headerData.granularPosition))
-      addRow('Shape', GRANULAR_SHAPE[headerData.granularShape])
-      addRow('Loop mode', GRANULAR_LOOP_MODE[headerData.granularLoopMode])
-    }
-
-    addRow('Volume', displaydB(convertVolume(headerData.volume)))
-    addRow('Panning', headerData.panning - 50)
-    addRow('Tune', headerData.tune)
-    addRow('Finetune', headerData.finetune)
-
-    if (!headerData.filterEnabled) {
-      addRow('Filter', 'Disabled')
-    } else {
-      addRow('Filter', FILTER_TYPE[headerData.filterType])
-      addRow('Cutoff', Math.floor(headerData.cutoff * 100))
-      addRow('Resonance', (headerData.resonance / 4.300000190734863 * 100).toFixed(0))
-    }
-
-    addRow('Overdrive', headerData.overdrive)
-    addRow('Bit depth', headerData.bitDepth)
-
-    addRow('Reverb send', displaydB(convertSend(headerData.reverbSend)))
-    addRow('Delay send', displaydB(convertSend(headerData.delaySend)))
-
-    const mounted = parent.appendChild(table)
+    })
+    observer.observe(parent, { attributeFilter: ['hidden'] })
 
     return function unmount() {
       mounted.remove()
+      observer.disconnect()
     }
   }
 }

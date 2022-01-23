@@ -61,7 +61,7 @@ export const Toolbar = {
       downloadFile(
         document,
         ptiTools.getPtiFile(audio, headerData),
-        `${headerData.name.replaceAll('\x00', '')}.pti`
+        `${headerData.name}.pti`
       )
     })
 
@@ -69,7 +69,7 @@ export const Toolbar = {
       downloadFile(
         document,
         ptiTools.getWavFile(audio, headerData),
-        `${headerData.name.replaceAll('\x00', '')}.wav`
+        `${headerData.name}.wav`
       )
     })
 
