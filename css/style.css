@@ -133,3 +133,60 @@ th {
   padding-right: 12.5px;
   width: 8em;
 }
+
+
+/* Form */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  display: block;
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 2px;
+  background-color: #fff;
+  color: #000;
+  font-weight: 400;
+}
+
+fieldset th {
+  vertical-align: middle;
+}
+
+input[type=text] {
+  border: 1px solid #777;
+  background-color: #101010;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  margin: 2px 0;
+  border: 1px solid #777;
+  height: 32px;
+  background-color: #101010;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+}
+
+input[type=range]::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border-radius: 0;
+  border: 0;
+  -webkit-appearance: none;
+}
+
+input[type=text]:focus,
+input[type=range]:focus {
+  outline: 1px solid #651f1f;
+}

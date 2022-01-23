@@ -38,12 +38,24 @@ export const Toolbar = {
    * @param {HTMLElement} parent
    * @param {Object} options
    * @param {ptiTools.HeaderParseResult} options.headerData
-   * @param {ArrayBuffer} audio
+   * @param {ArrayBuffer} options.audio
+   * @param {HTMLElement} options.dataSection
+   * @param {HTMLElement} options.editorSection
    * @returns
    */
-  mount(parent, { headerData, audio }) {
+  mount(parent, { headerData, audio, dataSection, editorSection }) {
     const { ownerDocument: document } = parent
     const frag = getTemplate(parent).cloneNode(true)
+
+    frag.querySelector('button.instrument-data').addEventListener('click', () => {
+      dataSection.removeAttribute('hidden')
+      editorSection.setAttribute('hidden', '')
+    })
+
+    frag.querySelector('button.instrument-edit').addEventListener('click', () => {
+      editorSection.removeAttribute('hidden')
+      dataSection.setAttribute('hidden', '')
+    })
 
     frag.querySelector('button.export-pti').addEventListener('click', () => {
       downloadFile(

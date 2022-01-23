@@ -1,8 +1,9 @@
 import { FileSelect } from './components/FileSelect.js'
 
-const dataSection = document.getElementById('pti-file-data')
+const dataSection = document.getElementById('pti-instrument-data')
 const toolbar = document.getElementById('toolbar')
-const previewSection = document.getElementById('pti-file-preview')
+const previewSection = document.getElementById('pti-instrument-preview')
+const editorSection = document.getElementById('pti-instrument-editor')
 
 const mounted = (() => {
   /** @type Array<Function> */
@@ -68,6 +69,7 @@ async function renderInstrument(headerData, audio) {
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { Toolbar } = await import('./components/Toolbar.js')
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
+  const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
 
   mounted.push(await InstrumentPreview.mount(previewSection, {
     headerData,
@@ -76,14 +78,21 @@ async function renderInstrument(headerData, audio) {
     canvasWidth: dataSection.offsetWidth
   }))
 
-  mounted.push(Toolbar.mount(toolbar, {
+  mounted.push(InstrumentDataTable.mount(dataSection, {
     headerData,
     audio
   }))
 
-  mounted.push(InstrumentDataTable.mount(dataSection, {
+  mounted.push(InstrumentEditor.mount(editorSection, {
     headerData,
     audio
+  }))
+
+  mounted.push(Toolbar.mount(toolbar, {
+    headerData,
+    audio,
+    dataSection,
+    editorSection
   }))
 }
 

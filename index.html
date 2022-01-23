@@ -24,9 +24,10 @@
       </label>
     </section>
 
-    <section id="pti-file-preview"></section>
+    <section id="pti-instrument-preview"></section>
     <section id="toolbar"></section>
-    <section id="pti-file-data"></section>
+    <section id="pti-instrument-data"></section>
+    <section id="pti-instrument-editor" hidden></section>
 
   </main>
 
@@ -45,6 +46,8 @@
 
   <template id="template:toolbar">
     <div class="controls">
+      <button type="button" class="instrument-data" title="View instrument parameters">Show params</button>
+      <button type="button" class="instrument-edit" title="Edit instrument parameters">Edit params</button>
       <button type="button" class="export-pti" title="Download instrument as .pti file">Export .pti</button>
       <button type="button" class="export-wav" title="Download sample as .wav file">Export .wav</button>
     </div>
@@ -57,6 +60,81 @@
         <td></td>
       </tr>
     </table>
+  </template>
+
+  <template id="template:instrument-editor">
+    <form>
+      <fieldset>
+        <legend>Instrument parameters</legend>
+        <table>
+          <tr>
+            <th><label for="pti-instrument-name">Name</label></th>
+            <td><input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+"></td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-volume">Volume</label></th>
+            <td>
+              <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
+              <output name="volume-result" for="pti-instrument-volume"></output>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-panning">Panning</label></th>
+            <td>
+              <input type="range" id="pti-instrument-panning" name="panning" min="-24" max="24">
+              <output name="panning-result" for="pti-instrument-panning"></output>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-tune">Tune</label></th>
+            <td>
+              <input type="range" id="pti-instrument-tune" name="tune" min="-100" max="100">
+              <output name="tune-result" for="pti-instrument-tune"></output>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-finetune">Finetune</label></th>
+            <td>
+              <input type="range" id="pti-instrument-finetune" name="finetune" min="0" max="100">
+              <output name="finetune-result" for="pti-instrument-finetune"></output>
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+      <fieldset>
+        <legend>Effects</legend>
+        <table>
+          <tr>
+            <th><label for="pti-instrument-overdrive">Overdrive</label></th>
+            <td>
+              <input type="range" id="pti-instrument-overdrive" name="overdrive" min="0" max="100">
+              <output name="overdrive-result" for="pti-instrument-overdrive"></output>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-bitdepth">Bit depth</label></th>
+            <td>
+              <input type="range" id="pti-instrument-bitdepth" name="bitdepth" min="1" max="16">
+              <output name="bitdepth-result" for="pti-instrument-bitdepth"></output>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-reverb-send">Reverb send</label></th>
+            <td>
+              <input type="range" id="pti-instrument-reverb-send"" name="reverb-send"" min="0" max="100">
+              <output name="reverb-send"-result" for="pti-instrument-reverb-send""></output>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-delay-send">Delay send</label></th>
+            <td>
+              <input type="range" id="pti-instrument-delay-send" name="delay-send" min="0" max="100">
+              <output name="delay-send-result" for="pti-instrument-delay-send"></output>
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+    </form>
   </template>
 </body>
 </html>
