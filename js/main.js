@@ -155,7 +155,7 @@ async function fileSelected(file) {
           fname = file.name
       }
 
-      headerData.name = fname.substring(0, 32)
+      headerData.name = fname.substring(0, 31)
       audio = audioBuffer.getChannelData(0)
 
       const nChannels = audioBuffer.numberOfChannels

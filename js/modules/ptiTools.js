@@ -50,32 +50,30 @@ const {
  * @returns {HeaderParseResult}
  */
 export function parseHeader(header) {
-  const newHeader = header.slice(0)
   const headerData = {}
 
-  const asciiEncoder = new TextEncoder('ascii')
+  const newHeader = header.slice(0)
   const view = new DataView(newHeader)
-  const int8a = (start, length) => new Int8Array(newHeader, start, length)
-  const uint8a = (start, length) => new Uint8Array(newHeader, start, length)
-  const uint16a = (start, length) => new Uint16Array(newHeader, start, length)
-  const float32a = (start, length) => new Float32Array(newHeader, start, length)
-  const signedCharAt = (n) => int8a(n, 1)[0]
-  const charAt = (n) => uint8a(n, 1)[0]
-  const uint16At = (n) => uint16a(n, 1)[0]
-  const float32At = (n) => float32a(n, 1)[0]
+
+  const asciiEncoder = new TextEncoder('ascii')
 
   return {
     get isWavetable() {
-      return headerData.isWavetable ?? (headerData.isWavetable = charAt(20))
+      return headerData.isWavetable ?? (headerData.isWavetable = view.getUint8(20))
+    },
+
+    set isWavetable(value) {
+      view.setUint8(20, value)
+      headerData.isWavetable = value
     },
 
     get name() {
-      return headerData.name ?? (headerData.name = new TextDecoder('ascii').decode(uint8a(21, 32)))
+      return headerData.name ?? (headerData.name = new TextDecoder('ascii').decode(new Uint8Array(newHeader, 21, 31)))
     },
 
     set name(value) {
+      new Uint8Array(newHeader, 21, 31).set(asciiEncoder.encode(value))
       headerData.name = value
-      uint8a(21, 32).set(asciiEncoder.encode(value))
     },
 
     get sampleLength() {
@@ -83,112 +81,243 @@ export function parseHeader(header) {
     },
 
     set sampleLength(value) {
-      headerData.sampleLength = value
       view.setUint32(60, value, true)
+      headerData.sampleLength = value
     },
 
     get wavetableWindowSize() {
-      return headerData.wavetableWindowSize ?? (headerData.wavetableWindowSize = uint16At(64))
+      return headerData.wavetableWindowSize ?? (headerData.wavetableWindowSize = view.getUint16(64, true))
+    },
+
+    set wavetableWindowSize(value) {
+      view.setUint16(64, value, true)
+      headerData.wavetableWindowSize = value
     },
 
     get wavetableTotalPositions() {
-      return headerData.waveTableTotalPositions ?? (headerData.waveTableTotalPositions = uint16At(68))
+      return headerData.waveTableTotalPositions ?? (headerData.waveTableTotalPositions = view.getUint16(68, true))
+    },
+
+    set wavetableTotalPositions(value) {
+      view.setUint16(68, value, true)
+      headerData.waveTableTotalPositions = value
     },
 
     get samplePlayback() {
-      return headerData.samplePlayback ?? (headerData.samplePlayback = charAt(76))
+      return headerData.samplePlayback ?? (headerData.samplePlayback = view.getUint8(76))
+    },
+
+    set samplePlayback(value) {
+      view.setUint8(76, value)
+      headerData.samplePlayback = value
     },
 
     get playbackStart() {
-      return headerData.playbackStart ?? (headerData.playbackStart = uint16At(78))
+      return headerData.playbackStart ?? (headerData.playbackStart = view.getUint16(78, true))
+    },
+
+    set playbackStart(value) {
+      view.setUint16(78, value, true)
+      headerData.playbackStart = value
     },
 
     get loopStart() {
-      return headerData.loopStart ?? (headerData.loopStart = uint16At(80))
+      return headerData.loopStart ?? (headerData.loopStart = view.getUint16(80, true))
+    },
+
+    set loopStart(value) {
+      view.setUint16(80, value, true)
+      headerData.loopStart = value
     },
 
     get loopEnd() {
-      return headerData.loopEnd ?? (headerData.loopEnd = uint16At(82))
+      return headerData.loopEnd ?? (headerData.loopEnd = view.getUint16(82, true))
+    },
+
+    set loopEnd(value) {
+      view.setUint16(82, value, true)
+      headerData.loopEnd = value
     },
 
     get playbackEnd() {
-      return headerData.playbackEnd ?? (headerData.playbackEnd = uint16At(84))
+      return headerData.playbackEnd ?? (headerData.playbackEnd = view.getUint16(84, true))
+    },
+
+    set playbackEnd(value) {
+      view.setUint16(84, value, true)
+      headerData.playbackEnd = value
     },
 
     get wavetablePosition() {
-      return headerData.waveTablePosition ?? (headerData.waveTablePosition = uint16At(88))
+      return headerData.waveTablePosition ?? (headerData.waveTablePosition = view.getUint16(88, true))
+    },
+
+    set wavetablePosition(value) {
+      view.setUint16(88, value, true)
+      headerData.waveTablePosition = value
     },
 
     get cutoff() {
-      return headerData.cutoff ?? (headerData.cutoff = float32At(260))
+      return headerData.cutoff ?? (headerData.cutoff = view.getFloat32(260, true))
+    },
+
+    set cutoff(value) {
+      view.setFloat32(260, value, true)
+      headerData.cutoff = value
     },
 
     get resonance() {
-      return headerData.resonance ?? (headerData.resonance = float32At(264))
+      return headerData.resonance ?? (headerData.resonance = view.getFloat32(264, true))
+    },
+
+    set resonance(value) {
+      view.setFloat32(264, value, true)
+      headerData.resonance = value
     },
 
     get filterType() {
-      return headerData.filterType ?? (headerData.filterType = charAt(268))
+      return headerData.filterType ?? (headerData.filterType = view.getUint8(268))
+    },
+
+    set filterType(value) {
+      view.setUint8(268, value)
+      headerData.filterType = value
     },
 
     get filterEnabled() {
-      return headerData.filterEnabled ?? (headerData.filterEnabled = charAt(269))
+      return headerData.filterEnabled ?? (headerData.filterEnabled = view.getUint8(269))
+    },
+
+    set filterEnabled(value) {
+      view.setUint8(269, value)
+      headerData.filterEnabled = value
     },
 
     get tune() {
-      return headerData.tune ?? (headerData.tune = signedCharAt(270))
+      return headerData.tune ?? (headerData.tune = view.getInt8(270))
+    },
+
+    set tune(value) {
+      view.setInt8(270, value)
+      headerData.tune = value
     },
 
     get finetune() {
-      return headerData.finetune ?? (headerData.finetune = signedCharAt(271))
+      return headerData.finetune ?? (headerData.finetune = view.getInt8(271))
+    },
+
+    set finetune(value) {
+      view.setInt8(271, value)
+      headerData.finetune = value
     },
 
     get volume() {
-      return headerData.volume ?? (headerData.volume = charAt(272))
+      return headerData.volume ?? (headerData.volume = view.getUint8(272))
+    },
+
+    set volume(value) {
+      view.setUint8(272, value)
+      headerData.volume = value
     },
 
     get panning() {
-      return headerData.panning ?? (headerData.panning = charAt(276))
+      return headerData.panning ?? (headerData.panning = view.getUint8(276))
+    },
+
+    set panning(value) {
+      view.setUint8(276, value)
+      headerData.panning = value
     },
 
     get delaySend() {
-      return headerData.delaySend ?? (headerData.delaySend = charAt(278))
+      return headerData.delaySend ?? (headerData.delaySend = view.getUint8(278))
+    },
+
+    set delaySend(value) {
+      view.setUint8(278, value)
+      headerData.delaySend = value
     },
 
     get slices() {
-      return headerData.slices ?? (headerData.slices = uint16a(280, this.numSlices))
+      return headerData.slices ?? (headerData.slices = new Uint16Array(newHeader, 280, this.numSlices))
+    },
+
+    set slices(value) {
+      // TODO: Figure this out
+      // this.numSlices = value.length
+      // new Uint16Array(newHeader, 280, this.numSlices)
     },
 
     get numSlices() {
-      return headerData.numSlices ?? (headerData.numSlices = charAt(376))
+      return headerData.numSlices ?? (headerData.numSlices = view.getUint8(376))
+    },
+
+    set numSlices(value) {
+      view.setUint8(376, value)
+      headerData.numSlices = value
     },
 
     get granularLength() {
-      return headerData.granularLength ?? (headerData.granularLength = uint16At(378))
+      return headerData.granularLength ?? (headerData.granularLength = view.getUint16(378, true))
+    },
+
+    set granularLength(value) {
+      view.setUint16(378, value, true)
+      headerData.granularLength = value
     },
 
     get granularPosition() {
-      return headerData.granularPosition ?? (headerData.granularPosition = uint16At(380))
+      return headerData.granularPosition ?? (headerData.granularPosition = view.getUint16(380, true))
+    },
+
+    set granularPosition(value) {
+      view.setUint16(380, value, true)
+      headerData.granularPosition = value
     },
 
     get granularShape() {
-      return headerData.granularShape ?? (headerData.granularShape = charAt(382))
+      return headerData.granularShape ?? (headerData.granularShape = view.getUint8(382))
+    },
+
+    set granularShape(value) {
+      view.setUint8(382, value)
+      headerData.granularShape = value
     },
 
     get granularLoopMode() {
-      return headerData.granularLoopMode ?? (headerData.granularLoopMode = charAt(383))
+      return headerData.granularLoopMode ?? (headerData.granularLoopMode = view.getUint8(383))
+    },
+
+    set granularLoopMode(value) {
+      view.setUint8(383, value)
+      headerData.granularLoopMode = value
     },
 
     get reverbSend() {
-      return headerData.reverbSend ?? (headerData.reverbSend = charAt(384))
+      return headerData.reverbSend ?? (headerData.reverbSend = view.getUint8(384))
+    },
+
+    set reverbSend(value) {
+      view.setUint8(384, value)
+      headerData.reverbSend = value
     },
 
     get overdrive() {
-      return headerData.overdrive ?? (headerData.overdrive = charAt(385))
+      return headerData.overdrive ?? (headerData.overdrive = view.getUint8(385))
+    },
+
+    set overdrive(value) {
+      view.setUint8(385, value)
+      headerData.overdrive = value
     },
 
     get bitDepth() {
-      return headerData.bitDepth ?? (headerData.bitDepth = charAt(386))
+      return headerData.bitDepth ?? (headerData.bitDepth = view.getUint8(386))
+    },
+
+    set bitDepth(value) {
+      view.setUint8(386, value)
+      headerData.bitDepth = value
     },
 
     get buffer() {
