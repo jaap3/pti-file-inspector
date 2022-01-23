@@ -405,6 +405,54 @@ export function relOffset(offset) {
 }
 
 /**
+ * Convert volume level to dB.
+ *
+ * @param {number} value
+ * @returns {number}
+ */
+ export function convertVolume(value) {
+  const relative = value / 50
+  switch (relative) {
+    case 0: return -Infinity
+    case 0.02: return -24
+    default: return (relative - 1) * 24
+  }
+}
+
+/**
+ * Convert send level to dB.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+export function convertSend(value) {
+  if (value === 0) return -Infinity
+  return -40 + 2 * value / 5
+}
+
+/**
+ * Format number in for display purposes.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+ export function displayMilliseconds(value) {
+  return value < 800 ?
+    `${value.toFixed(2)} ms` :
+    `${(value / 1000).toFixed(2)} s`
+}
+
+/**
+ * Format number in for display purposes.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+export function displaydB(value) {
+  return `${value.toFixed(2)} dB`
+}
+
+/**
  * Convert 16 bit wav audio to Float32Array usable by Web Audio.
  * @param {ArrayBuffer} audio
  * @return {Float32Array}

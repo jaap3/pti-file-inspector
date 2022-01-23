@@ -2,7 +2,12 @@ import constants from '../modules/constants.js'
 import * as ptiTools from '../modules/ptiTools.js'
 
 const { SamplePlayback, FilterType, GranularShape, GranularLoopMode } = constants
-const { isOneShot, isLoop, isSliced, isWavetable, isGranular, relOffset } = ptiTools
+const {
+  convertSend, convertVolume,
+  displaydB, displayMilliseconds,
+  isOneShot, isLoop, isSliced, isWavetable, isGranular,
+  relOffset
+} = ptiTools
 
 const templateCache = new WeakMap()
 
@@ -49,54 +54,6 @@ const GRANULAR_SHAPE = {
   [GranularShape.SQUARE]: 'Square',
   [GranularShape.TRIANGLE]: 'Triangle',
   [GranularShape.GAUSS]: 'Gauss'
-}
-
-/**
- * Convert volume level to dB.
- *
- * @param {number} value
- * @returns {number}
- */
-function convertVolume(value) {
-  const relative = value / 50
-  switch (relative) {
-    case 0: return -Infinity
-    case 0.02: return -24
-    default: return (relative - 1) * 24
-  }
-}
-
-/**
- * Convert send level to dB.
- *
- * @param {number} value
- * @returns {string}
- */
-function convertSend(value) {
-  if (value === 0) return -Infinity
-  return -40 + 2 * value / 5
-}
-
-/**
- * Format number in for display purposes.
- *
- * @param {number} value
- * @returns {string}
- */
-export function displayMilliseconds(value) {
-  return value < 800 ?
-    `${value.toFixed(2)} ms` :
-    `${(value / 1000).toFixed(2)} s`
-}
-
-/**
- * Format number in for display purposes.
- *
- * @param {number} value
- * @returns {string}
- */
-export function displaydB(value) {
-  return `${value.toFixed(2)} dB`
 }
 
 /**
