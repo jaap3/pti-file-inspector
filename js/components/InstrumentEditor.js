@@ -78,6 +78,48 @@ export const InstrumentEditor = {
       showPanning()
     })
 
+    /* Tune */
+    const showTune = () => {
+      form['tune-result'].value = form.tune.valueAsNumber = headerData.tune
+    }
+    showTune()
+
+    form.tune.addEventListener('wheel', (e) => {
+      headerData.tune = Math.min(Math.max(-24, headerData.tune - Math.sign(e.deltaY) * 1), 24)
+      showTune()
+    })
+
+    form.tune.addEventListener('change', () => {
+      headerData.tune = form.tune.valueAsNumber
+      showTune()
+    })
+
+    form.tune.addEventListener('dblclick', () => {
+      headerData.tune = 0
+      showTune()
+    })
+
+    /* Finetune */
+    const showFinetune = () => {
+      form['finetune-result'].value = form.finetune.valueAsNumber = headerData.finetune
+    }
+    showFinetune()
+
+    form.finetune.addEventListener('wheel', (e) => {
+      headerData.finetune = Math.min(Math.max(-100, headerData.finetune - Math.sign(e.deltaY) * 1), 100)
+      showFinetune()
+    })
+
+    form.finetune.addEventListener('change', () => {
+      headerData.finetune = form.finetune.valueAsNumber
+      showFinetune()
+    })
+
+    form.finetune.addEventListener('dblclick', () => {
+      headerData.finetune = 0
+      showFinetune()
+    })
+
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {

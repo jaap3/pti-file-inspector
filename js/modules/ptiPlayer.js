@@ -55,7 +55,6 @@ export async function load(audioEl, ctx, buffer, headerData) {
   const oneShot = isOneShot(headerData.samplePlayback)
   const loop = isLoop(headerData.samplePlayback)
 
-  const detune = headerData.tune * 100 + headerData.finetune
   const slices = Array.from(headerData.slices).map(absOffset)
 
   const endOffset = oneShot ? absOffset(headerData.playbackEnd) : undefined
@@ -99,7 +98,6 @@ export async function load(audioEl, ctx, buffer, headerData) {
   }
 
   const instrumentOptions = {
-    detune,
     loop,
     loopStart,
     loopEnd,
@@ -110,7 +108,7 @@ export async function load(audioEl, ctx, buffer, headerData) {
     source = new AudioBufferSourceNode(ctx, {
       ...instrumentOptions,
       buffer: instrumentAudioBuffer,
-      detune: instrumentOptions.detune + detune
+      detune: headerData.tune * 100 + headerData.finetune + detune
     })
     const output = await createOutputChain(ctx, headerData)
     source.connect(output)
