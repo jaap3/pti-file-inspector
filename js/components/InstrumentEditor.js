@@ -80,6 +80,12 @@ export const InstrumentEditor = {
     /* Finetune */
     activateSlider(form.finetune, headerData)
 
+    /* Overdrive */
+    activateSlider(form.overdrive, headerData)
+
+    /* bitDepth */
+    activateSlider(form.bitDepth, headerData, { defaultValue: 16 })
+
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {
