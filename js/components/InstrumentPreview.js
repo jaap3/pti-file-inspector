@@ -74,22 +74,24 @@ export const InstrumentPreview = {
     }
 
     if (isOneShot(samplePlayback) || isLoop(samplePlayback)) {
-      for (let i = 0; i <= 12; i++) {
-        const button = buttonTemplate.cloneNode(true)
-        button.setAttribute('title', `Play instrument (hold)`)
+      for (let o = 12; o > -25; o -= 12) {
+        for (let n = 0; n < 12; n++) {
+          const button = buttonTemplate.cloneNode(true)
+          button.setAttribute('title', `Play instrument (hold)`)
 
-        button.addEventListener('keydown', (evt) => {
-          if (evt.which === 32 /* space */ && !evt.repeat) {
-            player.playInstrument({ detune: i * 100 })
-          }
-        })
-        button.addEventListener('keyup', () => player.stop())
-        button.addEventListener('touchstart', () => player.playInstrument({ detune: i * 100 }))
-        button.addEventListener('touchend', () => player.stop())
-        button.addEventListener('mousedown', () => player.playInstrument({ detune: i * 100 }))
-        button.addEventListener('mouseup', () => player.stop())
-        button.addEventListener('mouseleave', () => player.stop())
-        keypad.appendChild(button)
+          button.addEventListener('keydown', (evt) => {
+            if (evt.which === 32 /* space */ && !evt.repeat) {
+              player.playInstrument({ detune: (o + n) * 100 })
+            }
+          })
+          button.addEventListener('keyup', () => player.stop())
+          button.addEventListener('touchstart', () => player.playInstrument({ detune: (o + n) * 100 }))
+          button.addEventListener('touchend', () => player.stop())
+          button.addEventListener('mousedown', () => player.playInstrument({ detune: (o + n) * 100 }))
+          button.addEventListener('mouseup', () => player.stop())
+          button.addEventListener('mouseleave', () => player.stop())
+          keypad.appendChild(button)
+        }
       }
     }
 
