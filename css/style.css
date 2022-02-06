@@ -284,7 +284,7 @@ fieldset th {
   vertical-align: middle;
 }
 
-input[type=text] {
+input[type=text], select {
   border: 1px solid #777;
   background-color: #101010;
   width: 100%;
@@ -331,4 +331,8 @@ input[type=range]::-moz-range-thumb {
 input[type=text]:focus,
 input[type=range]:focus {
   outline: 1px solid #651f1f;
+}
+
+select {
+  appearance: auto;
 }

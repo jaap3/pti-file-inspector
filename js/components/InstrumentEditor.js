@@ -1,6 +1,20 @@
+import constants from '../modules/constants.js'
 import * as ptiTools from '../modules/ptiTools.js'
 
+const { SamplePlayback, FilterType, GranularShape, GranularLoopMode } = constants
+
 const { displaydB, convertSend, convertVolume } = ptiTools
+
+const PLAYBACK_LABELS = {
+  [SamplePlayback.ONE_SHOT]: 'One Shot',
+  [SamplePlayback.FORWARD_LOOP]: 'Forward Loop',
+  [SamplePlayback.BACKWARD_LOOP]: 'Backward Loop',
+  [SamplePlayback.PINGPONG_LOOP]: 'PingPong Loop',
+  [SamplePlayback.SLICE]: 'Slice',
+  [SamplePlayback.BEAT_SLICE]: 'Beat Slice',
+  [SamplePlayback.WAVETABLE]: 'Wavetable',
+  [SamplePlayback.GRANULAR]: 'Granular'
+}
 
 const templateCache = new WeakMap()
 
@@ -42,6 +56,24 @@ function activateSlider(input, headerData, { defaultValue = 0, formatValue = (va
   showValue()
 }
 
+/**
+ *
+ * @param {HTMLSelectElement} select
+ */
+function playbackSelect(select, headerData) {
+  const { ownerDocument: d } = select
+  Object.entries(SamplePlayback).forEach(([key, value]) => {
+    const option = d.createElement('option')
+    option.label = PLAYBACK_LABELS[value]
+    option.value = key
+    select.add(option)
+  })
+
+  select.addEventListener('change', () => {
+    headerData[select.name] = SamplePlayback[select.value]
+  })
+}
+
 export const InstrumentEditor = {
   /**
    * @param {HTMLElement} parent
@@ -79,6 +111,9 @@ export const InstrumentEditor = {
 
     /* Finetune */
     activateSlider(form.finetune, headerData)
+
+    /* Playback */
+    playbackSelect(form.samplePlayback, headerData)
 
     /* Overdrive */
     activateSlider(form.overdrive, headerData)
