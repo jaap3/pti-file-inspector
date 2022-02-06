@@ -56,6 +56,8 @@ export async function load(audioEl, ctx, buffer, headerData) {
   async function playInstrument({ offset, duration, detune = 0 }) {
     stop()
 
+    /* FIXME: There's way to much logic in here, a lot of this should be moved outside
+              of this function only be recalculated if the headerData changes...   */
     const oneShot = isOneShot(headerData.samplePlayback)
     const loop = isLoop(headerData.samplePlayback)
 
