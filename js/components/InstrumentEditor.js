@@ -34,7 +34,7 @@ function getTemplate({ ownerDocument }) {
   return templateCache.get(ownerDocument)
 }
 
-function activateSlider(input, headerData, { defaultValue = 0, formatValue = (value) => value } = {}) {
+function activateSlider(input, headerData, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value } = {}) {
   const output = input.form[`${input.name}-result`]
 
   function showValue() {
@@ -43,7 +43,8 @@ function activateSlider(input, headerData, { defaultValue = 0, formatValue = (va
   }
 
   input.addEventListener('wheel', (e) => {
-    headerData[input.name] = Math.min(Math.max(input.min, headerData[input.name] - Math.sign(e.deltaY) * 1), input.max)
+    e.preventDefault()
+    headerData[input.name] = Math.min(Math.max(input.min, headerData[input.name] - Math.sign(e.deltaY) * wheelDelta), input.max)
     showValue()
   })
 
@@ -121,23 +122,27 @@ export const InstrumentEditor = {
 
     /* Playback start */
     activateSlider(form.playbackStart, headerData, {
+      wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Loop start */
     activateSlider(form.loopStart, headerData, {
+      wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Loop end */
     activateSlider(form.loopEnd, headerData, {
       defaultValue: 65534,
+      wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Playback end */
     activateSlider(form.playbackEnd, headerData, {
       defaultValue: 65535,
+      wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
