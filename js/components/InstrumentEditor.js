@@ -124,9 +124,20 @@ export const InstrumentEditor = {
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
+    /* Loop start */
+    activateSlider(form.loopStart, headerData, {
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+    })
+
+    /* Loop end */
+    activateSlider(form.loopEnd, headerData, {
+      defaultValue: 65534,
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+    })
+
     /* Playback end */
     activateSlider(form.playbackEnd, headerData, {
-      defaultValue: 65534 ,
+      defaultValue: 65535,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 

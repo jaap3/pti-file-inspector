@@ -126,6 +126,7 @@ export function parseHeader(header) {
     set playbackStart(value) {
       view.setUint16(78, Math.max(0, Math.min(value, this.playbackEnd - 1)), true)
       headerData.playbackStart = view.getUint16(78, true)
+      headerData.loopStart <= headerData.playbackStart && (headerData.loopStart = headerData.playbackStart + 1)
     },
 
     get loopStart() {
@@ -133,7 +134,7 @@ export function parseHeader(header) {
     },
 
     set loopStart(value) {
-      view.setUint16(80, value, true)
+      view.setUint16(80, Math.max(this.playbackStart + 1, Math.min(value, this.loopEnd - 1)), true)
       headerData.loopStart = view.getUint16(80, true)
     },
 
@@ -142,7 +143,7 @@ export function parseHeader(header) {
     },
 
     set loopEnd(value) {
-      view.setUint16(82, value, true)
+      view.setUint16(82, Math.min(Math.max(value, this.loopStart + 1), this.playbackEnd - 1), true)
       headerData.loopEnd = view.getUint16(82, true)
     },
 
@@ -153,6 +154,7 @@ export function parseHeader(header) {
     set playbackEnd(value) {
       view.setUint16(84, Math.min(Math.max(value, this.playbackStart + 1), 65535), true)
       headerData.playbackEnd = view.getUint16(84, true)
+      headerData.playbackEnd <= headerData.loopEnd && (headerData.loopEnd = headerData.playbackEnd - 1)
     },
 
     get wavetablePosition() {
