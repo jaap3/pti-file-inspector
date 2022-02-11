@@ -64,7 +64,7 @@ export function parseHeader(header) {
 
     set isWavetable(value) {
       view.setUint8(20, value)
-      headerData.isWavetable = value
+      headerData.isWavetable = view.getUint8(20)
     },
 
     get name() {
@@ -89,7 +89,7 @@ export function parseHeader(header) {
 
     set sampleLength(value) {
       view.setUint32(60, value, true)
-      headerData.sampleLength = value
+      headerData.sampleLength = view.getUint32(60, true)
     },
 
     get wavetableWindowSize() {
@@ -98,7 +98,7 @@ export function parseHeader(header) {
 
     set wavetableWindowSize(value) {
       view.setUint16(64, value, true)
-      headerData.wavetableWindowSize = value
+      headerData.wavetableWindowSize = view.getUint16(64, true)
     },
 
     get wavetableTotalPositions() {
@@ -107,7 +107,7 @@ export function parseHeader(header) {
 
     set wavetableTotalPositions(value) {
       view.setUint16(68, value, true)
-      headerData.waveTableTotalPositions = value
+      headerData.waveTableTotalPositions = view.getUint16(68, true)
     },
 
     get samplePlayback() {
@@ -116,7 +116,7 @@ export function parseHeader(header) {
 
     set samplePlayback(value) {
       view.setUint8(76, value)
-      headerData.samplePlayback = value
+      headerData.samplePlayback = view.getUint8(76)
     },
 
     get playbackStart() {
@@ -125,7 +125,7 @@ export function parseHeader(header) {
 
     set playbackStart(value) {
       view.setUint16(78, value, true)
-      headerData.playbackStart = value
+      headerData.playbackStart = view.getUint16(78, true)
     },
 
     get loopStart() {
@@ -134,7 +134,7 @@ export function parseHeader(header) {
 
     set loopStart(value) {
       view.setUint16(80, value, true)
-      headerData.loopStart = value
+      headerData.loopStart = view.getUint16(80, true)
     },
 
     get loopEnd() {
@@ -143,7 +143,7 @@ export function parseHeader(header) {
 
     set loopEnd(value) {
       view.setUint16(82, value, true)
-      headerData.loopEnd = value
+      headerData.loopEnd = view.getUint16(82, true)
     },
 
     get playbackEnd() {
@@ -152,7 +152,7 @@ export function parseHeader(header) {
 
     set playbackEnd(value) {
       view.setUint16(84, value, true)
-      headerData.playbackEnd = value
+      headerData.playbackEnd = view.getUint16(84, true)
     },
 
     get wavetablePosition() {
@@ -161,7 +161,7 @@ export function parseHeader(header) {
 
     set wavetablePosition(value) {
       view.setUint16(88, value, true)
-      headerData.waveTablePosition = value
+      headerData.waveTablePosition = view.getUint16(88, true)
     },
 
     get cutoff() {
@@ -170,7 +170,7 @@ export function parseHeader(header) {
 
     set cutoff(value) {
       view.setFloat32(260, value, true)
-      headerData.cutoff = value
+      headerData.cutoff = view.getFloat32(260, true)
     },
 
     get resonance() {
@@ -179,7 +179,7 @@ export function parseHeader(header) {
 
     set resonance(value) {
       view.setFloat32(264, value, true)
-      headerData.resonance = value
+      headerData.resonance = view.getFloat32(264, true)
     },
 
     get filterType() {
@@ -188,7 +188,7 @@ export function parseHeader(header) {
 
     set filterType(value) {
       view.setUint8(268, value)
-      headerData.filterType = value
+      headerData.filterType = view.getUint8(268)
     },
 
     get filterEnabled() {
@@ -197,7 +197,7 @@ export function parseHeader(header) {
 
     set filterEnabled(value) {
       view.setUint8(269, value)
-      headerData.filterEnabled = value
+      headerData.filterEnabled = view.getUint8(269)
     },
 
     get tune() {
@@ -206,7 +206,7 @@ export function parseHeader(header) {
 
     set tune(value) {
       view.setInt8(270, value)
-      headerData.tune = value
+      headerData.tune = view.getInt8(270)
     },
 
     get finetune() {
@@ -215,7 +215,7 @@ export function parseHeader(header) {
 
     set finetune(value) {
       view.setInt8(271, value)
-      headerData.finetune = value
+      headerData.finetune = view.getInt8(271)
     },
 
     get volume() {
@@ -224,7 +224,7 @@ export function parseHeader(header) {
 
     set volume(value) {
       view.setUint8(272, value)
-      headerData.volume = value
+      headerData.volume = view.getUint8(272)
     },
 
     get panning() {
@@ -233,7 +233,7 @@ export function parseHeader(header) {
 
     set panning(value) {
       view.setUint8(276, value)
-      headerData.panning = value
+      headerData.panning = view.getUint8(276)
     },
 
     get delaySend() {
@@ -242,7 +242,7 @@ export function parseHeader(header) {
 
     set delaySend(value) {
       view.setUint8(278, value)
-      headerData.delaySend = value
+      headerData.delaySend = view.getUint8(278)
     },
 
     get slices() {
@@ -261,7 +261,7 @@ export function parseHeader(header) {
 
     set numSlices(value) {
       view.setUint8(376, value)
-      headerData.numSlices = value
+      headerData.numSlices = view.getUint8(376)
     },
 
     get granularLength() {
@@ -270,7 +270,7 @@ export function parseHeader(header) {
 
     set granularLength(value) {
       view.setUint16(378, value, true)
-      headerData.granularLength = value
+      headerData.granularLength = view.getUint16(378, true)
     },
 
     get granularPosition() {
@@ -279,7 +279,7 @@ export function parseHeader(header) {
 
     set granularPosition(value) {
       view.setUint16(380, value, true)
-      headerData.granularPosition = value
+      headerData.granularPosition = view.getUint16(380, true)
     },
 
     get granularShape() {
@@ -288,7 +288,7 @@ export function parseHeader(header) {
 
     set granularShape(value) {
       view.setUint8(382, value)
-      headerData.granularShape = value
+      headerData.granularShape = view.getUint8(382)
     },
 
     get granularLoopMode() {
@@ -297,7 +297,7 @@ export function parseHeader(header) {
 
     set granularLoopMode(value) {
       view.setUint8(383, value)
-      headerData.granularLoopMode = value
+      headerData.granularLoopMode = view.getUint8(383)
     },
 
     get reverbSend() {
@@ -315,7 +315,7 @@ export function parseHeader(header) {
 
     set overdrive(value) {
       view.setUint8(385, value)
-      headerData.overdrive = value
+      headerData.overdrive = view.getUint8(385)
     },
 
     get bitDepth() {
@@ -324,7 +324,7 @@ export function parseHeader(header) {
 
     set bitDepth(value) {
       view.setUint8(386, value)
-      headerData.bitDepth = value
+      headerData.bitDepth = view.getUint8(386)
     },
 
     get buffer() {
