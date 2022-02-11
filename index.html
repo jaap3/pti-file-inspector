@@ -120,6 +120,24 @@
               <select id="pti-instrument-playback" name="samplePlayback"></select>
             </td>
           </tr>
+          <tr>
+            <th><label for="pti-instrument-playbackStart">Start</label></th>
+            <td>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-playbackStart" name="playbackStart" min="0" max="65535">
+                <output name="playbackStart-result" for="pti-instrument-playbackStart"></output>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="pti-instrument-playbackEnd">End</label></th>
+            <td>
+              <div class="range-output">
+                <input type="range" id="pti-instrument-playbackEnd" name="playbackEnd" min="0" max="65535">
+                <output name="playbackEnd-result" for="pti-instrument-playbackEnd"></output>
+              </div>
+            </td>
+          </tr>
         </table>
       <fieldset>
         <legend>Effects</legend>

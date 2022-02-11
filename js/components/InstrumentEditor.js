@@ -3,7 +3,11 @@ import * as ptiTools from '../modules/ptiTools.js'
 
 const { SamplePlayback, FilterType, GranularShape, GranularLoopMode } = constants
 
-const { displaydB, convertSend, convertVolume } = ptiTools
+const {
+  displaydB, displayMilliseconds,
+  convertSend, convertVolume,
+  relOffset
+} = ptiTools
 
 const PLAYBACK_LABELS = {
   [SamplePlayback.ONE_SHOT]: 'One Shot',
@@ -114,6 +118,17 @@ export const InstrumentEditor = {
 
     /* Playback */
     playbackSelect(form.samplePlayback, headerData)
+
+    /* Playback start */
+    activateSlider(form.playbackStart, headerData, {
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+    })
+
+    /* Playback end */
+    activateSlider(form.playbackEnd, headerData, {
+      defaultValue: 65534 ,
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+    })
 
     /* Overdrive */
     activateSlider(form.overdrive, headerData)

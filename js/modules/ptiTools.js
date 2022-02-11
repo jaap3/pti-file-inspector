@@ -124,7 +124,7 @@ export function parseHeader(header) {
     },
 
     set playbackStart(value) {
-      view.setUint16(78, value, true)
+      view.setUint16(78, Math.max(0, Math.min(value, this.playbackEnd - 1)), true)
       headerData.playbackStart = view.getUint16(78, true)
     },
 
@@ -151,7 +151,7 @@ export function parseHeader(header) {
     },
 
     set playbackEnd(value) {
-      view.setUint16(84, value, true)
+      view.setUint16(84, Math.min(Math.max(value, this.playbackStart + 1), 65535), true)
       headerData.playbackEnd = view.getUint16(84, true)
     },
 
