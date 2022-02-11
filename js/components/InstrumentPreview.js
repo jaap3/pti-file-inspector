@@ -32,16 +32,6 @@ export const InstrumentPreview = {
   async mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
     const samplePlayback = headerData.samplePlayback
 
-    const markers = (isOneShot(samplePlayback) || isLoop(samplePlayback)) ? {
-      start: ptiTools.relOffset(headerData.playbackStart),
-      end: ptiTools.relOffset(headerData.playbackEnd)
-    } : null
-
-    const region = isLoop(samplePlayback) ? {
-      start: ptiTools.relOffset(headerData.loopStart),
-      end: ptiTools.relOffset(headerData.loopEnd),
-    } : null
-
     const slices = (isSliced(samplePlayback) ?
       Array.from(headerData.slices).map(relOffset)
       : null
@@ -57,7 +47,23 @@ export const InstrumentPreview = {
     buttonTemplate.remove()  // disconnect from fragment
     canvas.width = canvasWidth
 
-    requestAnimationFrame(() => drawInstrument(canvas, audio, markers, region, slices))
+    ;(() => {
+      const render = () => {
+        const markers = (isOneShot(headerData.samplePlayback) || isLoop(headerData.samplePlayback)) ? {
+          start: ptiTools.relOffset(headerData.playbackStart),
+          end: ptiTools.relOffset(headerData.playbackEnd)
+        } : null
+
+        const region = isLoop(headerData.samplePlayback) ? {
+          start: ptiTools.relOffset(headerData.loopStart),
+          end: ptiTools.relOffset(headerData.loopEnd),
+        } : null
+
+        drawInstrument(canvas, audio, markers, region, slices)
+        requestAnimationFrame(render)
+      }
+      render()
+    })()
 
     const player = await ptiPlayer.load(audioEl, audioCtx, audio, headerData)
 
