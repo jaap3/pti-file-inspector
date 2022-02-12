@@ -23,9 +23,9 @@ export const InstrumentDisplay = {
    * @param {Float32Array} options.audio
    * @param {AudioContext} audioCtx
    * @param {number} canvasWidth
-   * @returns
+   * @returns {function} unmount
    */
-  async mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
+  mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
     const frag = parent.ownerDocument.adoptNode(
       getTemplate(parent).cloneNode(true)
     )

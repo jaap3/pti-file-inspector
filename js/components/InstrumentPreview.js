@@ -26,7 +26,7 @@ export const InstrumentPreview = {
    * @param {Float32Array} options.audio
    * @param {AudioContext} audioCtx
    * @param {number} canvasWidth
-   * @returns
+   * @returns {Promise<Function>} unmount
    */
   async mount(parent, { headerData, audio, audioCtx }) {
     const samplePlayback = headerData.samplePlayback
