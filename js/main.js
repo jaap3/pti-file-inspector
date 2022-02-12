@@ -71,6 +71,8 @@ async function renderInstrument(headerData, audio) {
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
   const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
 
+  mounted.push(headerData.revoke)
+
   mounted.push(await InstrumentPreview.mount(previewSection, {
     headerData: headerData.data,
     audio,

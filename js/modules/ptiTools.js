@@ -46,6 +46,7 @@ const {
 /**
  * @typedef {Object} ReactiveHeaderParseResult
  * @property {function} watch
+ * @property {function} revoke
  * @property {HeaderParseResult} data
  */
 
@@ -351,19 +352,25 @@ export function reactive(headerData) {
   const watch = (watcher) => {
     watchers.push(watcher)
   }
+  const { proxy, revoke } = Proxy.revocable(
+    headerData,
+    {
+      set(obj, prop, value, receiver) {
+        watchers.forEach((watcher) => watcher.beforeUpdate?.(prop, value))
+        Reflect.set(obj, prop, value, receiver)
+        watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
+        return true
+      }
+    }
+  )
+
   return {
     watch,
-    data: new Proxy(
-      headerData,
-      {
-        set(obj, prop, value, receiver) {
-          watchers.forEach((watcher) => watcher.beforeUpdate?.(prop, value))
-          Reflect.set(obj, prop, value, receiver)
-          watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
-          return true
-        }
-      }
-    )
+    revoke() {
+      watchers.splice(0, watchers.length)
+      revoke()
+    },
+    data: proxy
   }
 }
 
