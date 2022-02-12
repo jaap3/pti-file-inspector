@@ -63,7 +63,7 @@ const GRANULAR_SHAPE = {
  * @param {Object} options
  * @param {ptiTools.HeaderParseResult} options.headerData
  * @param {ArrayBuffer} audio
- * @returns
+ * @returns {HTMLTableElement}
  */
 function render(parent, { headerData, audio }) {
   const table = getTemplate(parent).cloneNode(true)

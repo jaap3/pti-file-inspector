@@ -6,7 +6,7 @@ const { isOneShot, isLoop, isSliced, relOffset } = ptiTools
  * Draw instrument waveform, markers, loop region, slices etc.
  *
  * @param {HTMLCanvasElement} canvas
- * @param {ptiTools.HeaderParseResult} buffer
+ * @param {ptiTools.HeaderParseResult} headerData
  * @param {Float32Array} buffer
  * @param {Array[Number]} slices
  */

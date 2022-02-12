@@ -445,7 +445,7 @@ export function relOffset(offset) {
  * @param {number} value
  * @returns {number}
  */
- export function convertVolume(value) {
+export function convertVolume(value) {
   const relative = value / 50
   switch (relative) {
     case 0: return -Infinity
@@ -471,7 +471,7 @@ export function convertSend(value) {
  * @param {number} value
  * @returns {string}
  */
- export function displayMilliseconds(value) {
+export function displayMilliseconds(value) {
   return value < 800 ?
     `${value.toFixed(2)} ms` :
     `${(value / 1000).toFixed(2)} s`
