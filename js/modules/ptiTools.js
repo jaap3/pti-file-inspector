@@ -358,7 +358,6 @@ export function reactive(headerData) {
       {
         set(obj, prop, value, receiver) {
           watchers.forEach((watcher) => watcher.beforeUpdate?.(prop, value))
-          console.log(prop, value)
           Reflect.set(obj, prop, value, receiver)
           watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
           return true
