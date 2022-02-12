@@ -47,23 +47,7 @@ export const InstrumentPreview = {
     buttonTemplate.remove()  // disconnect from fragment
     canvas.width = canvasWidth
 
-    ;(() => {
-      const render = () => {
-        const markers = (isOneShot(headerData.samplePlayback) || isLoop(headerData.samplePlayback)) ? {
-          start: ptiTools.relOffset(headerData.playbackStart),
-          end: ptiTools.relOffset(headerData.playbackEnd)
-        } : null
-
-        const region = isLoop(headerData.samplePlayback) ? {
-          start: ptiTools.relOffset(headerData.loopStart),
-          end: ptiTools.relOffset(headerData.loopEnd),
-        } : null
-
-        drawInstrument(canvas, audio, markers, region, slices)
-        requestAnimationFrame(render)
-      }
-      render()
-    })()
+    const visualize = drawInstrument(canvas, headerData, audio)
 
     const player = await ptiPlayer.load(audioEl, audioCtx, audio, headerData)
 
@@ -104,6 +88,7 @@ export const InstrumentPreview = {
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {
+      visualize.stop()
       player.stop()
       mounted.forEach(el => el.remove())
     }

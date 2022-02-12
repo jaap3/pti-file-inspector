@@ -1,40 +1,80 @@
+import * as ptiTools from '../modules/ptiTools.js'
+
+const { isOneShot, isLoop, isSliced, relOffset } = ptiTools
+
 /**
  * Draw instrument waveform, markers, loop region, slices etc.
  *
  * @param {HTMLCanvasElement} canvas
+ * @param {ptiTools.HeaderParseResult} buffer
  * @param {Float32Array} buffer
- * @param {Object} markers
- * @param {number} markers.start
- * @param {number} markers.end
- * @param {Object} region
- * @param {number} region.start
- * @param {number} region.end
  * @param {Array[Number]} slices
  */
-export function drawInstrument(canvas, buffer, markers, region, slices) {
+export function drawInstrument(canvas, headerData, buffer) {
+  const { ownerDocument: d } = canvas
+  const { requestAnimationFrame } = d.defaultView
+
+  const offscreenCanvas = d.createElement('canvas')
+
+  const width = offscreenCanvas.width = canvas.width
+  const height = offscreenCanvas.height = canvas.height
+
+  const offscreenCtx = offscreenCanvas.getContext('2d', {
+    alpha: false,
+    desynchronized: true
+  })
+
   const ctx = canvas.getContext('2d', {
     alpha: false,
     desynchronized: true
   })
-  const width = canvas.width
-  const height = canvas.height
 
   // Draw background
-  ctx.fillStyle = '#0A0A0A'
-  ctx.fillRect(0, 0, width, height)
+  drawWaveform(offscreenCtx, buffer, width, height)
 
-  if (region) {
-    drawRegion(ctx, region.start * width, region.end * width, height)
+  let timeout, raf;
+
+  const render = () => {
+    const markers = (isOneShot(headerData.samplePlayback) || isLoop(headerData.samplePlayback)) ? {
+      start: ptiTools.relOffset(headerData.playbackStart),
+      end: ptiTools.relOffset(headerData.playbackEnd)
+    } : null
+
+    const region = isLoop(headerData.samplePlayback) ? {
+      start: ptiTools.relOffset(headerData.loopStart),
+      end: ptiTools.relOffset(headerData.loopEnd),
+    } : null
+
+    const slices = (isSliced(headerData.samplePlayback) ?
+      Array.from(headerData.slices).map(relOffset)
+      : null
+    )
+
+    // Draw background
+    ctx.drawImage(offscreenCanvas, 0, 0)
+
+    if (region) {
+      drawRegion(ctx, region.start * width, region.end * width, height)
+    }
+
+    if (markers) {
+      drawMarkers(ctx, markers.start * width, markers.end * width, height)
+    }
+
+    if (slices) {
+      drawSlices(ctx, slices, width, height)
+    }
+
+    timeout = setTimeout(() => raf = requestAnimationFrame(render), 1 / 25)
   }
 
-  drawWaveform(ctx, buffer, width, height)
+  timeout = setTimeout(() => raf = requestAnimationFrame(render), 0)
 
-  if (markers) {
-    drawMarkers(ctx, markers.start * width, markers.end * width, height)
-  }
-
-  if (slices) {
-    drawSlices(ctx, slices, width, height)
+  return {
+    stop() {
+      timeout && clearTimeout(timeout)
+      raf && cancelAnimationFrame(raf)
+    }
   }
 }
 
@@ -47,6 +87,9 @@ export function drawInstrument(canvas, buffer, markers, region, slices) {
  * @param {number} height
  */
 function drawRegion(ctx, regionStart, regionEnd, height) {
+  ctx.save()
+
+  ctx.globalCompositeOperation = 'lighter'
   ctx.fillStyle = '#323232'
   ctx.strokeStyle = 'white'
   ctx.lineWidth = 2
@@ -62,6 +105,8 @@ function drawRegion(ctx, regionStart, regionEnd, height) {
       ctx.lineTo(marker, height - 6)
     })
   ctx.stroke()
+
+  ctx.restore()
 }
 
 /**
@@ -75,6 +120,11 @@ function drawRegion(ctx, regionStart, regionEnd, height) {
 function drawWaveform(ctx, buffer, width, height) {
   const yScale = -height / 2
   const bufferLength = buffer.length
+
+  ctx.save()
+
+  ctx.fillStyle = '#0A0A0A'
+  ctx.fillRect(0, 0, width, height)
 
   ctx.translate(0, -yScale)
   ctx.strokeStyle = 'white'
@@ -102,6 +152,7 @@ function drawWaveform(ctx, buffer, width, height) {
   ctx.stroke()
 
   ctx.resetTransform()
+  ctx.restore()
 }
 
 /**
@@ -113,6 +164,8 @@ function drawWaveform(ctx, buffer, width, height) {
  * @param {number} height
  */
 function drawMarkers(ctx, start, end, height) {
+  ctx.save()
+
   ctx.strokeStyle = 'white'
   ctx.lineWidth = 2
 
@@ -125,6 +178,8 @@ function drawMarkers(ctx, start, end, height) {
       ctx.lineTo(marker, 6)
     })
   ctx.stroke()
+
+  ctx.restore()
 }
 
 /**
@@ -136,6 +191,8 @@ function drawMarkers(ctx, start, end, height) {
  * @param {number} height
  */
 function drawSlices(ctx, slices, width, height) {
+  ctx.save()
+
   ctx.strokeStyle = '#65491f'
   ctx.lineWidth = 1
 
@@ -148,4 +205,6 @@ function drawSlices(ctx, slices, width, height) {
     ctx.lineTo(slice * width, height)
   })
   ctx.stroke()
+
+  ctx.restore()
 }
