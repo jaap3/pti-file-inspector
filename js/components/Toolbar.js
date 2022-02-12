@@ -39,13 +39,28 @@ export const Toolbar = {
    * @param {Object} options
    * @param {ptiTools.HeaderParseResult} options.headerData
    * @param {ArrayBuffer} options.audio
+   * @param {HTMLElement} options.fileInput
    * @param {HTMLElement} options.dataSection
    * @param {HTMLElement} options.editorSection
    * @returns
    */
-  mount(parent, { headerData, audio, dataSection, editorSection }) {
+  mount(parent, { headerData, audio, fileInput, dataSection, editorSection }) {
     const { ownerDocument: document } = parent
     const frag = getTemplate(parent).cloneNode(true)
+
+    frag.querySelector('button.load').addEventListener('click', (evt) => {
+      const labels = evt.currentTarget.querySelectorAll('span')
+      if (fileInput.getAttribute('hidden') === '') {
+        labels[0].setAttribute('hidden', '')
+        labels[1].removeAttribute('hidden')
+        fileInput.removeAttribute('hidden')
+        fileInput.focus()
+      } else {
+        labels[0].removeAttribute('hidden')
+        labels[1].setAttribute('hidden', '')
+        fileInput.setAttribute('hidden', '')
+      }
+    })
 
     frag.querySelector('button.instrument-data').addEventListener('click', () => {
       dataSection.removeAttribute('hidden')
@@ -73,9 +88,11 @@ export const Toolbar = {
       )
     })
 
+    fileInput.setAttribute('hidden', '')
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {
+      fileInput.removeAttribute('hidden')
       dataSection.removeAttribute('hidden')
       editorSection.setAttribute('hidden', '')
       mounted.forEach(el => el.remove())

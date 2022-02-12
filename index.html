@@ -14,12 +14,9 @@
 
     <section>
       <label for="pti-file-input">
-        <span class="empty">
-          Choose/Drop
-          a&nbsp;Polyend&nbsp;Tracker instrument&nbsp;<small>(<code>.pti</code>)</small>
-          or&nbsp;audio file <small>(<code>.wav</code>,&nbsp;<code>.mp3</code>,&nbsp;<code>.flac</code>, etc.)</small>
-        </span>
-        <span class="fname" hidden></span>
+        Choose/Drop
+        a&nbsp;Polyend&nbsp;Tracker instrument&nbsp;<small>(<code>.pti</code>)</small>
+        or&nbsp;audio file <small>(<code>.wav</code>,&nbsp;<code>.mp3</code>,&nbsp;<code>.flac</code>, etc.)</small>
         <input id="pti-file-input" type="file" accept=".pti, audio/*" disabled>
       </label>
     </section>
@@ -52,6 +49,10 @@
 
   <template id="template:toolbar">
     <div class="controls">
+      <button type="button" class="load" title="Load instrument or audio file">
+        <span>Load</span>
+        <span hidden>Cancel</span>
+      </button>
       <button type="button" class="instrument-data" title="View instrument parameters">Show params</button>
       <button type="button" class="instrument-edit" title="Edit instrument parameters">Edit params</button>
       <button type="button" class="export-pti" title="Download instrument as .pti file">Export .pti</button>

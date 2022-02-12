@@ -1,5 +1,6 @@
 import { FileSelect } from './components/FileSelect.js'
 
+const fileInput = document.getElementById('pti-file-input')
 const dataSection = document.getElementById('pti-instrument-data')
 const toolbar = document.getElementById('toolbar')
 const previewSection = document.getElementById('pti-instrument-preview')
@@ -78,6 +79,7 @@ async function renderInstrument(headerData, audio) {
   mounted.push(Toolbar.mount(toolbar, {
     headerData: headerData.data,
     audio,
+    fileInput,
     dataSection,
     editorSection
   }))
@@ -198,10 +200,9 @@ async function fileSelected(file) {
 /**
  * Handle file selection (bootstrap)
  */
-FileSelect.mount(document.getElementById('pti-file-input'), {
+FileSelect.mount(fileInput, {
   async onSelect(file) {
     await mounted.teardown()
     await fileSelected(file)
-  },
-  onClear: mounted.teardown
+  }
 })

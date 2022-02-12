@@ -7,31 +7,30 @@ export const FileSelect = {
    * @param {function(File)} options.onSelect
    * @param {function(File)} options.onClear
    */
-  mount(input, { onSelect = Promise.resolve, onClear = Promise.resolve }) {
-    const parent = input.parentNode
-    const emptyLabel = parent.querySelector('.empty')
-    const fnameLabel = parent.querySelector('.fname')
+  mount(input, { onSelect }) {
+    const parent = input.parentNode.parentNode
 
     input.addEventListener('change', async () => {
       if (input.files.length) {
         const selectedFile = input.files[0]
-
-        emptyLabel.setAttribute('hidden', '')
-        fnameLabel.innerText = selectedFile.name
-        fnameLabel.removeAttribute('hidden')
-
         await onSelect(selectedFile)
-      }
-
-      else {
-        fnameLabel.setAttribute('hidden', '')
-        fnameLabel.innerText = ''
-        emptyLabel.removeAttribute('hidden')
-
-        await onClear()
       }
     })
 
     input.removeAttribute('disabled')
+
+    // Create an observer instance linked to the callback function
+    const observer = new MutationObserver((mutations) => {
+      if (input.getAttribute('hidden') === '') {
+        parent.setAttribute('hidden', '')
+      } else {
+        parent.removeAttribute('hidden')
+      }
+    })
+    observer.observe(input, { attributeFilter: ['hidden'] })
+
+    return function unmount() {
+      observer.disconnect()
+    }
   }
 }
