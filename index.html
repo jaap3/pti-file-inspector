@@ -25,14 +25,14 @@
     </section>
 
     <section id="toolbar"></section>
-    <section id="pti-instrument-preview"></section>
+    <section id="pti-instrument-display"></section>
     <section id="pti-instrument-data"></section>
     <section id="pti-instrument-editor" hidden></section>
+    <section id="pti-instrument-preview"></section>
 
   </main>
 
   <template id="template:instrument-preview">
-    <canvas class="waveform" height="150" width="300" title="Waveform"></canvas>
     <audio></audio>
     <div class="keypad-container">
       <div class="keypad">
@@ -44,6 +44,10 @@
       <button type="button" class="stop" title="Stop all playback">Stop</button>
     </div>
     </div>
+  </template>
+
+  <template id="template:instrument-display">
+    <canvas class="waveform" height="150" width="300" title="Waveform"></canvas>
   </template>
 
   <template id="template:toolbar">

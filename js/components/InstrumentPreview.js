@@ -1,6 +1,5 @@
 import * as ptiTools from '../modules/ptiTools.js'
 import * as ptiPlayer from '../modules/ptiPlayer.js'
-import { drawInstrument } from '../modules/visualize.js'
 
 const templateCache = new WeakMap()
 
@@ -29,7 +28,7 @@ export const InstrumentPreview = {
    * @param {number} canvasWidth
    * @returns
    */
-  async mount(parent, { headerData, audio, audioCtx, canvasWidth }) {
+  async mount(parent, { headerData, audio, audioCtx }) {
     const samplePlayback = headerData.samplePlayback
 
     const slices = (isSliced(samplePlayback) ?
@@ -40,14 +39,10 @@ export const InstrumentPreview = {
     const frag = parent.ownerDocument.adoptNode(
       getTemplate(parent).cloneNode(true)
     )
-    const canvas = frag.querySelector('canvas.waveform')
     const audioEl = frag.querySelector('audio')
     const keypad = frag.querySelector('.keypad')
     const buttonTemplate = keypad.querySelector('button')
     buttonTemplate.remove()  // disconnect from fragment
-    canvas.width = canvasWidth
-
-    const visualize = drawInstrument(canvas, headerData, audio)
 
     const player = await ptiPlayer.load(audioEl, audioCtx, audio, headerData)
 
@@ -88,7 +83,6 @@ export const InstrumentPreview = {
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     return function unmount() {
-      visualize.stop()
       player.stop()
       mounted.forEach(el => el.remove())
     }

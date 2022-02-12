@@ -3,6 +3,7 @@ import { FileSelect } from './components/FileSelect.js'
 const dataSection = document.getElementById('pti-instrument-data')
 const toolbar = document.getElementById('toolbar')
 const previewSection = document.getElementById('pti-instrument-preview')
+const displaySection = document.getElementById('pti-instrument-display')
 const editorSection = document.getElementById('pti-instrument-editor')
 
 const mounted = (() => {
@@ -66,18 +67,32 @@ function renderError(message, { userDangerousHTML = false } = {}) {
  * @param {ArrayBuffer} audio
  */
 async function renderInstrument(headerData, audio) {
-  const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { Toolbar } = await import('./components/Toolbar.js')
+  const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
+  const { InstrumentDisplay } = await import('./components/InstrumentDisplay.js')
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
   const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
 
   mounted.push(headerData.revoke)
 
+  mounted.push(Toolbar.mount(toolbar, {
+    headerData: headerData.data,
+    audio,
+    dataSection,
+    editorSection
+  }))
+
+  mounted.push(await InstrumentDisplay.mount(displaySection, {
+    headerData: headerData.data,
+    audio,
+    audioCtx: getAudioContext(),
+    canvasWidth: displaySection.offsetWidth
+  }))
+
   mounted.push(await InstrumentPreview.mount(previewSection, {
     headerData: headerData.data,
     audio,
     audioCtx: getAudioContext(),
-    canvasWidth: dataSection.offsetWidth
   }))
 
   mounted.push(InstrumentDataTable.mount(dataSection, {
@@ -88,13 +103,6 @@ async function renderInstrument(headerData, audio) {
   mounted.push(InstrumentEditor.mount(editorSection, {
     headerData,
     audio
-  }))
-
-  mounted.push(Toolbar.mount(toolbar, {
-    headerData: headerData.data,
-    audio,
-    dataSection,
-    editorSection
   }))
 }
 

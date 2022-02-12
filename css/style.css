@@ -44,11 +44,10 @@ label[for="pti-file-input"]:focus-within {
   outline: 1px solid #651f1f;
 }
 
-/* Instrument preview */
+/* Instrument display */
 
-#pti-instrument-preview {
-  display: flex;
-  flex-wrap: wrap;
+#pti-instrument-display {
+  width: auto;
 }
 
 canvas.waveform {
@@ -59,6 +58,13 @@ canvas.waveform {
   border: 1px solid #0a0a0a;
 }
 
+
+/* Instrument preview */
+
+#pti-instrument-preview {
+  display: flex;
+  flex-wrap: wrap;
+}
 .keypad-container {
   direction: rtl;
   flex: auto 0 0;
