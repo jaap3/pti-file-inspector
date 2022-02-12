@@ -34,36 +34,52 @@ function getTemplate({ ownerDocument }) {
   return templateCache.get(ownerDocument)
 }
 
+/**
+ *
+ * @param {HTMLInputElement} input
+ * @param {ptiTools.ReactiveHeaderParseResult} headerData
+ * @param {Object} options
+ * @param {Number} options.defaultValue
+ * @param {Number} options.wheelDelta
+ * @param {function} options.formatValue
+ */
 function activateSlider(input, headerData, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value } = {}) {
+  const { data } = headerData
   const output = input.form[`${input.name}-result`]
 
   function showValue() {
-    input.value = headerData[input.name]
-    output.value = formatValue(headerData[input.name])
+    input.value = data[input.name]
+    output.value = formatValue(data[input.name])
   }
 
   input.addEventListener('wheel', (e) => {
     e.preventDefault()
-    headerData[input.name] = Math.min(Math.max(input.min, headerData[input.name] - Math.sign(e.deltaY) * wheelDelta), input.max)
+    data[input.name] = Math.min(Math.max(input.min, data[input.name] - Math.sign(e.deltaY) * wheelDelta), input.max)
     showValue()
   })
 
   input.addEventListener('change', () => {
-    headerData[input.name] = input.valueAsNumber
+    data[input.name] = input.valueAsNumber
     showValue()
   })
 
   input.addEventListener('dblclick', () => {
-    headerData[input.name] = defaultValue
+    data[input.name] = defaultValue
     showValue()
   })
 
+  headerData.watch({
+    afterUpdate(prop) {
+      if (prop === input.name) showValue()
+    }
+  })
   showValue()
 }
 
 /**
  *
  * @param {HTMLSelectElement} select
+ * @param {ptiTools.HeaderParseResult} headerData
  */
 function playbackSelect(select, headerData) {
   const { ownerDocument: d } = select
@@ -83,9 +99,9 @@ export const InstrumentEditor = {
   /**
    * @param {HTMLElement} parent
    * @param {Object} options
-   * @param {ptiTools.HeaderParseResult} options.headerData
-   * @param {ArrayBuffer} audio
-   * @returns
+   * @param {ptiTools.ReactiveHeaderParseResult} options.headerData
+   * @param {ArrayBuffer} options.audio
+   * @returns {Object}
    */
   mount(parent, { headerData, audio }) {
     const frag = getTemplate(parent).cloneNode(true)
@@ -93,8 +109,8 @@ export const InstrumentEditor = {
     const form = frag.querySelector('form')
 
     /* Name */
-    form.name.value = headerData.name
-    form.name.addEventListener('change', () => headerData.name = form.name.value)
+    form.name.value = headerData.data.name
+    form.name.addEventListener('change', () => headerData.data.name = form.name.value)
 
     /* Volume */
     activateSlider(form.volume, headerData, {
@@ -118,7 +134,7 @@ export const InstrumentEditor = {
     activateSlider(form.finetune, headerData)
 
     /* Playback */
-    playbackSelect(form.samplePlayback, headerData)
+    playbackSelect(form.samplePlayback, headerData.data)
 
     /* Playback start */
     activateSlider(form.playbackStart, headerData, {

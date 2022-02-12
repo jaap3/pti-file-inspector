@@ -44,6 +44,12 @@ const {
  */
 
 /**
+ * @typedef {Object} ReactiveHeaderParseResult
+ * @property {function} watch
+ * @property {HeaderParseResult} data
+ */
+
+/**
  * Parse a .pti file header.
  *
  * @param {ArrayBuffer} header
@@ -57,7 +63,7 @@ export function parseHeader(header) {
 
   const asciiEncoder = new TextEncoder('ascii')
 
-  return {
+  return Object.seal({
     get isWavetable() {
       return headerData.isWavetable ?? (headerData.isWavetable = view.getUint8(20))
     },
@@ -126,7 +132,7 @@ export function parseHeader(header) {
     set playbackStart(value) {
       view.setUint16(78, Math.max(0, Math.min(value, this.playbackEnd - 1)), true)
       headerData.playbackStart = view.getUint16(78, true)
-      headerData.loopStart <= headerData.playbackStart && (headerData.loopStart = headerData.playbackStart + 1)
+      this.loopStart <= this.playbackStart && (this.loopStart = this.playbackStart + 1)
     },
 
     get loopStart() {
@@ -154,7 +160,7 @@ export function parseHeader(header) {
     set playbackEnd(value) {
       view.setUint16(84, Math.min(Math.max(value, this.playbackStart + 1), 65535), true)
       headerData.playbackEnd = view.getUint16(84, true)
-      headerData.playbackEnd <= headerData.loopEnd && (headerData.loopEnd = headerData.playbackEnd - 1)
+      this.playbackEnd <= this.loopEnd && (this.loopEnd = this.playbackEnd - 1)
     },
 
     get wavetablePosition() {
@@ -332,13 +338,40 @@ export function parseHeader(header) {
     get buffer() {
       return newHeader
     }
+  })
+}
+
+/**
+ *
+ * @param {HeaderParseResult} headerData
+ * @returns {ReactiveHeaderParseResult}
+ */
+export function reactive(headerData) {
+  const watchers = []
+  const watch = (watcher) => {
+    watchers.push(watcher)
+  }
+  return {
+    watch,
+    data: new Proxy(
+      headerData,
+      {
+        set(obj, prop, value, receiver) {
+          watchers.forEach((watcher) => watcher.beforeUpdate?.(prop, value))
+          console.log(prop, value)
+          Reflect.set(obj, prop, value, receiver)
+          watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
+          return true
+        }
+      }
+    )
   }
 }
 
 /**
  * Get the header from a .pti
  * @param {File} file
- * @returns {HeaderParseResult}
+ * @returns {ReactiveHeaderParseResult}
  */
 export function getDefeaultHeader() {
   return parseHeader(constants.DEFAULT_PTI_HEADER)

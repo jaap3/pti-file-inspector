@@ -62,7 +62,7 @@ function renderError(message, { userDangerousHTML = false } = {}) {
 /**
  * Display .pti file data.
  *
- * @param {import('./modules/ptiTools.js').HeaderParseResult} headerData
+ * @param {import('./modules/ptiTools.js').ReactiveHeaderParseResult} headerData
  * @param {ArrayBuffer} audio
  */
 async function renderInstrument(headerData, audio) {
@@ -72,14 +72,14 @@ async function renderInstrument(headerData, audio) {
   const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
 
   mounted.push(await InstrumentPreview.mount(previewSection, {
-    headerData,
+    headerData: headerData.data,
     audio,
     audioCtx: getAudioContext(),
     canvasWidth: dataSection.offsetWidth
   }))
 
   mounted.push(InstrumentDataTable.mount(dataSection, {
-    headerData,
+    headerData: headerData.data,
     audio
   }))
 
@@ -89,7 +89,7 @@ async function renderInstrument(headerData, audio) {
   }))
 
   mounted.push(Toolbar.mount(toolbar, {
-    headerData,
+    headerData: headerData.data,
     audio,
     dataSection,
     editorSection
@@ -181,7 +181,7 @@ async function fileSelected(file) {
   }
 
   if (headerData !== undefined && audio !== undefined) {
-    renderInstrument(headerData, audio)
+    renderInstrument(ptiTools.reactive(headerData), audio)
   }
 }
 
