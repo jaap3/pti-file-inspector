@@ -49,8 +49,10 @@ export const Toolbar = {
     const frag = getTemplate(parent).cloneNode(true)
 
     frag.querySelector('button.load').addEventListener('click', (evt) => {
-      const labels = evt.currentTarget.querySelectorAll('span')
+      const button = evt.currentTarget
+      const labels = button.querySelectorAll('span')
       if (fileInput.getAttribute('hidden') === '') {
+        button.setAttribute('aria-pressed', 'true')
         labels[0].setAttribute('hidden', '')
         labels[1].removeAttribute('hidden')
         fileInput.removeAttribute('hidden')
@@ -60,6 +62,7 @@ export const Toolbar = {
           fileInput.focus()
         }, 0)
       } else {
+        button.setAttribute('aria-pressed', 'false')
         labels[0].removeAttribute('hidden')
         labels[1].setAttribute('hidden', '')
         fileInput.setAttribute('hidden', '')
