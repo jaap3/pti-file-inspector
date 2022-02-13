@@ -24,7 +24,7 @@ const mounted = (() => {
     /**
     * Remove mounted elements
     */
-    async teardown() {
+    teardown() {
       let unmount
       while (unmount = mounted.shift()) {
         unmount()
@@ -201,7 +201,7 @@ async function fileSelected(file) {
  */
 FileSelect.mount(fileInput, {
   async onSelect(file) {
-    await mounted.teardown()
+    mounted.teardown()
     await fileSelected(file)
   }
 })
