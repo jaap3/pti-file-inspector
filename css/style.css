@@ -7,10 +7,9 @@ body {
 .container {
   display: flex;
   flex-direction: column;
-  row-gap: 16px;
   max-width: 960px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 0 32px;
 }
 
 /* File select */
@@ -50,7 +49,8 @@ label[for="pti-file-input"]:focus-within {
 /* Toolbar */
 
 #toolbar:not(:empty) {
-  order: -1;
+  padding-top: 32px;
+  order: 1;
 }
 
 .controls {
@@ -86,7 +86,12 @@ label[for="pti-file-input"]:focus-within {
 /* Instrument display */
 
 #pti-instrument-display {
-  width: auto;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  padding: 16px 0;
+  align-self: flex-start;
+  background: #121212;
 }
 
 canvas.waveform {
@@ -100,7 +105,13 @@ canvas.waveform {
 
 #pti-instrument-preview {
   display: flex;
+  width: 100%;
+  position: sticky;
+  bottom: 0;
+  padding: 16px 0;
+  align-self: flex-end;
   flex-wrap: wrap;
+  background: #121212;
 }
 
 .keypad-container {
