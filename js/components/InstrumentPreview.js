@@ -81,6 +81,7 @@ export const InstrumentPreview = {
     }
 
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
+    parent.removeAttribute('hidden')
 
     return function unmount() {
       player.stop()

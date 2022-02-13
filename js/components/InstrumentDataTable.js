@@ -21,7 +21,7 @@ function getTemplate({ ownerDocument }) {
       ownerDocument,
       ownerDocument.getElementById(
         'template:instrument-data-table'
-      ).content.querySelector('table')
+      ).content
     )
   }
   return templateCache.get(ownerDocument)
@@ -66,7 +66,8 @@ const GRANULAR_SHAPE = {
  * @returns {HTMLTableElement}
  */
 function render(parent, { headerData, audio }) {
-  const table = getTemplate(parent).cloneNode(true)
+  const frag = getTemplate(parent).cloneNode(true)
+  const table = frag.querySelector('table')
   const rowTemplate = table.querySelector('tr')
   rowTemplate.remove()  // Detach this template from the cloned table
 
@@ -154,7 +155,7 @@ function render(parent, { headerData, audio }) {
   addRow('Reverb send', displaydB(convertSend(headerData.reverbSend)))
   addRow('Delay send', displaydB(convertSend(headerData.delaySend)))
 
-  return table
+  return frag
 }
 
 export const InstrumentDataTable = {
@@ -168,19 +169,25 @@ export const InstrumentDataTable = {
    * @returns
    */
   mount(parent, { headerData, audio }) {
-    let mounted = parent.appendChild(render(parent, { headerData, audio }))
+    let mounted = Array.from(render(parent, { headerData, audio }).children).map(
+      (el) => parent.appendChild(el)
+    )
+
+    parent.removeAttribute('hidden')
 
     // Create an observer instance linked to the callback function
     const observer = new MutationObserver((mutations) => {
       if (parent.getAttribute('hidden') === null) {
-        mounted.remove()
-        mounted = parent.appendChild(render(parent, { headerData, audio }))
+        mounted.forEach(el => el.remove())
+        mounted = Array.from(
+          render(parent, { headerData, audio }).children).map((el) => parent.appendChild(el)
+        )
       }
     })
     observer.observe(parent, { attributeFilter: ['hidden'] })
 
     return function unmount() {
-      mounted.remove()
+      mounted.forEach(el => el.remove())
       observer.disconnect()
     }
   }

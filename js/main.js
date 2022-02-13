@@ -87,8 +87,7 @@ async function renderInstrument(headerData, audio) {
   mounted.push(InstrumentDisplay.mount(displaySection, {
     headerData: headerData.data,
     audio,
-    audioCtx: getAudioContext(),
-    canvasWidth: displaySection.offsetWidth
+    audioCtx: getAudioContext()
   }))
 
   mounted.push(await InstrumentPreview.mount(previewSection, {

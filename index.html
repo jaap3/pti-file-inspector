@@ -11,8 +11,10 @@
 </head>
 <body>
   <main class="container">
+    <h1 class="sr-only">Polyend Tracker Instrument (.pti) editor</h1>
 
-    <section>
+    <section id="loader">
+      <h2 class="sr-only">Load file</h2>
       <label for="pti-file-input">
         Choose/Drop
         a&nbsp;Polyend&nbsp;Tracker instrument&nbsp;<small>(<code>.pti</code>)</small>
@@ -21,15 +23,16 @@
       </label>
     </section>
 
-    <section id="toolbar"></section>
-    <section id="pti-instrument-display"></section>
-    <section id="pti-instrument-data"></section>
+    <section id="toolbar" role="toolbar" hidden></section>
+    <section id="pti-instrument-display" hidden></section>
+    <section id="pti-instrument-data" hidden></section>
     <section id="pti-instrument-editor" hidden></section>
-    <section id="pti-instrument-preview"></section>
+    <section id="pti-instrument-preview" hidden></section>
 
   </main>
 
   <template id="template:instrument-preview">
+    <h2 class="sr-only">Preview instrument audio</h2>
     <audio></audio>
     <div class="keypad-container">
       <div class="keypad">
@@ -44,10 +47,12 @@
   </template>
 
   <template id="template:instrument-display">
+    <h2 class="sr-only">Visualize instrument (waveform, region, markers)</h2>
     <canvas class="waveform" height="150" width="300" title="Waveform"></canvas>
   </template>
 
   <template id="template:toolbar">
+    <h2 class="sr-only">Toolbar</h2>
     <div class="controls">
       <button type="button" class="load" title="Load instrument or audio file">
         <span>Load</span>
@@ -61,6 +66,7 @@
   </template>
 
   <template id="template:instrument-data-table">
+    <h2 class="sr-only">View instrument parameters</h2>
     <table>
       <tr>
         <th></th>
@@ -70,6 +76,7 @@
   </template>
 
   <template id="template:instrument-editor">
+    <h2 class="sr-only">Edit instrument parameters</h2>
     <form>
       <fieldset>
         <legend>Instrument parameters</legend>
@@ -135,7 +142,7 @@
             </td>
           </tr>
           <tr>
-            <th><label for="pti-instrument-playbackEnd">Loop start</label></th>
+            <th><label for="pti-instrument-loopStart">Loop start</label></th>
             <td>
               <div class="range-output">
                 <input type="range" id="pti-instrument-loopStart" name="loopStart" min="1" max="65534">
@@ -193,7 +200,7 @@
             </td>
           </tr>
           <tr>
-            <th><label for=" pti-instrument-delaySend">Delay send</label></th>
+            <th><label for="pti-instrument-delaySend">Delay send</label></th>
             <td>
               <div class="range-output">
                 <input type="range" id="pti-instrument-delaySend" name="delaySend" min="0" max="100">

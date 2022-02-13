@@ -4,6 +4,17 @@ body {
   font-weight: lighter;
 }
 
+.sr-only {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -85,7 +96,7 @@ label[for="pti-file-input"]:focus-within {
 
 /* Instrument display */
 
-#pti-instrument-display {
+#pti-instrument-display:not(:empty) {
   width: 100%;
   position: sticky;
   top: 0;
@@ -103,7 +114,7 @@ canvas.waveform {
 
 /* Instrument preview */
 
-#pti-instrument-preview {
+#pti-instrument-preview:not(:empty) {
   display: flex;
   width: 100%;
   position: sticky;
@@ -278,7 +289,7 @@ td {
 }
 
 th {
-  color: #777;
+  color: #a0a0a0;
   font-weight: normal;
   vertical-align: top;
   padding-right: 12.5px;

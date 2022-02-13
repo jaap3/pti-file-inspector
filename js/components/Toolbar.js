@@ -87,9 +87,10 @@ export const Toolbar = {
         `${headerData.name}.wav`
       )
     })
+    const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     fileInput.setAttribute('hidden', '')
-    const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
+    parent.removeAttribute('hidden')
 
     return function unmount() {
       fileInput.removeAttribute('hidden')
