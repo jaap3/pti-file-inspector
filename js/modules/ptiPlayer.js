@@ -115,7 +115,7 @@ export async function load(audioEl, ctx, buffer, headerData) {
     })
     const output = await createOutputChain(ctx, headerData)
     source.connect(output)
-    source.start(0, offset || startOffset, duration || endOffset ? endOffset - startOffset : undefined)
+    source.start(0, offset ?? startOffset, duration ?? (endOffset ? endOffset - startOffset : undefined))
   }
 
   const slices = Array.from(headerData.slices).map(absOffset)
