@@ -25,6 +25,10 @@ body {
 
 /* File select */
 
+#loader {
+  order: 2;
+}
+
 #pti-file-input {
   position: absolute;
   overflow: hidden;
