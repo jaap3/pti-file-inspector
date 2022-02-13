@@ -72,6 +72,11 @@ label[for="pti-file-input"]:focus-within {
   margin-top: 0;
 }
 
+#toolbar:not(:empty) + #loader {
+  order: 2;
+  margin-top: 0;
+}
+
 .controls {
   display: flex;
   flex: calc(4rem + 8px)4 1;
