@@ -54,7 +54,11 @@ export const Toolbar = {
         labels[0].setAttribute('hidden', '')
         labels[1].removeAttribute('hidden')
         fileInput.removeAttribute('hidden')
-        fileInput.focus()
+        // Wait for the browser to reflow
+        setTimeout(() => {
+          fileInput.scrollIntoView()
+          fileInput.focus()
+        }, 0)
       } else {
         labels[0].removeAttribute('hidden')
         labels[1].setAttribute('hidden', '')
