@@ -26,7 +26,7 @@ body {
 /* File select */
 
 #loader {
-  order: 2;
+  margin: 32px 0;
 }
 
 #pti-file-input {
@@ -48,7 +48,6 @@ label[for="pti-file-input"] {
   display: block;
   position: relative;
   width: 100%;
-  margin: 32px 0;
   outline: 1px dashed #cfcfcf;
   background: #0a0a0a;
   border-radius: 2rem;
@@ -64,8 +63,13 @@ label[for="pti-file-input"]:focus-within {
 /* Toolbar */
 
 #toolbar:not(:empty) {
-  padding-top: 32px;
   order: 1;
+  padding-bottom: 24px;
+}
+
+#toolbar:not(:empty) + #loader {
+  order: 2;
+  margin-top: 0;
 }
 
 .controls {
