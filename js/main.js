@@ -1,12 +1,31 @@
+/**
+ * Use <script type="module" /> to load.
+ *
+ * Browser will execute this script immediatly after the document has
+ * been parsed, before firing DOMContentLoaded.
+ *
+ * In fact, DOMContentLoaded only fire until this script has loaded
+ * and finished evaluating.
+ *
+ * Keep the bootstrap quick!
+ */
+
+/* FileSelect is necessary to bootstrap the application. */
+// TODO: Inline this import using some build tool (someday)
 import { FileSelect } from './components/FileSelect.js'
 
-const fileInput = document.getElementById('pti-file-input')
-const dataSection = document.getElementById('pti-instrument-data')
-const toolbar = document.getElementById('toolbar')
-const previewSection = document.getElementById('pti-instrument-preview')
-const displaySection = document.getElementById('pti-instrument-display')
-const editorSection = document.getElementById('pti-instrument-editor')
-
+/**
+ * Register teardown functions.
+ *
+ * These functions are executed each time a new file is selected
+ * by the user, for example to:
+ *
+ * - Stop audio
+ * - Reset UI
+ * - Stop timers
+ *
+ * @instance
+ */
 const mounted = (() => {
   /** @type Array<Function> */
   const mounted = []
@@ -33,21 +52,44 @@ const mounted = (() => {
   }
 })()
 
-let audioCtx;
+const fileInput = document.getElementById('pti-file-input')
 
 /**
- * Get or create an AudioContext
+ * Handle file selection (bootstrap).
+ *
+ * When a user selects a file, more of the application is loaded.
+ */
+ FileSelect.mount(fileInput, {
+  async onSelect(file) {
+    mounted.teardown()
+    await fileSelected(file)
+  }
+})
+
+/**
+ * getAudioContext controls this value.
+ */
+let _audioCtx;
+
+/**
+ * Get or create an AudioContext.
+ *
+ * Please note: A `running` AudioContext can only be created "inside"
+ * a user-initiated event.
+ *
+ * For example: a button `click`, or input `change` event.
+ *
  * @returns {AudioContext}
  */
 function getAudioContext() {
-  return audioCtx = audioCtx ?? new (AudioContext || webkitAudioContext)({
+  return _audioCtx = _audioCtx ?? new (AudioContext || webkitAudioContext)({
     latencyHint: 'interactive',
     sampleRate: 44100,
   })
 }
 
 /**
- * Display an error message
+ * Display an error message when a invalid file is selected.
  *
  * @param {string} message Error message as string
  * @param {object} options
@@ -62,7 +104,17 @@ function renderError(message, { userDangerousHTML = false } = {}) {
 }
 
 /**
- * Display .pti file data.
+/* DOM mount points, used by renderInstrument
+ */
+const dataSection = document.getElementById('pti-instrument-data')
+const toolbar = document.getElementById('toolbar')
+const previewSection = document.getElementById('pti-instrument-preview')
+const displaySection = document.getElementById('pti-instrument-display')
+const editorSection = document.getElementById('pti-instrument-editor')
+
+
+/**
+ * Display .pti file data when a valid file is selected.
  *
  * @param {import('./modules/ptiTools.js').ReactiveHeaderParseResult} headerData
  * @param {ArrayBuffer} audio
@@ -108,7 +160,29 @@ async function renderInstrument(headerData, audio) {
 }
 
 /**
- * File selection handler
+ * File selection handler:
+ *
+ * - Load the ptiTools module
+ *
+ * - Is it a .pti file?
+ *   - Validate header
+ *   - Parse header (lazy)
+ *   - Convert audio data for Web Audio
+ *   - Kickstart application
+ *
+ * - Can the browser decode audio data?
+ *   - Get the default .pti header
+ *   - Set instrument name
+ *   - Sum audio to mono
+ *   - Set instrument sample length
+ *   - Kickstart application
+ *
+ * - Not a valid .pti file?
+ *   - Show header validation message
+ *
+ * - Browser throws an error decoding audio data?
+ *   - Show error name, message and code
+ *
  * @param {File} file
  */
 async function fileSelected(file) {
@@ -116,12 +190,13 @@ async function fileSelected(file) {
 
   let headerData, audio
 
+  /* It's a .pti file */
   if (file.name.endsWith('.pti')) {
-    // It's a .pti file
     const header = await ptiTools.getHeader(file)
 
     const { valid: validHeader, message: headerValidationMessage } = ptiTools.validateHeader(header)
 
+    /* No :( */
     if (!validHeader) {
       renderError('This file does not appear to be a valid .pti file!')
       headerValidationMessage && renderError(
@@ -130,21 +205,25 @@ async function fileSelected(file) {
       )
     }
 
+    /* Yes! */
     else {
       headerData = ptiTools.parseHeader(header)
       audio = ptiTools.convert(await ptiTools.getAudio(file))
     }
   }
 
+  /* Some audio file? */
   else {
-    // Some audio file
     const audioCtx = getAudioContext()
 
     let audioBuffer
 
     try {
       audioBuffer = await audioCtx.decodeAudioData(await file.arrayBuffer())
-    } catch (err) {
+    }
+
+    /* No :( */
+    catch (err) {
       renderError('Please select a .pti or audio file file.')
       renderError(
         `<small>${err.name}: ${err.message} (code: ${err.code})</small>`,
@@ -152,9 +231,11 @@ async function fileSelected(file) {
       )
     }
 
+    /* Yes! */
     if (audioBuffer !== undefined) {
       headerData = ptiTools.getDefeaultHeader()
 
+      // Strip common extensions from the file name to get the instrument name.
       const ext = file.name.split('.').at(-1)
       let fname
 
@@ -176,6 +257,8 @@ async function fileSelected(file) {
       }
 
       headerData.name = fname.substring(0, 31)
+
+      // Sum multi-channel audio files (e.g. stereo) to mono
       audio = audioBuffer.getChannelData(0)
 
       const nChannels = audioBuffer.numberOfChannels
@@ -195,13 +278,3 @@ async function fileSelected(file) {
     renderInstrument(ptiTools.reactive(headerData), audio)
   }
 }
-
-/**
- * Handle file selection (bootstrap)
- */
-FileSelect.mount(fileInput, {
-  async onSelect(file) {
-    mounted.teardown()
-    await fileSelected(file)
-  }
-})
