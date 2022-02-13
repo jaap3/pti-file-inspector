@@ -44,11 +44,12 @@ export async function load(audioEl, ctx, buffer, headerData) {
     source?.stop() && (source = null)
   }
 
-  function playSample() {
+  function playSample(onEnded = () => {}) {
     stop()
     source = new AudioBufferSourceNode(ctx, {
       buffer: audioBuffer,
     })
+    source.addEventListener('ended', onEnded)
     source.connect(ctx.destination)
     source.start(0)
   }

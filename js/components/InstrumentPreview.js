@@ -46,8 +46,21 @@ export const InstrumentPreview = {
 
     const player = await ptiPlayer.load(audioEl, audioCtx, audio, headerData)
 
-    frag.querySelector('button.start').addEventListener('click', () => player.playSample())
-    frag.querySelector('button.stop').addEventListener('click', () => player.stop())
+    frag.querySelector('button.play').addEventListener('click', (evt) => {
+      const button = evt.currentTarget
+      const labels = button.querySelectorAll('span')
+
+      button.setAttribute('aria-pressed', 'true')
+      labels[0].setAttribute('hidden', '')
+      labels[1].removeAttribute('hidden')
+
+      player.playSample(() => {
+        button.setAttribute('aria-pressed', 'false')
+        labels[0].removeAttribute('hidden')
+        labels[1].setAttribute('hidden', '')
+        player.stop()
+      })
+    })
 
     if (slices) {
       slices.forEach((_, idx) => {
