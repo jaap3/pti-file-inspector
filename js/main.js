@@ -112,24 +112,28 @@ const previewSection = document.getElementById('pti-instrument-preview')
 const displaySection = document.getElementById('pti-instrument-display')
 const editorSection = document.getElementById('pti-instrument-editor')
 
-
 /**
  * Display .pti file data when a valid file is selected.
  *
- * @param {import('./modules/ptiTools.js').ReactiveHeaderParseResult} headerData
+ * @param {import('./modules/ptiTools.js').HeaderParseResult} headerData
  * @param {ArrayBuffer} audio
+ * @param {AudioContext} audioCtx
  */
-async function renderInstrument(headerData, audio) {
+async function renderInstrument(headerData, audio, audioCtx) {
+  const ptiTools = await import('./modules/ptiTools.js')
+
   const { Toolbar } = await import('./components/Toolbar.js')
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { InstrumentDisplay } = await import('./components/InstrumentDisplay.js')
   const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
   const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
 
-  mounted.push(headerData.revoke)
+  const { revoke, watch, data } = ptiTools.reactive(headerData)
+
+  mounted.push(revoke)
 
   mounted.push(Toolbar.mount(toolbar, {
-    headerData: headerData.data,
+    headerData: data,
     audio,
     fileInput,
     dataSection,
@@ -137,24 +141,24 @@ async function renderInstrument(headerData, audio) {
   }))
 
   mounted.push(InstrumentDisplay.mount(displaySection, {
-    headerData: headerData.data,
+    headerData: data,
     audio,
-    audioCtx: getAudioContext()
+    audioCtx
   }))
 
   mounted.push(await InstrumentPreview.mount(previewSection, {
-    headerData: headerData.data,
+    headerData: data,
     audio,
-    audioCtx: getAudioContext(),
+    audioCtx
   }))
 
   mounted.push(InstrumentDataTable.mount(dataSection, {
-    headerData: headerData.data,
+    headerData: data,
     audio
   }))
 
   mounted.push(InstrumentEditor.mount(editorSection, {
-    headerData,
+    headerData: { watch, data },
     audio
   }))
 }
@@ -188,6 +192,10 @@ async function renderInstrument(headerData, audio) {
 async function fileSelected(file) {
   const ptiTools = await import('./modules/ptiTools.js')
 
+  // This is a user-initiated event handler, use this opportunity
+  // to get a AudioContext in the correct state.
+  const audioCtx = getAudioContext()
+
   let headerData, audio
 
   /* It's a .pti file */
@@ -214,8 +222,6 @@ async function fileSelected(file) {
 
   /* Some audio file? */
   else {
-    const audioCtx = getAudioContext()
-
     let audioBuffer
 
     try {
@@ -275,6 +281,6 @@ async function fileSelected(file) {
   }
 
   if (headerData !== undefined && audio !== undefined) {
-    renderInstrument(ptiTools.reactive(headerData), audio)
+    await renderInstrument(headerData, audio, audioCtx)
   }
 }
