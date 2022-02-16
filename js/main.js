@@ -147,7 +147,7 @@ async function renderInstrument(headerData, audio, audioCtx) {
   }))
 
   mounted.push(await InstrumentPreview.mount(previewSection, {
-    headerData: data,
+    header: { watch, data },
     audio,
     audioCtx
   }))

@@ -22,14 +22,14 @@ let reverbBuffer
  */
 
 /**
- * @param {HTMLAudioElement} audioEl
+ * @param {HTMLElement}
  * @param {AudioContext} ctx
  * @param {Float32Array} buffer
  * @param {ptiTools.HeaderParseResult} headerData
  * @return {Promise<PtiPlayer>}
  */
-export async function load(audioEl, ctx, buffer, headerData) {
-  root = `${audioEl.ownerDocument.location.pathname}js/modules/`
+export async function load({ ownerDocument }, ctx, buffer, headerData) {
+  root = `${ownerDocument.location.pathname}js/modules/`
   const bufferLength = buffer.length
   const audioBuffer = ctx.createBuffer(1, bufferLength, 44100)
   audioBuffer.copyToChannel(buffer, 0)
