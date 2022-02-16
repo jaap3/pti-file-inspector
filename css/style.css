@@ -146,7 +146,6 @@ canvas.waveform {
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scrollbar-color: #000 #fff;
-  padding-left: 8px;
 }
 
 /* customize scrollbar css */
