@@ -87,6 +87,7 @@ function playbackSelect(select, headerData) {
     const option = d.createElement('option')
     option.label = PLAYBACK_LABELS[value]
     option.value = key
+    option.selected = headerData.samplePlayback === value
     select.add(option)
   })
 
