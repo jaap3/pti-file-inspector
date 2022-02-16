@@ -158,7 +158,7 @@ async function renderInstrument(headerData, audio, audioCtx) {
   }))
 
   mounted.push(InstrumentEditor.mount(editorSection, {
-    headerData: { watch, data },
+    header: { watch, data },
     audio
   }))
 }

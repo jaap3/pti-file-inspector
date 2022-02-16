@@ -37,14 +37,15 @@ function getTemplate({ ownerDocument }) {
 /**
  *
  * @param {HTMLInputElement} input
- * @param {ptiTools.ReactiveHeaderParseResult} headerData
+ * @param {Object} header
+ * @param {ptiTools.eHeaderParseResult} header.data
+ * @param {function} header.watch
  * @param {Object} options
  * @param {Number} options.defaultValue
  * @param {Number} options.wheelDelta
  * @param {function} options.formatValue
  */
-function activateSlider(input, headerData, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value } = {}) {
-  const { data } = headerData
+function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value } = {}) {
   const output = input.form[`${input.name}-result`]
 
   function showValue() {
@@ -68,7 +69,7 @@ function activateSlider(input, headerData, { defaultValue = 0, wheelDelta = 1, f
     showValue()
   })
 
-  headerData.watch({
+  watch({
     afterUpdate(prop) {
       if (prop === input.name) showValue()
     }
@@ -100,27 +101,31 @@ export const InstrumentEditor = {
   /**
    * @param {HTMLElement} parent
    * @param {Object} options
-   * @param {ptiTools.ReactiveHeaderParseResult} options.headerData
+   * @param {Object} options.header
+   * @param {ptiTools.eHeaderParseResult} options.header.data
+   * @param {function} options.header.watch
    * @param {ArrayBuffer} options.audio
    * @returns {Object}
    */
-  mount(parent, { headerData, audio }) {
+  mount(parent, { header, audio }) {
+    const { data } = header
+
     const frag = getTemplate(parent).cloneNode(true)
 
     const form = frag.querySelector('form')
 
     /* Name */
-    form.name.value = headerData.data.name
-    form.name.addEventListener('change', () => headerData.data.name = form.name.value)
+    form.name.value = data.name
+    form.name.addEventListener('change', () => header.data.name = form.name.value)
 
     /* Volume */
-    activateSlider(form.volume, headerData, {
+    activateSlider(form.volume, header, {
       defaultValue: 50,
       formatValue: (value) => displaydB(convertVolume(value))
     })
 
     /* Panning */
-    activateSlider(form.panning, headerData, {
+    activateSlider(form.panning, header, {
       defaultValue: 50,
       formatValue: (value) => {
         const displayValue = value - 50
@@ -129,53 +134,53 @@ export const InstrumentEditor = {
     })
 
     /* Tune */
-    activateSlider(form.tune, headerData)
+    activateSlider(form.tune, header)
 
     /* Finetune */
-    activateSlider(form.finetune, headerData)
+    activateSlider(form.finetune, header)
 
     /* Playback */
-    playbackSelect(form.samplePlayback, headerData.data)
+    playbackSelect(form.samplePlayback, data)
 
     /* Playback start */
-    activateSlider(form.playbackStart, headerData, {
+    activateSlider(form.playbackStart, header, {
       wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Loop start */
-    activateSlider(form.loopStart, headerData, {
+    activateSlider(form.loopStart, header, {
       wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Loop end */
-    activateSlider(form.loopEnd, headerData, {
+    activateSlider(form.loopEnd, header, {
       defaultValue: 65534,
       wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Playback end */
-    activateSlider(form.playbackEnd, headerData, {
+    activateSlider(form.playbackEnd, header, {
       defaultValue: 65535,
       wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
     /* Overdrive */
-    activateSlider(form.overdrive, headerData)
+    activateSlider(form.overdrive, header)
 
     /* bitDepth */
-    activateSlider(form.bitDepth, headerData, { defaultValue: 16 })
+    activateSlider(form.bitDepth, header, { defaultValue: 16 })
 
     /* Reverb send */
-    activateSlider(form.reverbSend, headerData, {
+    activateSlider(form.reverbSend, header, {
       formatValue: (value) => displaydB(convertSend(value))
     })
 
     /* Delay send */
-    activateSlider(form.delaySend, headerData, {
+    activateSlider(form.delaySend, header, {
       formatValue: (value) => displaydB(convertSend(value))
     })
 
