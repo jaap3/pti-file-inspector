@@ -319,55 +319,65 @@ fieldset {
 legend {
   display: block;
   width: 100%;
-  margin-bottom: 5px;
   padding: 2px;
   background-color: #fff;
   color: #000;
   font-weight: 400;
 }
 
-fieldset th {
-  vertical-align: middle;
+.row {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 2px;
+  margin: 8px 0;
 }
 
-input[type=text], select {
+input[type=text],
+select {
   border: 1px solid #777;
   background-color: #101010;
   width: 100%;
 }
 
-.range-output {
-  display: flex;
+.row label {
+  color: #a0a0a0;
+  font-weight: 400;
 }
 
-.range-output output {
-  flex-basis: 5em;
-  flex-shrink: 0;
-  margin-left: 6px;
-  align-self: center;
-  text-align: right;
+.row label,
+.row output {
+  grid-column: 1;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 input[type=range] {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   -webkit-appearance: none;
-  margin: 2px 0;
   border: 1px solid #777;
-  height: 32px;
   background-color: #101010;
   cursor: pointer;
   width: 100%;
+  height: 100%;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  height: 100%;
 }
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 100%;
   background: #ffffff;
 }
 
 input[type=range]::-moz-range-thumb {
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 100%;
   background: #ffffff;
   border-radius: 0;
   border: 0;
