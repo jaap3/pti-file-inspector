@@ -59,7 +59,7 @@ function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta =
     showValue()
   })
 
-  input.addEventListener('change', () => {
+  input.addEventListener('input', () => {
     data[input.name] = input.valueAsNumber
     showValue()
   })
