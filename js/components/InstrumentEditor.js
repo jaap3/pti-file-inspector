@@ -232,6 +232,8 @@ export const InstrumentEditor = {
 
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
+    parent.removeAttribute('hidden')
+
     return function unmount() {
       mounted.forEach(el => el.remove())
     }

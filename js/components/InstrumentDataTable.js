@@ -149,8 +149,6 @@ export const InstrumentDataTable = {
       (el) => parent.appendChild(el)
     )
 
-    parent.removeAttribute('hidden')
-
     // Create an observer instance linked to the callback function
     const observer = new MutationObserver((mutations) => {
       if (parent.getAttribute('hidden') === null) {
