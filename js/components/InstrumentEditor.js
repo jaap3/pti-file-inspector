@@ -209,7 +209,7 @@ export const InstrumentEditor = {
     })
 
     /* Resonance */
-    activateSlider(form.resonance, header,  {
+    activateSlider(form.resonance, header, {
       wheelDelta: 0.04,
       formatValue: (value) => (value / 4.3 * 100).toFixed()
     })

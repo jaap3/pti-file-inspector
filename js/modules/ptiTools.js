@@ -367,7 +367,7 @@ export function reactive(headerData) {
   return {
     watch,
     revoke() {
-      watchers.splice(0, watchers.length)
+      watchers.splice(0)
       revoke()
     },
     data: proxy

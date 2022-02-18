@@ -156,7 +156,9 @@ export const InstrumentDataTable = {
       if (parent.getAttribute('hidden') === null) {
         mounted.forEach(el => el.remove())
         mounted = Array.from(
-          render(parent, { headerData, audio }).children).map((el) => parent.appendChild(el)
+          render(parent, { headerData, audio }).children
+        ).map(
+          (el) => parent.appendChild(el)
         )
       }
     })
