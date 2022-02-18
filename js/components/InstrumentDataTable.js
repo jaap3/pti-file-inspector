@@ -1,7 +1,12 @@
 import constants from '../modules/constants.js'
 import * as ptiTools from '../modules/ptiTools.js'
 
-const { SamplePlayback, FilterType, GranularShape, GranularLoopMode } = constants
+const {
+  SAMPLE_PLAYBACK_LABELS,
+  FILTER_TYPE_LABELS,
+  GRANULAR_LOOP_MODE_LABELS,
+  GRANULAR_SHAPE_LABELS
+} = constants
 const {
   convertSend, convertVolume,
   displaydB, displayMilliseconds,
@@ -25,35 +30,6 @@ function getTemplate({ ownerDocument }) {
     )
   }
   return templateCache.get(ownerDocument)
-}
-
-const SAMPLE_PLAYBACK = {
-  [SamplePlayback.ONE_SHOT]: '1-Shot',
-  [SamplePlayback.FORWARD_LOOP]: 'Forward loop',
-  [SamplePlayback.BACKWARD_LOOP]: 'Backward loop',
-  [SamplePlayback.PINGPONG_LOOP]: 'PingPong loop',
-  [SamplePlayback.SLICE]: 'Slice',
-  [SamplePlayback.BEAT_SLICE]: 'Beat slice',
-  [SamplePlayback.WAVETABLE]: 'Wavetable',
-  [SamplePlayback.GRANULAR]: 'Granular',
-}
-
-const FILTER_TYPE = {
-  [FilterType.LOW_PASS]: 'Low-pass',
-  [FilterType.HIGH_PASS]: 'High-pass',
-  [FilterType.BAND_PASS]: 'Band-pass'
-}
-
-const GRANULAR_LOOP_MODE = {
-  [GranularLoopMode.FORWARD]: 'Forward',
-  [GranularLoopMode.BACKWARD]: 'Backward',
-  [GranularLoopMode.PINGPONG]: 'PingPong'
-}
-
-const GRANULAR_SHAPE = {
-  [GranularShape.SQUARE]: 'Square',
-  [GranularShape.TRIANGLE]: 'Triangle',
-  [GranularShape.GAUSS]: 'Gauss'
 }
 
 /**
@@ -94,7 +70,7 @@ function render(parent, { headerData, audio }) {
     (headerLengthInMs != sampleLengthInMs ?
       ` (header says: ${displayMilliseconds(headerLengthInMs)})` : '')
   )
-  addRow('Playback', SAMPLE_PLAYBACK[samplePlayback])
+  addRow('Playback', SAMPLE_PLAYBACK_LABELS[samplePlayback])
 
   if (isOneShot(samplePlayback) || isLoop(samplePlayback)) {
     addRow('Start', displayOffset(headerData.playbackStart))
@@ -132,8 +108,8 @@ function render(parent, { headerData, audio }) {
   else if (isGranular(samplePlayback)) {
     addRow('Length', displayMilliseconds(headerData.granularLength / 44.1))
     addRow('Position', displayOffset(headerData.granularPosition))
-    addRow('Shape', GRANULAR_SHAPE[headerData.granularShape])
-    addRow('Loop mode', GRANULAR_LOOP_MODE[headerData.granularLoopMode])
+    addRow('Shape', GRANULAR_SHAPE_LABELS[headerData.granularShape])
+    addRow('Loop mode', GRANULAR_LOOP_MODE_LABELS[headerData.granularLoopMode])
   }
 
   addRow('Volume', displaydB(convertVolume(headerData.volume)))
@@ -144,7 +120,7 @@ function render(parent, { headerData, audio }) {
   if (!headerData.filterEnabled) {
     addRow('Filter', 'Disabled')
   } else {
-    addRow('Filter', FILTER_TYPE[headerData.filterType])
+    addRow('Filter', FILTER_TYPE_LABELS[headerData.filterType])
     addRow('Cutoff', Math.floor(headerData.cutoff * 100))
     addRow('Resonance', (headerData.resonance / 4.300000190734863 * 100).toFixed(0))
   }

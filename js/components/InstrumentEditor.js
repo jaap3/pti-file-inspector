@@ -1,24 +1,18 @@
 import constants from '../modules/constants.js'
 import * as ptiTools from '../modules/ptiTools.js'
 
-const { SamplePlayback, FilterType, GranularShape, GranularLoopMode } = constants
+const {
+  SamplePlayback, SAMPLE_PLAYBACK_LABELS,
+  FilterType, FILTER_TYPE_LABELS,
+  GranularLoopMode, GRANULAR_LOOP_MODE_LABELS,
+  GranularShape, GRANULAR_SHAPE_LABELS
+} = constants
 
 const {
   displaydB, displayMilliseconds,
   convertSend, convertVolume,
   relOffset
 } = ptiTools
-
-const PLAYBACK_LABELS = {
-  [SamplePlayback.ONE_SHOT]: 'One Shot',
-  [SamplePlayback.FORWARD_LOOP]: 'Forward Loop',
-  [SamplePlayback.BACKWARD_LOOP]: 'Backward Loop',
-  [SamplePlayback.PINGPONG_LOOP]: 'PingPong Loop',
-  [SamplePlayback.SLICE]: 'Slice',
-  [SamplePlayback.BEAT_SLICE]: 'Beat Slice',
-  [SamplePlayback.WAVETABLE]: 'Wavetable',
-  [SamplePlayback.GRANULAR]: 'Granular'
-}
 
 const templateCache = new WeakMap()
 
@@ -80,20 +74,23 @@ function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta =
 /**
  *
  * @param {HTMLSelectElement} select
- * @param {ptiTools.HeaderParseResult} headerData
+ * @param {Object} options
+ * @param {Object} labels
+ * @param {Object} header
+ * @param {ptiTools.HeaderParseResult} header.data
  */
-function playbackSelect(select, headerData) {
+function activateSelect(select, options, labels, { data }) {
   const { ownerDocument: d } = select
-  Object.entries(SamplePlayback).forEach(([key, value]) => {
+  Object.entries(options).forEach(([key, value]) => {
     const option = d.createElement('option')
-    option.label = PLAYBACK_LABELS[value]
+    option.label = labels[value]
     option.value = key
-    option.selected = headerData.samplePlayback === value
+    option.selected = data[select.name] === value
     select.add(option)
   })
 
   select.addEventListener('change', () => {
-    headerData[select.name] = SamplePlayback[select.value]
+    data[select.name] = options[select.value]
   })
 }
 
@@ -140,7 +137,7 @@ export const InstrumentEditor = {
     activateSlider(form.finetune, header)
 
     /* Playback */
-    playbackSelect(form.samplePlayback, data)
+    activateSelect(form.samplePlayback, SamplePlayback, SAMPLE_PLAYBACK_LABELS, header)
 
     /* Playback start */
     activateSlider(form.playbackStart, header, {
@@ -190,22 +187,22 @@ export const InstrumentEditor = {
     })
 
     /* Granular position */
-    activateSlider(form.granularPosition, header,  {
+    activateSlider(form.granularPosition, header, {
       defaultValue: 441,
       formatValue: (value) => displayMilliseconds(value / 44.1)
     })
 
     /* Shape */
-    // TODO: granularShapeSelect(form.granularShape, data)
+    activateSelect(form.granularShape, GranularShape, GRANULAR_SHAPE_LABELS, header)
 
     /* Loop mode */
-    // TODO: granularLoopModeSelect(form.granularLoopMode, data)
+    activateSelect(form.granularLoopMode, GranularLoopMode, GRANULAR_LOOP_MODE_LABELS, header)
 
     /* Filter type */
-    // TODO: filterTypeSelect(form.filterType, data)
+    activateSelect(form.filterType, FilterType, FILTER_TYPE_LABELS, header)
 
     /* Cutoff */
-    activateSlider(form.cutoff, header,  {
+    activateSlider(form.cutoff, header, {
       defaultValue: 1.0,
       wheelDelta: 0.01,
       formatValue: (value) => (value * 100).toFixed()

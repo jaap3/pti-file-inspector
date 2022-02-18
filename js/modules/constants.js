@@ -27,6 +27,35 @@ const FilterType = Object.freeze({
   BAND_PASS: 2
 })
 
+const SAMPLE_PLAYBACK_LABELS = Object.freeze({
+  [SamplePlayback.ONE_SHOT]: '1-Shot',
+  [SamplePlayback.FORWARD_LOOP]: 'Forward loop',
+  [SamplePlayback.BACKWARD_LOOP]: 'Backward loop',
+  [SamplePlayback.PINGPONG_LOOP]: 'PingPong loop',
+  [SamplePlayback.SLICE]: 'Slice',
+  [SamplePlayback.BEAT_SLICE]: 'Beat slice',
+  [SamplePlayback.WAVETABLE]: 'Wavetable',
+  [SamplePlayback.GRANULAR]: 'Granular',
+})
+
+const FILTER_TYPE_LABELS = Object.freeze({
+  [FilterType.LOW_PASS]: 'Low-pass',
+  [FilterType.HIGH_PASS]: 'High-pass',
+  [FilterType.BAND_PASS]: 'Band-pass'
+})
+
+const GRANULAR_LOOP_MODE_LABELS = Object.freeze({
+  [GranularLoopMode.FORWARD]: 'Forward',
+  [GranularLoopMode.BACKWARD]: 'Backward',
+  [GranularLoopMode.PINGPONG]: 'PingPong'
+})
+
+const GRANULAR_SHAPE_LABELS = Object.freeze({
+  [GranularShape.SQUARE]: 'Square',
+  [GranularShape.TRIANGLE]: 'Triangle',
+  [GranularShape.GAUSS]: 'Gauss'
+})
+
 // https://github.com/jaap3/pti-file-format/blob/main/pti.rst#header
 const MAGIC = Object.freeze({
   0: 84, // T
@@ -186,9 +215,13 @@ const lazyDefaultWavHeaderFactory = (() => {
 
 export default {
   SamplePlayback,
+  SAMPLE_PLAYBACK_LABELS,
   GranularShape,
+  GRANULAR_SHAPE_LABELS,
   GranularLoopMode,
+  GRANULAR_LOOP_MODE_LABELS,
   FilterType,
+  FILTER_TYPE_LABELS,
   MAGIC,
   get DEFAULT_PTI_HEADER() { return lazyDefaultPtiHeaderFactory.HEADER },
   get DEFAULT_WAV_HEADER() { return lazyDefaultWavHeaderFactory.HEADER },
