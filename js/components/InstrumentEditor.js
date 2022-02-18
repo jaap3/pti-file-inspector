@@ -168,6 +168,55 @@ export const InstrumentEditor = {
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
     })
 
+    /* Slice offset */
+    /* TODO: make this work */
+    activateSlider(form.sliceOffset, header, {
+      defaultValue: 0,
+      wheelDelta: 65535 / 1000,
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+    })
+
+    /* Wavetable window size */
+    activateSlider(form.wavetableWindowSize, header, {
+      defaultValue: 2048
+    })
+
+    /* Wavetable position */
+    activateSlider(form.wavetablePosition, header)
+
+    /* Granular length */
+    activateSlider(form.granularLength, header, {
+      formatValue: (value) => displayMilliseconds(value / 44.1)
+    })
+
+    /* Granular position */
+    activateSlider(form.granularPosition, header,  {
+      defaultValue: 441,
+      formatValue: (value) => displayMilliseconds(value / 44.1)
+    })
+
+    /* Shape */
+    // TODO: granularShapeSelect(form.granularShape, data)
+
+    /* Loop mode */
+    // TODO: granularLoopModeSelect(form.granularLoopMode, data)
+
+    /* Filter type */
+    // TODO: filterTypeSelect(form.filterType, data)
+
+    /* Cutoff */
+    activateSlider(form.cutoff, header,  {
+      defaultValue: 1.0,
+      wheelDelta: 0.01,
+      formatValue: (value) => (value * 100).toFixed()
+    })
+
+    /* Resonance */
+    activateSlider(form.resonance, header,  {
+      wheelDelta: 0.04,
+      formatValue: (value) => (value / 4.3 * 100).toFixed()
+    })
+
     /* Overdrive */
     activateSlider(form.overdrive, header)
 
