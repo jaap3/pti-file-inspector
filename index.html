@@ -37,7 +37,6 @@
 
   <template id="template:instrument-preview">
     <h2 class="sr-only">Preview instrument audio</h2>
-    <audio></audio>
     <div class="keypad-container">
       <div class="keypad">
         <button type="button"></button>
@@ -48,7 +47,6 @@
         <span>Play</span>
         <span hidden>Stop</span>
       </button>
-    </div>
     </div>
   </template>
 
@@ -138,6 +136,65 @@
           <label for="pti-instrument-playbackEnd">End</label>
           <input type="range" id="pti-instrument-playbackEnd" name="playbackEnd" min="0" max="65535">
           <output name="playbackEnd-result" for="pti-instrument-playbackEnd"></output>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Slices</legend>
+        <div class="row">
+          <label for="pti-instrument-sliceOffset">Slice</label>
+          <input type="range" id="pti-instrument-sliceOffset" name="sliceOffset" min="0" max="65535">
+          <output name="sliceOffset-result" for="pti-instrument-sliceOffset"></output>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Wavetable</legend>
+        <div class="row">
+          <label for="pti-instrument-wavetableWindowSize">Window size</label>
+          <input type="range" id="pti-instrument-wavetableWindowSize" name="wavetableWindowSize" min="32" max="2048">
+          <output name="wavetableWindowSize-result" for="pti-instrument-wavetableWindowSize"></output>
+        </div>
+        <div class="row">
+          <label for="pti-instrument-wavetablePosition">Position</label>
+          <input type="range" id="pti-instrument-wavetablePosition" name="wavetablePosition" min="0" max="65535">
+          <output name="wavetablePosition-result" for="pti-instrument-wavetablePosition"></output>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Granular</legend>
+        <div class="row">
+          <label for="pti-instrument-granularLength">Length</label>
+          <input type="range" id="pti-instrument-granularLength" name="granularLength" min="44" max="44100">
+          <output name="granularLength-result" for="pti-instrument-granularLength"></output>
+        </div>
+        <div class="row">
+          <label for="pti-instrument-granularPosition">Position</label>
+          <input type="range" id="pti-instrument-granularPosition" name="granularPosition" min="0" max="65535">
+          <output name="granularPosition-result" for="pti-instrument-granularPosition"></output>
+        </div>
+        <div class="row">
+          <label for="pti-instrument-granularShape">Shape</label>
+          <select id="pti-instrument-granularShape" name="granularShape"></select>
+        </div>
+        <div class="row">
+          <label for="pti-instrument-granularLoopMode">Loop mode</label>
+          <select id="pti-instrument-granularLoopMode" name="granularLoopMode"></select>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Filter</legend>
+        <div class="row">
+          <label for="pti-instrument-filterType">Filter type</label>
+          <select id="pti-instrument-filterType" name="filterType"></select>
+        </div>
+        <div class="row">
+          <label for="pti-instrument-cutoff">Cutoff</label>
+          <input type="range" id="pti-instrument-cutoff" name="cutoff" min="0.0" max="1.0" step=".01">
+          <output name="cutoff-result" for="pti-instrument-cutoff"></output>
+        </div>
+        <div class="row">
+          <label for="pti-instrument-resonance">Resonance</label>
+          <input type="range" id="pti-instrument-resonance" name="resonance" min="0.0" max="4.3" step=".01">
+          <output name="resonance-result" for="pti-instrument-resonance"></output>
         </div>
       </fieldset>
       <fieldset>
