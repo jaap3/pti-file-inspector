@@ -19,8 +19,9 @@ body {
   display: flex;
   flex-direction: column;
   max-width: 960px;
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 16px;
 }
 
 /* File select */
@@ -72,11 +73,6 @@ label[for="pti-file-input"]:focus-within {
   margin-top: 0;
 }
 
-#toolbar:not(:empty) + #loader {
-  order: 2;
-  margin-top: 0;
-}
-
 .controls {
   display: flex;
   flex: calc(4rem + 8px)4 1;
@@ -100,6 +96,7 @@ label[for="pti-file-input"]:focus-within {
   padding: 4px;
   text-align: left;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .controls button:focus {
@@ -139,145 +136,65 @@ canvas.waveform {
 }
 
 .keypad-container {
-  direction: rtl;
-  flex: auto 0 0;
-  min-width: 72px;
-  height: 72px;
-  overflow-y: scroll;
   scroll-snap-type: y mandatory;
-  scrollbar-color: #000 #fff;
+  height: calc(1rem + 3rem * 2);
+  overflow: hidden;
 }
 
-/* customize scrollbar css */
-.keypad-container::-webkit-scrollbar {
-  width: 32px;
-  background-color: #000;
-  border: 1px solid #777;
+@media (min-width: calc(2rem + calc(3.5rem * 12))) and (min-height: calc(1rem + 3rem * 8)) {
+  .keypad-container {
+    height: auto;
+  }
 }
 
-.keypad-container::-webkit-scrollbar-thumb {
-  background-color: #fff;
-}
-
-.keypad {
-  direction: ltr;
+.keypad-row {
   display: grid;
-  grid-auto-columns: 32px;
-  grid-auto-rows: 32px;
-  gap: 8px 8px;
+  grid-template-columns: repeat(6, 3rem);
+  grid-auto-rows: 3rem;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.keypad button {
+.keypad-row button {
+  grid-row: 2;
+}
+
+.keypad-row button:nth-child(n+7) {
   grid-row: 1;
-  background: radial-gradient(#e2e4cc, #9e9e92);
-  width: 32px;
-  height: 32px;
+}
+
+.keypad-container.sliced .keypad-row button {
+  grid-row: unset;
+}
+
+@media (min-width: calc(2rem + calc(3.5rem * 12))) {
+  .keypad-row {
+    grid-template-columns: repeat(12, 3rem);
+  }
+
+  .keypad-container .keypad-row button {
+    grid-row: unset;
+  }
+}
+
+.keypad-row button {
+  background: radial-gradient(#e6e9cc, #b3b3a3);
+  width: 3rem;
+  height: 3rem;
   border: 1px outset #3b3b43;
   padding: 0;
   scroll-snap-align: start;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-@media (max-width: 393px) {
-  .keypad button {
-    grid-row: 3;
-  }
-
-  .keypad button:nth-child(n+5) {
-    grid-row: 2;
-  }
-
-  .keypad button:nth-child(n+9) {
-    grid-row: 1;
-  }
-
-  .keypad button:nth-child(n+13) {
-    grid-row: 6;
-  }
-
-  .keypad button:nth-child(n+17) {
-    grid-row: 5;
-  }
-
-  .keypad button:nth-child(n+21) {
-    grid-row: 4;
-  }
-
-  .keypad button:nth-child(n+25) {
-    grid-row: 9;
-  }
-
-  .keypad button:nth-child(n+29) {
-    grid-row: 8;
-  }
-
-  .keypad button:nth-child(n+33) {
-    grid-row: 7;
-  }
-
-  .keypad button:nth-child(n+37) {
-    grid-row: 12;
-  }
-
-  .keypad button:nth-child(n+41) {
-    grid-row: 11;
-  }
-
-  .keypad button:nth-child(n+45) {
-    grid-row: 10;
-  }
+.keypad-row button:disabled {
+  cursor: not-allowed;
+  background: radial-gradient(#9fa187, #8f8f7c);
 }
 
-@media (min-width: 394px) and (max-width: 633px) {
-  .keypad button {
-    grid-row: 2;
-  }
-
-  .keypad button:nth-child(n+7) {
-    grid-row: 1;
-  }
-
-  .keypad button:nth-child(n+13) {
-    grid-row: 4;
-  }
-
-  .keypad button:nth-child(n+19) {
-    grid-row: 3;
-  }
-
-  .keypad button:nth-child(n+25) {
-    grid-row: 6;
-  }
-
-  .keypad button:nth-child(n+31) {
-    grid-row: 5;
-  }
-
-  .keypad button:nth-child(n+37) {
-    grid-row: 8;
-  }
-
-  .keypad button:nth-child(n+43) {
-    grid-row: 7;
-  }
-}
-
-@media (min-width: 634px) {
-  .keypad button:nth-child(n+13) {
-    grid-row: 2;
-  }
-
-  .keypad button:nth-child(n+25) {
-    grid-row: 3;
-  }
-
-  .keypad button:nth-child(n+37) {
-    grid-row: 4;
-  }
-}
-
-
-.keypad button:focus {
-  background: radial-gradient(#fcfdee, #e7e7d3);
+.keypad-row button:focus {
+  background: radial-gradient(#f9faea, #ebebd5);
   border-style: inset;
   outline: 1px solid #651f1f;
 }
@@ -286,6 +203,11 @@ canvas.waveform {
 
 .error {
   text-align: center;
+}
+
+#pti-instrument-data:not([hidden]) {
+  display: flex;
+  flex-grow: 1;
 }
 
 table {
@@ -308,12 +230,31 @@ th {
   width: 8em;
 }
 
+/* Editor */
 
-/* Form */
+#pti-instrument-editor:not([hidden]) {
+  display: flex;
+  flex-grow: 1;
+}
+
+#pti-instrument-editor form {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  scroll-snap-type: x mandatory;
+}
+
 fieldset {
   border: 0;
   margin: 0;
   padding: 0;
+}
+
+#pti-instrument-editor  fieldset {
+  min-width: 100%;
+  max-width: 960px;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
 }
 
 legend {
