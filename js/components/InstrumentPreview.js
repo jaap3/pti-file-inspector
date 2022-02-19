@@ -30,6 +30,7 @@ function render(document, player, headerData) {
   const frag = getTemplate(document).cloneNode(true)
 
   frag.querySelector('button.play').addEventListener('click', (evt) => {
+    /** @type {HTMLButtonElement} */
     const button = evt.currentTarget
     const labels = button.querySelectorAll('span')
 
@@ -45,18 +46,27 @@ function render(document, player, headerData) {
     })
   })
 
+  /** @type {Element} */
   const rowTemplate = frag.querySelector('.keypad-row')
   const buttonTemplate = rowTemplate.querySelector('button')
   buttonTemplate.remove()  // disconnect from fragment
 
   const isSliced = ptiTools.isSliced(samplePlayback)
 
+  if (isSliced) {
+    /** @type {Element} */
+    const container = frag.querySelector('.keypad-container')
+    container.classList.add('sliced')
+  }
+
   for (let octave = 1; octave >= -2; octave--) {
+    /** @type {Element} */
     const keypad = rowTemplate.cloneNode()
 
     for (let note = 0; note < 12; note++) {
       const idx = Math.abs(octave - 1) * 12 + note
       const detune = octave * 12 + note
+      /** @type {HTMLButtonElement} */
       const button = buttonTemplate.cloneNode(true)
 
       const handlers = {
@@ -97,7 +107,7 @@ function render(document, player, headerData) {
       keypad.appendChild(button)
     }
 
-    rowTemplate.parentNode.insertBefore(keypad, rowTemplate)
+    rowTemplate.before(keypad)
   }
 
   rowTemplate.remove()  // disconnect from template
