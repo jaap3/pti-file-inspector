@@ -20,18 +20,14 @@ function getTemplate(document) {
 /**
  *
  * @param {Document} document
- * @param {ptiTools.HeaderParseResult} options.headerData
- * @param {Float32Array} options.audio
- * @param {AudioContext} audioCtx
+ * @param {ptiPlayer.PtiPlayer} player
+ * @param {ptiTools.HeaderParseResult} headerData
  * @returns {DocumentFragment}
  */
 function render(document, player, headerData) {
   const { samplePlayback } = headerData
 
   const frag = getTemplate(document).cloneNode(true)
-  const keypad = frag.querySelector('.keypad')
-  const buttonTemplate = keypad.querySelector('button')
-  buttonTemplate.remove()  // disconnect from fragment
 
   frag.querySelector('button.play').addEventListener('click', (evt) => {
     const button = evt.currentTarget
@@ -49,38 +45,62 @@ function render(document, player, headerData) {
     })
   })
 
-  if (isSliced(samplePlayback)) {
-    Array.from(headerData.slices).forEach((_, idx) => {
-      const sliceButton = buttonTemplate.cloneNode(true)
-      sliceButton.setAttribute('title', `Slice ${idx + 1}`)
-      sliceButton.addEventListener('click', () => player.playSlice(idx))
-      keypad.appendChild(sliceButton)
-    })
-  }
+  const rowTemplate = frag.querySelector('.keypad-row')
+  const buttonTemplate = rowTemplate.querySelector('button')
+  buttonTemplate.remove()  // disconnect from fragment
 
-  else if (isOneShot(samplePlayback) || isLoop(samplePlayback)) {
-    // Firefox cannot actually handle the tuning range :-(
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1624681
-    for (let o = 12; o > -25; o -= 12) {
-      for (let n = 0; n < 12; n++) {
-        const button = buttonTemplate.cloneNode(true)
-        button.setAttribute('title', `${o + n} (hold)`)
+  const isSliced = ptiTools.isSliced(samplePlayback)
 
-        button.addEventListener('keydown', (evt) => {
-          if (evt.which === 32 /* space */ && !evt.repeat) {
-            player.playInstrument({ detune: (o + n) * 100 })
-          }
-        })
-        button.addEventListener('keyup', () => player.stop())
-        button.addEventListener('touchstart', () => player.playInstrument({ detune: (o + n) * 100 }))
-        button.addEventListener('touchend', () => player.stop())
-        button.addEventListener('mousedown', () => player.playInstrument({ detune: (o + n) * 100 }))
-        button.addEventListener('mouseup', () => player.stop())
-        button.addEventListener('mouseleave', () => player.stop())
-        keypad.appendChild(button)
+  for (let octave = 1; octave >= -2; octave--) {
+    const keypad = rowTemplate.cloneNode()
+
+    for (let note = 0; note < 12; note++) {
+      const idx = Math.abs(octave - 1) * 12 + note
+      const detune = octave * 12 + note
+      const button = buttonTemplate.cloneNode(true)
+
+      const handlers = {
+        stop() {
+          player.stop()
+        },
+        play() {
+          isSliced ?
+            player.playSlice(idx) :
+            // Firefox cannot actually handle the tuning range :-(
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=1624681
+            player.playInstrument({ detune: detune * 100 })
+        }
       }
+
+      if (isSliced) {
+        button.setAttribute('title', `Slice ${idx + 1}`)
+        if (idx >= headerData.numSlices) { button.setAttribute('disabled', '') }
+      } else {
+        button.setAttribute('title', `${detune} (hold)`)
+
+        // Think about using aria-role grid
+        // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/grid_role
+        // button.tabIndex = detune === 0 ? 0 : -1
+      }
+
+      button.addEventListener('keydown', (evt) => {
+        if (evt.which === 32 /* space */ && !evt.repeat) {
+          handlers.play()
+        }
+      })
+      button.addEventListener('keyup', handlers.stop)
+      button.addEventListener('touchstart', handlers.play)
+      button.addEventListener('touchend', handlers.stop)
+      button.addEventListener('mousedown', handlers.play)
+      button.addEventListener('mouseup', handlers.stop)
+      button.addEventListener('mouseleave', handlers.stop)
+      keypad.appendChild(button)
     }
+
+    rowTemplate.parentNode.insertBefore(keypad, rowTemplate)
   }
+
+  rowTemplate.remove()  // disconnect from template
 
   return frag
 }
