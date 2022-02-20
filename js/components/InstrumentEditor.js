@@ -253,14 +253,14 @@ export const InstrumentEditor = {
 
     /* Slice offset */
     /* TODO: make this work */
-    activateSlider(form.sliceOffset, header, {
-      defaultValue: 0,
-      wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
-      isVisible({ samplePlayback }) {
-        return isSliced(samplePlayback)
-      }
-    })
+    // activateSlider(form.sliceOffset, header, {
+    //   defaultValue: 0,
+    //   wheelDelta: 65535 / 1000,
+    //   formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+    //   isVisible({ samplePlayback }) {
+    //     return isSliced(samplePlayback)
+    //   }
+    // })
 
     /* Wavetable window size */
     activateSlider(form.wavetableWindowSize, header, {
