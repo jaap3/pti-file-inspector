@@ -40,11 +40,10 @@ export const Toolbar = {
    * @param {ptiTools.HeaderParseResult} options.headerData
    * @param {ArrayBuffer} options.audio
    * @param {HTMLElement} options.fileInput
-   * @param {HTMLElement} options.dataSection
    * @param {HTMLElement} options.editorSection
    * @returns
    */
-  mount(parent, { headerData, audio, fileInput, dataSection, editorSection }) {
+  mount(parent, { headerData, audio, fileInput, editorSection }) {
     const { ownerDocument: document } = parent
     const frag = getTemplate(parent).cloneNode(true)
 
@@ -91,7 +90,6 @@ export const Toolbar = {
 
     return function unmount() {
       fileInput.removeAttribute('hidden')
-      dataSection.removeAttribute('hidden')
       editorSection.setAttribute('hidden', '')
       mounted.forEach(el => el.remove())
     }

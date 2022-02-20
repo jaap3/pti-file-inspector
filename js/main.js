@@ -135,7 +135,6 @@ async function renderInstrument(headerData, audio, audioCtx) {
     headerData: data,
     audio,
     fileInput,
-    dataSection,
     editorSection
   }))
 

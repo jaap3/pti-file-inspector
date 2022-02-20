@@ -142,7 +142,7 @@ function activateNavigation(nav) {
   })
 
   return {
-    disconnect: observer.disconnect.bind()
+    disconnect: () => observer.disconnect()
   }
 }
 
