@@ -74,60 +74,16 @@
     <h2 class="sr-only">Edit instrument parameters</h2>
     <nav>
       <div role="tablist">
-        <button role="tab" aria-controls="editInstrumentFile">File</button>
+        <button role="tab" aria-controls="editInstrumentPlayback">Playback</button>
         <button role="tab" aria-controls="editInstrumentVolume">Volume</button>
         <button role="tab" aria-controls="editInstrumentPanning">Pan</button>
         <button role="tab" aria-controls="editInstrumentTuning">Tune</button>
-        <button role="tab" aria-controls="editInstrumentPlayback">Playback</button>
         <button role="tab" aria-controls="editInstrumentFilter">Filter</button>
         <button role="tab" aria-controls="editInstrumentEffects">FX</button>
+        <button role="tab" aria-controls="editInstrumentFile">File</button>
       </div>
     </nav>
     <form>
-      <div role="tabpanel" id="editInstrumentFile">
-        <fieldset>
-          <legend>File</legend>
-          <div class="row">
-            <label for="pti-instrument-name">Name</label>
-            <input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+">
-          </div>
-        </fieldset>
-      </div>
-      <div role="tabpanel" id="editInstrumentVolume">
-        <fieldset>
-          <legend>Volume</legend>
-          <div class="row">
-            <label for="pti-instrument-volume">Volume</label>
-            <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
-            <output name="volume-result" for="pti-instrument-volume"></output>
-          </div>
-        </fieldset>
-      </div>
-      <div role="tabpanel" id="editInstrumentPanning">
-        <fieldset>
-          <legend>Panning</legend>
-          <div class="row">
-            <label for="pti-instrument-panning">Panning</label>
-            <input type="range" id="pti-instrument-panning" name="panning" min="0" max="100">
-            <output name="panning-result" for="pti-instrument-panning"></output>
-          </div>
-        </fieldset>
-      </div>
-      <div role="tabpanel" id="editInstrumentTuning">
-        <fieldset>
-          <legend>Tune</legend>
-          <div class="row">
-            <label for="pti-instrument-tune">Tune</label>
-            <input type="range" id="pti-instrument-tune" name="tune" min="-24" max="24">
-            <output name="tune-result" for="pti-instrument-tune"></output>
-          </div>
-          <div class="row">
-            <label for="pti-instrument-finetune">Finetune</label>
-            <input type="range" id="pti-instrument-finetune" name="finetune" min="-100" max="100">
-            <output name="finetune-result" for="pti-instrument-finetune"></output>
-          </div>
-        </fieldset>
-      </div>
       <div role="tabpanel" id="editInstrumentPlayback">
         <fieldset>
           <legend>Playback</legend>
@@ -190,6 +146,41 @@
           </div>
         </fieldset>
       </div>
+      <div role="tabpanel" id="editInstrumentVolume">
+        <fieldset>
+          <legend>Volume</legend>
+          <div class="row">
+            <label for="pti-instrument-volume">Volume</label>
+            <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
+            <output name="volume-result" for="pti-instrument-volume"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentPanning">
+        <fieldset>
+          <legend>Panning</legend>
+          <div class="row">
+            <label for="pti-instrument-panning">Panning</label>
+            <input type="range" id="pti-instrument-panning" name="panning" min="0" max="100">
+            <output name="panning-result" for="pti-instrument-panning"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentTuning">
+        <fieldset>
+          <legend>Tune</legend>
+          <div class="row">
+            <label for="pti-instrument-tune">Tune</label>
+            <input type="range" id="pti-instrument-tune" name="tune" min="-24" max="24">
+            <output name="tune-result" for="pti-instrument-tune"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-finetune">Finetune</label>
+            <input type="range" id="pti-instrument-finetune" name="finetune" min="-100" max="100">
+            <output name="finetune-result" for="pti-instrument-finetune"></output>
+          </div>
+        </fieldset>
+      </div>
       <div role="tabpanel" id="editInstrumentFilter">
         <fieldset>
           <legend>Filter</legend>
@@ -231,6 +222,15 @@
             <label for=" pti-instrument-delaySend">Delay send</label>
             <input type="range" id="pti-instrument-delaySend" name="delaySend" min="0" max="100">
             <output name="delaySend-result" for="pti-instrument-delaySend"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentFile">
+        <fieldset>
+          <legend>File</legend>
+          <div class="row">
+            <label for="pti-instrument-name">Name</label>
+            <input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+">
           </div>
         </fieldset>
       </div>
