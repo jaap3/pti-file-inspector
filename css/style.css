@@ -235,6 +235,38 @@ th {
 #pti-instrument-editor:not([hidden]) {
   display: flex;
   flex-grow: 1;
+  flex-direction: column;
+}
+
+#pti-instrument-editor nav {
+  /*order: 1;*/
+  margin-bottom: 16px;
+}
+
+#pti-instrument-editor nav ul {
+  display: flex;
+  margin: 0;
+}
+
+#pti-instrument-editor nav li {
+  flex: 1 1 auto;
+}
+
+#pti-instrument-editor nav li:not(:last-child) {
+  border-right: 1px solid #a0a0a0;
+}
+
+#pti-instrument-editor nav a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 2rem;
+  background: #323232;
+  color: #a0a0a0;
+  font-size: .75rem;
+  font-weight: 400;
+  text-align: center;
+  text-decoration: none;
 }
 
 #pti-instrument-editor form {

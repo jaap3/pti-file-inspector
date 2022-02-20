@@ -109,6 +109,10 @@ export const InstrumentEditor = {
 
     const frag = getTemplate(parent).cloneNode(true)
 
+    /** @type {HTMLNavElement} */
+    const nav = frag.querySelector('nav')
+
+    /** @type {HTMLFormElement} */
     const form = frag.querySelector('form')
 
     /* Name */
@@ -228,6 +232,18 @@ export const InstrumentEditor = {
     /* Delay send */
     activateSlider(form.delaySend, header, {
       formatValue: (value) => displaydB(convertSend(value))
+    })
+
+    /* Fieldset navigation */
+    nav.querySelectorAll('a').forEach((el) => {
+        el.addEventListener('click', (evt) => {
+          evt.preventDefault()
+          /** @type {HTMLAnchorElement} */
+          const a = evt.currentTarget
+          /** @type {HTMLFieldSetElement} */
+          const fieldset = a.ownerDocument.querySelector(a.hash)
+          fieldset.parentNode.scrollTo(fieldset.offsetLeft, 0)
+      })
     })
 
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
