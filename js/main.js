@@ -107,7 +107,6 @@ function renderError(message, { userDangerousHTML = false } = {}) {
 /* DOM mount points, used by renderInstrument
  */
 const dataSection = document.getElementById('pti-instrument-data')
-const toolbar = document.getElementById('toolbar')
 const previewSection = document.getElementById('pti-instrument-preview')
 const displaySection = document.getElementById('pti-instrument-display')
 const editorSection = document.getElementById('pti-instrument-editor')
@@ -122,7 +121,6 @@ const editorSection = document.getElementById('pti-instrument-editor')
 async function renderInstrument(headerData, audio, audioCtx) {
   const ptiTools = await import('./modules/ptiTools.js')
 
-  const { Toolbar } = await import('./components/Toolbar.js')
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { InstrumentDisplay } = await import('./components/InstrumentDisplay.js')
   const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
@@ -130,13 +128,6 @@ async function renderInstrument(headerData, audio, audioCtx) {
   const { revoke, watch, data } = ptiTools.reactive(headerData)
 
   mounted.push(revoke)
-
-  mounted.push(Toolbar.mount(toolbar, {
-    headerData: data,
-    audio,
-    fileInput,
-    editorSection
-  }))
 
   mounted.push(InstrumentDisplay.mount(displaySection, {
     headerData: data,
@@ -154,6 +145,8 @@ async function renderInstrument(headerData, audio, audioCtx) {
     header: { watch, data },
     audio
   }))
+
+  fileInput.setAttribute('hidden', '')
 }
 
 /**

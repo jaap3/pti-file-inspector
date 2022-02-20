@@ -65,18 +65,6 @@ label[for="pti-file-input"]:focus-within {
   outline: 1px solid #651f1f;
 }
 
-/* Toolbar */
-
-#toolbar:not(:empty) {
-  order: 1;
-  padding-bottom: 24px;
-}
-
-#toolbar:not(:empty) + #loader {
-  order: 2;
-  margin-top: 0;
-}
-
 .controls {
   display: flex;
   flex: calc(4rem + 8px)4 1;
