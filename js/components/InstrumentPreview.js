@@ -85,16 +85,24 @@ function render(document, player, headerData) {
       if (isSliced) {
         button.setAttribute('title', `Slice ${idx + 1}`)
         if (idx >= headerData.numSlices) { button.setAttribute('disabled', '') }
+
+        if (idx === 0) {
+          button.setAttribute('data-home', 'true')
+        }
       } else {
         button.setAttribute('title', `${detune} (hold)`)
 
         // Think about using aria-role grid
         // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/grid_role
         // button.tabIndex = detune === 0 ? 0 : -1
+
+        if (detune === 0) {
+          button.setAttribute('data-home', 'true')
+        }
       }
 
       button.addEventListener('keydown', (evt) => {
-        if (evt.which === 32 /* space */ && !evt.repeat) {
+        if (evt.code === 'Space' && !evt.repeat) {
           handlers.play()
         }
       })
@@ -121,7 +129,7 @@ export const InstrumentPreview = {
    * @param {HTMLElement} parent
    * @param {Object} options
    * @param {Object} options.header
-   * @param {ptiTools.eHeaderParseResult} options.header.data
+   * @param {ptiTools.HeaderParseResult} options.header.data
    * @param {function} options.header.watch
    * @param {Float32Array} options.audio
    * @param {AudioContext} audioCtx
@@ -135,6 +143,10 @@ export const InstrumentPreview = {
     const mounted = Array.from(rendered.children).map((el) => parent.appendChild(el))
     parent.removeAttribute('hidden')
 
+    setTimeout(() => {
+      parent.querySelector('[data-home]').parentNode.scrollIntoView()
+    }, 0)
+
     header.watch({
       afterUpdate(prop) {
         if (prop === 'samplePlayback' || prop === 'slices') {
@@ -145,6 +157,10 @@ export const InstrumentPreview = {
           }
           const rendered = render(parent.ownerDocument, player, header.data)
           Array.from(rendered.children).forEach((el) => mounted.push(parent.appendChild(el)))
+
+          setTimeout(() => {
+            parent.querySelector('[data-home]').parentNode.scrollIntoView()
+          }, 0)
         }
       }
     })

@@ -140,9 +140,22 @@ canvas.waveform {
 }
 
 .keypad-container {
-  scroll-snap-type: y mandatory;
   height: calc(3.5rem * 2);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #fff #101010 ;
+}
+
+.keypad-container::-webkit-scrollbar {
+  width: .5rem;
+  height: .5rem;
+  background-color: #101010;
+}
+
+.keypad-container::-webkit-scrollbar-thumb {
+  background: #fff;
 }
 
 @media (min-width: calc(2rem + calc(3.5rem * 12))) and (min-height: calc(3.5rem * 16)) {
@@ -157,6 +170,8 @@ canvas.waveform {
   grid-auto-rows: 3rem;
   gap: 8px;
   margin-bottom: 8px;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
 }
 
 .keypad-row button {
