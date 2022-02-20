@@ -308,20 +308,33 @@ export const InstrumentEditor = {
       }
     })
 
+    /* Filter enabled */
+    activateSelect(form.filterEnabled, {true: 1, false: 0}, {1: 'Yes', 0: 'No'}, header)
+
     /* Filter type */
-    activateSelect(form.filterType, FilterType, FILTER_TYPE_LABELS, header)
+    activateSelect(form.filterType, FilterType, FILTER_TYPE_LABELS, header, {
+      isVisible({ filterEnabled }) {
+        return filterEnabled
+      }
+    })
 
     /* Cutoff */
     activateSlider(form.cutoff, header, {
       defaultValue: 1.0,
       wheelDelta: 0.01,
-      formatValue: (value) => (value * 100).toFixed()
+      formatValue: (value) => (value * 100).toFixed(),
+      isVisible({ filterEnabled }) {
+        return filterEnabled
+      }
     })
 
     /* Resonance */
     activateSlider(form.resonance, header, {
       wheelDelta: 0.04,
-      formatValue: (value) => (value / 4.3 * 100).toFixed()
+      formatValue: (value) => (value / 4.3 * 100).toFixed(),
+      isVisible({ filterEnabled }) {
+        return filterEnabled
+      }
     })
 
     /* Overdrive */
