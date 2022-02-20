@@ -337,7 +337,12 @@ input[type=text],
 select {
   border: 1px solid #777;
   background-color: #101010;
+  min-height: 3rem;
   width: 100%;
+}
+
+select {
+  appearance: auto;
 }
 
 .row label {
@@ -385,11 +390,8 @@ input[type=range]::-moz-range-thumb {
   -webkit-appearance: none;
 }
 
+select:focus,
 input[type=text]:focus,
 input[type=range]:focus {
   outline: 1px solid #651f1f;
-}
-
-select {
-  appearance: auto;
 }

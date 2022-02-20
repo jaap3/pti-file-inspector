@@ -122,6 +122,7 @@ function activateNavigation(nav) {
     observer.observe(tab)
 
     button.addEventListener('click', () => {
+      tab.parentNode.scrollTo(0, tab.querySelector('fieldset').offsetLeft)
       tab.querySelector('fieldset').elements[0].focus()
     })
   })
