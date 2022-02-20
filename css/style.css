@@ -28,10 +28,17 @@ body {
   text-align: center;
 }
 
+#app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  flex-direction: column;
+}
+
 /* File select */
 
 #loader {
-  margin: 32px 0 16px;
+  padding: 32px 0 16px;
 }
 
 #pti-file-input {
@@ -68,12 +75,10 @@ label[for="pti-file-input"]:focus-within {
 /* Instrument display */
 
 #pti-instrument-display:not(:empty) {
-  position: sticky;
-  bottom: 0;
-  width: 100%;
-  top: 0;
-  padding: 16px 0;
   align-self: flex-start;
+  flex: 0 0 150px;
+  width: 100%;
+  padding: 16px 0;
   background: #121212;
 }
 
@@ -180,8 +185,9 @@ canvas.waveform {
 
 #pti-instrument-editor:not([hidden]) {
   display: flex;
-  flex-grow: 1;
+  flex: 1 1 auto;
   flex-direction: column;
+  overflow: hidden;
 }
 
 #pti-instrument-editor nav {
@@ -232,21 +238,9 @@ canvas.waveform {
 #pti-instrument-editor form {
   display: flex;
   flex-grow: 1;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: #fff #101010 ;
-}
-
-
-#pti-instrument-editor form::-webkit-scrollbar {
-  width: .5rem;
-  height: .5rem;
-  background-color: #101010;
-}
-
-#pti-instrument-editor form::-webkit-scrollbar-thumb {
-  background: #fff;
 }
 
 fieldset {
@@ -258,11 +252,33 @@ fieldset {
 #pti-instrument-editor [role=tabpanel] {
   min-width: 100%;
   max-width: 960px;
+  height: 100%;
+  overflow: auto;
   scroll-snap-align: center;
   scroll-snap-stop: always;
 }
 
-legend {
+#pti-instrument-editor form,
+#pti-instrument-editor [role=tabpanel]{
+  scrollbar-width: thin;
+  scrollbar-color: #fff #101010;
+}
+
+#pti-instrument-editor form::-webkit-scrollbar,
+#pti-instrument-editor [role=tabpanel]::-webkit-scrollbar {
+  width: .5rem;
+  height: .5rem;
+  background-color: #101010;
+}
+
+#pti-instrument-editor form::-webkit-scrollbar-thumb,
+#pti-instrument-editor [role=tabpanel]::-webkit-scrollbar {
+  background: #fff;
+}
+
+[role=tabpanel] legend {
+  position: sticky;
+  top: 0;
   display: block;
   width: 100%;
   padding: 2px;
