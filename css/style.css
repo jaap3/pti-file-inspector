@@ -137,11 +137,11 @@ canvas.waveform {
 
 .keypad-container {
   scroll-snap-type: y mandatory;
-  height: calc(1rem + 3rem * 2);
+  height: calc(3.5rem * 2);
   overflow: hidden;
 }
 
-@media (min-width: calc(2rem + calc(3.5rem * 12))) and (min-height: calc(1rem + 3rem * 8)) {
+@media (min-width: calc(2rem + calc(3.5rem * 12))) and (min-height: calc(3.5rem * 16)) {
   .keypad-container {
     height: auto;
   }
