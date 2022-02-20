@@ -85,31 +85,41 @@
     <h2 class="sr-only">Edit instrument parameters</h2>
     <nav>
       <ul>
-        <li><a href="#editInstrumentParameters">Params</a></li>
+        <li><a href="#editInstrumentFile">File</a></li>
+        <li><a href="#editInstrumentVolume">Volume</a></li>
+        <li><a href="#editInstrumentPanning">Pan</a></li>
+        <li><a href="#editInstrumentTuning">Tune</a></li>
         <li><a href="#editInstrumentPlayback">Playback</a></li>
-        <li><a href="#editInstrumentSlices">Slices</a></li>
-        <li><a href="#editInstrumentWavetable">Wavetable</a></li>
-        <li><a href="#editInstrumentGranular">Granular</a></li>
-        <li><a href="#editInstrumentEffects">Effects</a></li>
+        <li><a href="#editInstrumentFilter">Filter</a></li>
+        <li><a href="#editInstrumentEffects">FX</a></li>
       </ul>
     </nav>
     <form>
-      <fieldset id="editInstrumentParameters">
-        <legend>Instrument parameters</legend>
+      <fieldset id="editInstrumentFile">
+        <legend>File</legend>
         <div class="row">
           <label for="pti-instrument-name">Name</label>
           <input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+">
         </div>
+      </fieldset>
+      <fieldset id="editInstrumentVolume">
+        <legend>Volume</legend>
         <div class="row">
           <label for="pti-instrument-volume">Volume</label>
           <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
           <output name="volume-result" for="pti-instrument-volume"></output>
         </div>
+      </fieldset>
+      <fieldset id="editInstrumentPanning">
+        <legend>Panning</legend>
         <div class="row">
           <label for="pti-instrument-panning">Panning</label>
           <input type="range" id="pti-instrument-panning" name="panning" min="0" max="100">
           <output name="panning-result" for="pti-instrument-panning"></output>
         </div>
+      </fieldset>
+      <fieldset id="editInstrumentTuning">
+        <legend>Tune</legend>
         <div class="row">
           <label for="pti-instrument-tune">Tune</label>
           <input type="range" id="pti-instrument-tune" name="tune" min="-24" max="24">
@@ -147,17 +157,11 @@
           <input type="range" id="pti-instrument-playbackEnd" name="playbackEnd" min="0" max="65535">
           <output name="playbackEnd-result" for="pti-instrument-playbackEnd"></output>
         </div>
-      </fieldset>
-      <fieldset id="editInstrumentSlices">
-        <legend>Slices</legend>
         <div class="row">
           <label for="pti-instrument-sliceOffset">Slice</label>
           <input type="range" id="pti-instrument-sliceOffset" name="sliceOffset" min="0" max="65535">
           <output name="sliceOffset-result" for="pti-instrument-sliceOffset"></output>
         </div>
-      </fieldset>
-      <fieldset id="editInstrumentWavetable">
-        <legend>Wavetable</legend>
         <div class="row">
           <label for="pti-instrument-wavetableWindowSize">Window size</label>
           <input type="range" id="pti-instrument-wavetableWindowSize" name="wavetableWindowSize" min="32" max="2048">
@@ -168,9 +172,6 @@
           <input type="range" id="pti-instrument-wavetablePosition" name="wavetablePosition" min="0" max="65535">
           <output name="wavetablePosition-result" for="pti-instrument-wavetablePosition"></output>
         </div>
-      </fieldset>
-      <fieldset id="editInstrumentGranular">
-        <legend>Granular</legend>
         <div class="row">
           <label for="pti-instrument-granularLength">Length</label>
           <input type="range" id="pti-instrument-granularLength" name="granularLength" min="44" max="44100">
@@ -190,8 +191,8 @@
           <select id="pti-instrument-granularLoopMode" name="granularLoopMode"></select>
         </div>
       </fieldset>
-      <fieldset id="editInstrumentEffects">
-        <legend>Effects</legend>
+      <fieldset id="editInstrumentFilter">
+        <legend>Filter</legend>
         <div class="row">
           <label for="pti-instrument-filterType">Filter type</label>
           <select id="pti-instrument-filterType" name="filterType"></select>
@@ -206,6 +207,9 @@
           <input type="range" id="pti-instrument-resonance" name="resonance" min="0.0" max="4.3" step=".01">
           <output name="resonance-result" for="pti-instrument-resonance"></output>
         </div>
+      </fieldset>
+      <fieldset id="editInstrumentEffects">
+        <legend>Effects</legend>
         <div class="row">
           <label for="pti-instrument-overdrive">Overdrive</label>
           <input type="range" id="pti-instrument-overdrive" name="overdrive" min="0" max="100">
