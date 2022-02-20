@@ -94,6 +94,7 @@ label[for="pti-file-input"]:focus-within {
 .controls button:focus {
   border-style: inset;
   outline: 1px solid #651f1f;
+  outline-offset: -1px;
 }
 
 /* Instrument display */
@@ -204,6 +205,7 @@ canvas.waveform {
   background: radial-gradient(#f9faea, #ebebd5);
   border-style: inset;
   outline: 1px solid #651f1f;
+  outline-offset: -1px;
 }
 
 /* Editor */
@@ -370,4 +372,5 @@ select:focus,
 input[type=text]:focus,
 input[type=range]:focus {
   outline: 1px solid #651f1f;
+  outline-offset: -1px;
 }
