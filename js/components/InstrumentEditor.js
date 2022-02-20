@@ -370,6 +370,25 @@ export const InstrumentEditor = {
       )
     })
 
+    /**
+     * TODO: Get player instance
+    form.playSample.addEventListener('click', (evt) => {
+      const button = evt.currentTarget
+      const labels = button.querySelectorAll('span')
+
+      button.setAttribute('aria-pressed', 'true')
+      labels[0].setAttribute('hidden', '')
+      labels[1].removeAttribute('hidden')
+
+      player.playSample(() => {
+        button.setAttribute('aria-pressed', 'false')
+        labels[0].removeAttribute('hidden')
+        labels[1].setAttribute('hidden', '')
+        player.stop()
+      })
+    })
+    */
+
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
 
     const navigation = activateNavigation(nav)

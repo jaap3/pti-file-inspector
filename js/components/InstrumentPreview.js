@@ -29,23 +29,6 @@ function render(document, player, headerData) {
 
   const frag = getTemplate(document).cloneNode(true)
 
-  frag.querySelector('button.play').addEventListener('click', (evt) => {
-    /** @type {HTMLButtonElement} */
-    const button = evt.currentTarget
-    const labels = button.querySelectorAll('span')
-
-    button.setAttribute('aria-pressed', 'true')
-    labels[0].setAttribute('hidden', '')
-    labels[1].removeAttribute('hidden')
-
-    player.playSample(() => {
-      button.setAttribute('aria-pressed', 'false')
-      labels[0].removeAttribute('hidden')
-      labels[1].setAttribute('hidden', '')
-      player.stop()
-    })
-  })
-
   /** @type {Element} */
   const rowTemplate = frag.querySelector('.keypad-row')
   const buttonTemplate = rowTemplate.querySelector('button')
