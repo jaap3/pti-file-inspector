@@ -282,7 +282,7 @@ fieldset {
   padding: 0;
 }
 
-#pti-instrument-editor  fieldset {
+#pti-instrument-editor fieldset {
   min-width: 100%;
   max-width: 960px;
   scroll-snap-align: center;
