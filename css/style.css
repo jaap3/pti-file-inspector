@@ -100,8 +100,9 @@ label[for="pti-file-input"]:focus-within {
 /* Instrument display */
 
 #pti-instrument-display:not(:empty) {
-  width: 100%;
   position: sticky;
+  bottom: 0;
+  width: 100%;
   top: 0;
   padding: 16px 0;
   align-self: flex-start;
@@ -120,8 +121,6 @@ canvas.waveform {
 #pti-instrument-preview:not(:empty) {
   display: flex;
   width: 100%;
-  position: sticky;
-  bottom: 0;
   padding: 16px 0;
   align-self: flex-end;
   flex-wrap: wrap;
@@ -217,8 +216,7 @@ canvas.waveform {
 }
 
 #pti-instrument-editor nav {
-  /*order: 1;*/
-  margin-bottom: 16px;
+  order: 1;
 }
 
 #pti-instrument-editor [role=tablist] {
