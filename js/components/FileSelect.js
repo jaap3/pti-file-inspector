@@ -18,19 +18,5 @@ export const FileSelect = {
     })
 
     input.removeAttribute('disabled')
-
-    // Create an observer instance linked to the callback function
-    const observer = new MutationObserver((mutations) => {
-      if (input.getAttribute('hidden') === '') {
-        parent.setAttribute('hidden', '')
-      } else {
-        parent.removeAttribute('hidden')
-      }
-    })
-    observer.observe(input, { attributeFilter: ['hidden'] })
-
-    return function unmount() {
-      observer.disconnect()
-    }
   }
 }

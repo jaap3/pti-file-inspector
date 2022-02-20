@@ -31,7 +31,7 @@ body {
 /* File select */
 
 #loader {
-  margin: 32px 0;
+  margin: 32px 0 16px;
 }
 
 #pti-file-input {
@@ -311,15 +311,24 @@ legend {
   margin: 8px 0;
 }
 
-input[type=text],
-select {
+.row input[type=text],
+.row button,
+.row select {
   border: 1px solid #777;
   background-color: #101010;
   min-height: 3rem;
   width: 100%;
 }
 
-select {
+.row button {
+  cursor: pointer;
+}
+
+.row button:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+.row select {
   appearance: auto;
 }
 

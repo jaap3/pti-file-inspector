@@ -214,6 +214,21 @@
             <label for="pti-instrument-name">Name</label>
             <input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+">
           </div>
+          <div class="row">
+            <label>Export</label>
+            <div>
+              <button type="button" name="exportPti" title="Download instrument as .pti file">Export .pti</button>
+              <button type="button" name="exportWav" title="Download sample as .wav file">Export .wav</button>
+            </div>
+          </div>
+          <div class="row">
+            <label for="pti-load-instrument">Load</label>
+            <div>
+              <button type="button" id="pti-load-instrument" name="loadInstrument" title="Load instrument or audio file">
+                Load instrument
+              </button>
+            </div>
+          </div>
         </fieldset>
       </div>
     </form>

@@ -33,7 +33,7 @@ function getTemplate({ ownerDocument }) {
  *
  * @param {HTMLInputElement} input
  * @param {Object} header
- * @param {ptiTools.eHeaderParseResult} header.data
+ * @param {ptiTools.HeaderParseResult} header.data
  * @param {function} header.watch
  * @param {Object} options
  * @param {Number} options.defaultValue
@@ -109,6 +109,23 @@ function activateSelect(select, options, labels, { watch, data }, { isVisible = 
 }
 
 /**
+ *
+ * @param {Document} document
+ * @param {ArrayBuffer} file
+ * @param {string} name
+ */
+ function downloadFile(document, file, name) {
+  const url = URL.createObjectURL(file)
+  const a = document.createElement('a')
+  a.setAttribute('download', name)
+  a.setAttribute('href', url)
+  a.setAttribute('hidden', '')
+  document.documentElement.appendChild(a)
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+/**
  * Fieldset navigation
  * @param {HTMLNavElement} nav
  */
@@ -154,9 +171,10 @@ export const InstrumentEditor = {
    * @param {ptiTools.eHeaderParseResult} options.header.data
    * @param {function} options.header.watch
    * @param {ArrayBuffer} options.audio
+   * @param {HTMLDialogElement} loaderDialog
    * @returns {Object}
    */
-  mount(parent, { header, audio }) {
+  mount(parent, { header, audio, loaderDialog }) {
     const { data } = header
 
     const frag = getTemplate(parent).cloneNode(true)
@@ -320,6 +338,36 @@ export const InstrumentEditor = {
     /* Delay send */
     activateSlider(form.delaySend, header, {
       formatValue: (value) => displaydB(convertSend(value))
+    })
+
+    /* Load */
+    form.loadInstrument.addEventListener('click', (evt) => {
+      loaderDialog.hidden = !loaderDialog.hidden
+
+      evt.currentTarget.setAttribute('aria-pressed', !loaderDialog.hidden)
+      if (!loaderDialog.hidden) {
+        setTimeout(() => {
+          loaderDialog.scrollIntoView()
+          loaderDialog.querySelector('input').focus()
+        }, 0)
+      }
+
+    })
+
+    /* Export */
+    form.exportPti.addEventListener('click', () => {
+      downloadFile(
+        parent.ownerDocument,
+        ptiTools.getPtiFile(audio, data),
+        `${data.name}.pti`
+      )
+    })
+    form.exportWav.addEventListener('click', () => {
+      downloadFile(
+        parent.ownerDocument,
+        ptiTools.getWavFile(audio, data),
+        `${data.name}.wav`
+      )
     })
 
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))

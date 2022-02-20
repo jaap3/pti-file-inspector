@@ -52,6 +52,7 @@ const mounted = (() => {
   }
 })()
 
+const loaderDialog = document.getElementById('loader')
 const fileInput = document.getElementById('pti-file-input')
 
 /**
@@ -143,10 +144,9 @@ async function renderInstrument(headerData, audio, audioCtx) {
 
   mounted.push(InstrumentEditor.mount(editorSection, {
     header: { watch, data },
-    audio
+    audio,
+    loaderDialog
   }))
-
-  fileInput.setAttribute('hidden', '')
 }
 
 /**
@@ -268,5 +268,7 @@ async function fileSelected(file) {
 
   if (headerData !== undefined && audio !== undefined) {
     await renderInstrument(headerData, audio, audioCtx)
+
+    loaderDialog.setAttribute('hidden', '')
   }
 }
