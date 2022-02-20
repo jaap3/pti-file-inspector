@@ -94,6 +94,43 @@ function activateSelect(select, options, labels, { data }) {
   })
 }
 
+/**
+ * Fieldset navigation
+ * @param {HTMLNavElement} nav
+ */
+function activateNavigation(nav) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(({ target, isIntersecting }) => {
+      const tab = nav.querySelector(`[aria-controls=${target.id}]`)
+      if (isIntersecting) {
+        tab.setAttribute('aria-selected', 'true')
+      } else {
+        tab.removeAttribute('aria-selected')
+      }
+    })
+  }, {
+    root: nav.parentNode,
+    threshold: .5
+  })
+
+  // TODO: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tab_role
+  const buttons = nav.querySelectorAll('[role=tab]')
+
+  buttons.forEach((button, idx) => {
+    const tab = button.ownerDocument.getElementById(button.getAttribute('aria-controls'))
+
+    observer.observe(tab)
+
+    button.addEventListener('click', () => {
+      tab.querySelector('fieldset').elements[0].focus()
+    })
+  })
+
+  return {
+    disconnect: observer.disconnect.bind()
+  }
+}
+
 export const InstrumentEditor = {
   /**
    * @param {HTMLElement} parent
@@ -234,30 +271,14 @@ export const InstrumentEditor = {
       formatValue: (value) => displaydB(convertSend(value))
     })
 
-    /* Fieldset navigation */
-    const buttons = nav.querySelectorAll('[role=tab]')
-    buttons.forEach((button, idx) => {
-      if (idx === 0) {
-        button.setAttribute('aria-selected', 'true')
-      }
-      button.addEventListener('click', (evt) => {
-        evt.preventDefault()
-        /** @type {HTMLButtonElement} */
-        const button = evt.currentTarget
-        buttons.forEach(el => el.removeAttribute('aria-selected'))
-        button.setAttribute('aria-selected', 'true')
-        /** @type {Element} */
-        const tab = button.ownerDocument.getElementById(button.getAttribute('aria-controls'))
-        tab.parentNode.scrollTo(tab.offsetLeft, 0)
-        tab.querySelector('fieldset').elements[0].focus()
-      })
-    })
-
     const mounted = Array.from(frag.children).map((el) => parent.appendChild(el))
+
+    const navigation = activateNavigation(nav)
 
     parent.removeAttribute('hidden')
 
     return function unmount() {
+      navigation.disconnect()
       mounted.forEach(el => el.remove())
     }
   }

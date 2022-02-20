@@ -287,8 +287,21 @@ th {
 #pti-instrument-editor form {
   display: flex;
   flex-grow: 1;
-  overflow: hidden;
+  overflow: auto;
   scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #fff #101010 ;
+}
+
+
+#pti-instrument-editor form::-webkit-scrollbar {
+  width: .5rem;
+  height: .5rem;
+  background-color: #101010;
+}
+
+#pti-instrument-editor form::-webkit-scrollbar-thumb {
+  background: #fff;
 }
 
 fieldset {
