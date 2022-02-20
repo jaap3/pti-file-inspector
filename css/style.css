@@ -243,30 +243,45 @@ th {
   margin-bottom: 16px;
 }
 
-#pti-instrument-editor nav ul {
+#pti-instrument-editor [role=tablist] {
   display: flex;
   margin: 0;
 }
 
-#pti-instrument-editor nav li {
+#pti-instrument-editor [role=tab] {
   flex: 1 1 auto;
-}
-
-#pti-instrument-editor nav li:not(:last-child) {
-  border-right: 1px solid #a0a0a0;
-}
-
-#pti-instrument-editor nav a {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  height: 2rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
   background: #323232;
+  border: 0;
   color: #a0a0a0;
   font-size: .75rem;
   font-weight: 400;
-  text-align: center;
   text-decoration: none;
+}
+
+#pti-instrument-editor [role=tab]:focus {
+  outline: 1px dotted #fff;
+  outline-offset: -1px;
+}
+
+#pti-instrument-editor [role=tab]:hover,
+#pti-instrument-editor [role=tab]:focus,
+#pti-instrument-editor [role=tab][aria-selected=true] {
+  text-shadow: .5px 0 currentColor;
+}
+
+#pti-instrument-editor [role=tab][aria-selected=true] {
+  background: #4a4a4a;
+  color: #fefefe;
+}
+
+#pti-instrument-editor [role=tab]:not(:last-child) {
+  border-right: 1px solid #a0a0a0;
 }
 
 #pti-instrument-editor form {
@@ -282,7 +297,7 @@ fieldset {
   padding: 0;
 }
 
-#pti-instrument-editor fieldset {
+#pti-instrument-editor [role=tabpanel] {
   min-width: 100%;
   max-width: 960px;
   scroll-snap-align: center;

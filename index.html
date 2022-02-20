@@ -84,153 +84,167 @@
   <template id="template:instrument-editor">
     <h2 class="sr-only">Edit instrument parameters</h2>
     <nav>
-      <ul>
-        <li><a href="#editInstrumentFile">File</a></li>
-        <li><a href="#editInstrumentVolume">Volume</a></li>
-        <li><a href="#editInstrumentPanning">Pan</a></li>
-        <li><a href="#editInstrumentTuning">Tune</a></li>
-        <li><a href="#editInstrumentPlayback">Playback</a></li>
-        <li><a href="#editInstrumentFilter">Filter</a></li>
-        <li><a href="#editInstrumentEffects">FX</a></li>
-      </ul>
+      <div role="tablist">
+        <button role="tab" aria-controls="editInstrumentFile">File</button>
+        <button role="tab" aria-controls="editInstrumentVolume">Volume</button>
+        <button role="tab" aria-controls="editInstrumentPanning">Pan</button>
+        <button role="tab" aria-controls="editInstrumentTuning">Tune</button>
+        <button role="tab" aria-controls="editInstrumentPlayback">Playback</button>
+        <button role="tab" aria-controls="editInstrumentFilter">Filter</button>
+        <button role="tab" aria-controls="editInstrumentEffects">FX</button>
+      </div>
     </nav>
     <form>
-      <fieldset id="editInstrumentFile">
-        <legend>File</legend>
-        <div class="row">
-          <label for="pti-instrument-name">Name</label>
-          <input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+">
-        </div>
-      </fieldset>
-      <fieldset id="editInstrumentVolume">
-        <legend>Volume</legend>
-        <div class="row">
-          <label for="pti-instrument-volume">Volume</label>
-          <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
-          <output name="volume-result" for="pti-instrument-volume"></output>
-        </div>
-      </fieldset>
-      <fieldset id="editInstrumentPanning">
-        <legend>Panning</legend>
-        <div class="row">
-          <label for="pti-instrument-panning">Panning</label>
-          <input type="range" id="pti-instrument-panning" name="panning" min="0" max="100">
-          <output name="panning-result" for="pti-instrument-panning"></output>
-        </div>
-      </fieldset>
-      <fieldset id="editInstrumentTuning">
-        <legend>Tune</legend>
-        <div class="row">
-          <label for="pti-instrument-tune">Tune</label>
-          <input type="range" id="pti-instrument-tune" name="tune" min="-24" max="24">
-          <output name="tune-result" for="pti-instrument-tune"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-finetune">Finetune</label>
-          <input type="range" id="pti-instrument-finetune" name="finetune" min="-100" max="100">
-          <output name="finetune-result" for="pti-instrument-finetune"></output>
-        </div>
-      </fieldset>
-      <fieldset id="editInstrumentPlayback">
-        <legend>Playback</legend>
-        <div class="row">
-          <label for="pti-instrument-playback">Playback</label>
-          <select id="pti-instrument-playback" name="samplePlayback"></select>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-playbackStart">Start</label>
-          <input type="range" id="pti-instrument-playbackStart" name="playbackStart" min="0" max="65535">
-          <output name="playbackStart-result" for="pti-instrument-playbackStart"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-loopStart">Loop start</label>
-          <input type="range" id="pti-instrument-loopStart" name="loopStart" min="1" max="65534">
-          <output name="loopStart-result" for="pti-instrument-loopStart"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-loopEnd">Loop end</label>
-          <input type="range" id="pti-instrument-loopEnd" name="loopEnd" min="1" max="65534">
-          <output name="loopEnd-result" for="pti-instrument-loopEnd"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-playbackEnd">End</label>
-          <input type="range" id="pti-instrument-playbackEnd" name="playbackEnd" min="0" max="65535">
-          <output name="playbackEnd-result" for="pti-instrument-playbackEnd"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-sliceOffset">Slice</label>
-          <input type="range" id="pti-instrument-sliceOffset" name="sliceOffset" min="0" max="65535">
-          <output name="sliceOffset-result" for="pti-instrument-sliceOffset"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-wavetableWindowSize">Window size</label>
-          <input type="range" id="pti-instrument-wavetableWindowSize" name="wavetableWindowSize" min="32" max="2048">
-          <output name="wavetableWindowSize-result" for="pti-instrument-wavetableWindowSize"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-wavetablePosition">Position</label>
-          <input type="range" id="pti-instrument-wavetablePosition" name="wavetablePosition" min="0" max="65535">
-          <output name="wavetablePosition-result" for="pti-instrument-wavetablePosition"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-granularLength">Length</label>
-          <input type="range" id="pti-instrument-granularLength" name="granularLength" min="44" max="44100">
-          <output name="granularLength-result" for="pti-instrument-granularLength"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-granularPosition">Position</label>
-          <input type="range" id="pti-instrument-granularPosition" name="granularPosition" min="0" max="65535">
-          <output name="granularPosition-result" for="pti-instrument-granularPosition"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-granularShape">Shape</label>
-          <select id="pti-instrument-granularShape" name="granularShape"></select>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-granularLoopMode">Loop mode</label>
-          <select id="pti-instrument-granularLoopMode" name="granularLoopMode"></select>
-        </div>
-      </fieldset>
-      <fieldset id="editInstrumentFilter">
-        <legend>Filter</legend>
-        <div class="row">
-          <label for="pti-instrument-filterType">Filter type</label>
-          <select id="pti-instrument-filterType" name="filterType"></select>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-cutoff">Cutoff</label>
-          <input type="range" id="pti-instrument-cutoff" name="cutoff" min="0.0" max="1.0" step=".01">
-          <output name="cutoff-result" for="pti-instrument-cutoff"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-resonance">Resonance</label>
-          <input type="range" id="pti-instrument-resonance" name="resonance" min="0.0" max="4.3" step=".01">
-          <output name="resonance-result" for="pti-instrument-resonance"></output>
-        </div>
-      </fieldset>
-      <fieldset id="editInstrumentEffects">
-        <legend>Effects</legend>
-        <div class="row">
-          <label for="pti-instrument-overdrive">Overdrive</label>
-          <input type="range" id="pti-instrument-overdrive" name="overdrive" min="0" max="100">
-          <output name="overdrive-result" for="pti-instrument-overdrive"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-bitDepth">Bit depth</label>
-          <input type="range" id="pti-instrument-bitDepth" name="bitDepth" min="1" max="16">
-          <output name="bitDepth-result" for="pti-instrument-bitDepth"></output>
-        </div>
-        <div class="row">
-          <label for="pti-instrument-reverbSend">Reverb send</label>
-          <input type="range" id="pti-instrument-reverbSend" name="reverbSend" min=" 0" max="100">
-          <output name="reverbSend-result" for="pti-instrument-reverbSend"></output>
-        </div>
-        <div class="row">
-          <label for=" pti-instrument-delaySend">Delay send</label>
-          <input type="range" id="pti-instrument-delaySend" name="delaySend" min="0" max="100">
-          <output name="delaySend-result" for="pti-instrument-delaySend"></output>
-        </div>
-      </fieldset>
+      <div role="tabpanel" id="editInstrumentFile">
+        <fieldset>
+          <legend>File</legend>
+          <div class="row">
+            <label for="pti-instrument-name">Name</label>
+            <input type="text" id="pti-instrument-name" name="name" maxlength="31" pattern="[x00-x7F]+">
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentVolume">
+        <fieldset>
+          <legend>Volume</legend>
+          <div class="row">
+            <label for="pti-instrument-volume">Volume</label>
+            <input type="range" id="pti-instrument-volume" name="volume" min="0" max="100">
+            <output name="volume-result" for="pti-instrument-volume"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentPanning">
+        <fieldset>
+          <legend>Panning</legend>
+          <div class="row">
+            <label for="pti-instrument-panning">Panning</label>
+            <input type="range" id="pti-instrument-panning" name="panning" min="0" max="100">
+            <output name="panning-result" for="pti-instrument-panning"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentTuning">
+        <fieldset>
+          <legend>Tune</legend>
+          <div class="row">
+            <label for="pti-instrument-tune">Tune</label>
+            <input type="range" id="pti-instrument-tune" name="tune" min="-24" max="24">
+            <output name="tune-result" for="pti-instrument-tune"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-finetune">Finetune</label>
+            <input type="range" id="pti-instrument-finetune" name="finetune" min="-100" max="100">
+            <output name="finetune-result" for="pti-instrument-finetune"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentPlayback">
+        <fieldset>
+          <legend>Playback</legend>
+          <div class="row">
+            <label for="pti-instrument-playback">Playback</label>
+            <select id="pti-instrument-playback" name="samplePlayback"></select>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-playbackStart">Start</label>
+            <input type="range" id="pti-instrument-playbackStart" name="playbackStart" min="0" max="65535">
+            <output name="playbackStart-result" for="pti-instrument-playbackStart"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-loopStart">Loop start</label>
+            <input type="range" id="pti-instrument-loopStart" name="loopStart" min="1" max="65534">
+            <output name="loopStart-result" for="pti-instrument-loopStart"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-loopEnd">Loop end</label>
+            <input type="range" id="pti-instrument-loopEnd" name="loopEnd" min="1" max="65534">
+            <output name="loopEnd-result" for="pti-instrument-loopEnd"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-playbackEnd">End</label>
+            <input type="range" id="pti-instrument-playbackEnd" name="playbackEnd" min="0" max="65535">
+            <output name="playbackEnd-result" for="pti-instrument-playbackEnd"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-sliceOffset">Slice</label>
+            <input type="range" id="pti-instrument-sliceOffset" name="sliceOffset" min="0" max="65535">
+            <output name="sliceOffset-result" for="pti-instrument-sliceOffset"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-wavetableWindowSize">Window size</label>
+            <input type="range" id="pti-instrument-wavetableWindowSize" name="wavetableWindowSize" min="32" max="2048">
+            <output name="wavetableWindowSize-result" for="pti-instrument-wavetableWindowSize"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-wavetablePosition">Position</label>
+            <input type="range" id="pti-instrument-wavetablePosition" name="wavetablePosition" min="0" max="65535">
+            <output name="wavetablePosition-result" for="pti-instrument-wavetablePosition"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-granularLength">Length</label>
+            <input type="range" id="pti-instrument-granularLength" name="granularLength" min="44" max="44100">
+            <output name="granularLength-result" for="pti-instrument-granularLength"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-granularPosition">Position</label>
+            <input type="range" id="pti-instrument-granularPosition" name="granularPosition" min="0" max="65535">
+            <output name="granularPosition-result" for="pti-instrument-granularPosition"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-granularShape">Shape</label>
+            <select id="pti-instrument-granularShape" name="granularShape"></select>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-granularLoopMode">Loop mode</label>
+            <select id="pti-instrument-granularLoopMode" name="granularLoopMode"></select>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentFilter">
+        <fieldset>
+          <legend>Filter</legend>
+          <div class="row">
+            <label for="pti-instrument-filterType">Filter type</label>
+            <select id="pti-instrument-filterType" name="filterType"></select>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-cutoff">Cutoff</label>
+            <input type="range" id="pti-instrument-cutoff" name="cutoff" min="0.0" max="1.0" step=".01">
+            <output name="cutoff-result" for="pti-instrument-cutoff"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-resonance">Resonance</label>
+            <input type="range" id="pti-instrument-resonance" name="resonance" min="0.0" max="4.3" step=".01">
+            <output name="resonance-result" for="pti-instrument-resonance"></output>
+          </div>
+        </fieldset>
+      </div>
+      <div role="tabpanel" id="editInstrumentEffects">
+        <fieldset>
+          <legend>Effects</legend>
+          <div class="row">
+            <label for="pti-instrument-overdrive">Overdrive</label>
+            <input type="range" id="pti-instrument-overdrive" name="overdrive" min="0" max="100">
+            <output name="overdrive-result" for="pti-instrument-overdrive"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-bitDepth">Bit depth</label>
+            <input type="range" id="pti-instrument-bitDepth" name="bitDepth" min="1" max="16">
+            <output name="bitDepth-result" for="pti-instrument-bitDepth"></output>
+          </div>
+          <div class="row">
+            <label for="pti-instrument-reverbSend">Reverb send</label>
+            <input type="range" id="pti-instrument-reverbSend" name="reverbSend" min=" 0" max="100">
+            <output name="reverbSend-result" for="pti-instrument-reverbSend"></output>
+          </div>
+          <div class="row">
+            <label for=" pti-instrument-delaySend">Delay send</label>
+            <input type="range" id="pti-instrument-delaySend" name="delaySend" min="0" max="100">
+            <output name="delaySend-result" for="pti-instrument-delaySend"></output>
+          </div>
+        </fieldset>
+      </div>
     </form>
   </template>
 </body>

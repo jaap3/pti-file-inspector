@@ -235,14 +235,21 @@ export const InstrumentEditor = {
     })
 
     /* Fieldset navigation */
-    nav.querySelectorAll('a').forEach((el) => {
-        el.addEventListener('click', (evt) => {
-          evt.preventDefault()
-          /** @type {HTMLAnchorElement} */
-          const a = evt.currentTarget
-          /** @type {HTMLFieldSetElement} */
-          const fieldset = a.ownerDocument.querySelector(a.hash)
-          fieldset.parentNode.scrollTo(fieldset.offsetLeft, 0)
+    const buttons = nav.querySelectorAll('[role=tab]')
+    buttons.forEach((button, idx) => {
+      if (idx === 0) {
+        button.setAttribute('aria-selected', 'true')
+      }
+      button.addEventListener('click', (evt) => {
+        evt.preventDefault()
+        /** @type {HTMLButtonElement} */
+        const button = evt.currentTarget
+        buttons.forEach(el => el.removeAttribute('aria-selected'))
+        button.setAttribute('aria-selected', 'true')
+        /** @type {Element} */
+        const tab = button.ownerDocument.getElementById(button.getAttribute('aria-controls'))
+        tab.parentNode.scrollTo(tab.offsetLeft, 0)
+        tab.querySelector('fieldset').elements[0].focus()
       })
     })
 
