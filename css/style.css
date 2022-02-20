@@ -326,7 +326,7 @@ legend {
   font-weight: 400;
 }
 
-.row {
+.row:not([hidden]) {
   display: grid;
   grid-template-columns: 6rem 1fr;
   gap: 2px;

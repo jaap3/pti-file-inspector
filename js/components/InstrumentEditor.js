@@ -9,8 +9,9 @@ const {
 } = constants
 
 const {
-  displaydB, displayMilliseconds,
   convertSend, convertVolume,
+  displaydB, displayMilliseconds,
+  isGranular, isLoop, isOneShot, isSliced, isWavetable,
   relOffset
 } = ptiTools
 
@@ -38,8 +39,9 @@ function getTemplate({ ownerDocument }) {
  * @param {Number} options.defaultValue
  * @param {Number} options.wheelDelta
  * @param {function} options.formatValue
+ * @param {function} options.isVisible
  */
-function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value } = {}) {
+function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value, isVisible = () => true } = {}) {
   const output = input.form[`${input.name}-result`]
 
   function showValue() {
@@ -66,9 +68,11 @@ function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta =
   watch({
     afterUpdate(prop) {
       if (prop === input.name) showValue()
+      input.parentNode.hidden = !isVisible(data)
     }
   })
   showValue()
+  input.parentNode.hidden = !isVisible(data)
 }
 
 /**
@@ -77,9 +81,12 @@ function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta =
  * @param {Object} options
  * @param {Object} labels
  * @param {Object} header
+ * @param {function} header.watch
  * @param {ptiTools.HeaderParseResult} header.data
+ * @param {Object} options
+ * @param {function} options.isVisible
  */
-function activateSelect(select, options, labels, { data }) {
+function activateSelect(select, options, labels, { watch, data }, { isVisible = () => true } = {}) {
   const { ownerDocument: d } = select
   Object.entries(options).forEach(([key, value]) => {
     const option = d.createElement('option')
@@ -92,6 +99,13 @@ function activateSelect(select, options, labels, { data }) {
   select.addEventListener('change', () => {
     data[select.name] = options[select.value]
   })
+
+  watch({
+    afterUpdate() {
+      select.parentNode.hidden = !isVisible(data)
+    }
+  })
+  select.parentNode.hidden = !isVisible(data)
 }
 
 /**
@@ -184,27 +198,39 @@ export const InstrumentEditor = {
     /* Playback start */
     activateSlider(form.playbackStart, header, {
       wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+      isVisible({ samplePlayback }) {
+        return isOneShot(samplePlayback) || isLoop(samplePlayback)
+      }
     })
 
     /* Loop start */
     activateSlider(form.loopStart, header, {
       wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+      isVisible({ samplePlayback }) {
+        return isLoop(samplePlayback)
+      }
     })
 
     /* Loop end */
     activateSlider(form.loopEnd, header, {
       defaultValue: 65534,
       wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+      isVisible({ samplePlayback }) {
+        return isLoop(samplePlayback)
+      }
     })
 
     /* Playback end */
     activateSlider(form.playbackEnd, header, {
       defaultValue: 65535,
       wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+      isVisible({ samplePlayback }) {
+        return isOneShot(samplePlayback) || isLoop(samplePlayback)
+      }
     })
 
     /* Slice offset */
@@ -212,33 +238,57 @@ export const InstrumentEditor = {
     activateSlider(form.sliceOffset, header, {
       defaultValue: 0,
       wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+      isVisible({ samplePlayback }) {
+        return isSliced(samplePlayback)
+      }
     })
 
     /* Wavetable window size */
     activateSlider(form.wavetableWindowSize, header, {
-      defaultValue: 2048
+      defaultValue: 2048,
+      isVisible({ samplePlayback }) {
+        return isWavetable(samplePlayback)
+      }
     })
 
     /* Wavetable position */
-    activateSlider(form.wavetablePosition, header)
+    activateSlider(form.wavetablePosition, header, {
+      isVisible({ samplePlayback }) {
+        return isWavetable(samplePlayback)
+      }
+    })
 
     /* Granular length */
     activateSlider(form.granularLength, header, {
-      formatValue: (value) => displayMilliseconds(value / 44.1)
+      formatValue: (value) => displayMilliseconds(value / 44.1),
+      isVisible({ samplePlayback }) {
+        return isGranular(samplePlayback)
+      }
     })
 
     /* Granular position */
     activateSlider(form.granularPosition, header, {
       defaultValue: 441,
-      formatValue: (value) => displayMilliseconds(value / 44.1)
+      formatValue: (value) => displayMilliseconds(value / 44.1),
+      isVisible({ samplePlayback }) {
+        return isGranular(samplePlayback)
+      }
     })
 
     /* Shape */
-    activateSelect(form.granularShape, GranularShape, GRANULAR_SHAPE_LABELS, header)
+    activateSelect(form.granularShape, GranularShape, GRANULAR_SHAPE_LABELS, header, {
+      isVisible({ samplePlayback }) {
+        return isGranular(samplePlayback)
+      }
+    })
 
     /* Loop mode */
-    activateSelect(form.granularLoopMode, GranularLoopMode, GRANULAR_LOOP_MODE_LABELS, header)
+    activateSelect(form.granularLoopMode, GranularLoopMode, GRANULAR_LOOP_MODE_LABELS, header, {
+      isVisible({ samplePlayback }) {
+        return isGranular(samplePlayback)
+      }
+    })
 
     /* Filter type */
     activateSelect(form.filterType, FilterType, FILTER_TYPE_LABELS, header)
