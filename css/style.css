@@ -24,6 +24,10 @@ body {
   padding: 0 16px;
 }
 
+.error {
+  text-align: center;
+}
+
 /* File select */
 
 #loader {
@@ -197,37 +201,6 @@ canvas.waveform {
   background: radial-gradient(#f9faea, #ebebd5);
   border-style: inset;
   outline: 1px solid #651f1f;
-}
-
-/* Header data */
-
-.error {
-  text-align: center;
-}
-
-#pti-instrument-data:not([hidden]) {
-  display: flex;
-  flex-grow: 1;
-}
-
-table {
-  width: 100%;
-}
-
-th,
-td {
-  text-align: left;
-  vertical-align: bottom;
-  padding: 6px 0;
-  border-bottom: 1px solid #323232;
-}
-
-th {
-  color: #a0a0a0;
-  font-weight: normal;
-  vertical-align: top;
-  padding-right: 12.5px;
-  width: 8em;
 }
 
 /* Editor */

@@ -125,7 +125,6 @@ async function renderInstrument(headerData, audio, audioCtx) {
   const { Toolbar } = await import('./components/Toolbar.js')
   const { InstrumentPreview } = await import('./components/InstrumentPreview.js')
   const { InstrumentDisplay } = await import('./components/InstrumentDisplay.js')
-  //const { InstrumentDataTable } = await import('./components/InstrumentDataTable.js')
   const { InstrumentEditor } = await import('./components/InstrumentEditor.js')
 
   const { revoke, watch, data } = ptiTools.reactive(headerData)
@@ -151,11 +150,6 @@ async function renderInstrument(headerData, audio, audioCtx) {
     audio,
     audioCtx
   }))
-
-  // mounted.push(InstrumentDataTable.mount(dataSection, {
-  //   headerData: data,
-  //   audio
-  // }))
 
   mounted.push(InstrumentEditor.mount(editorSection, {
     header: { watch, data },

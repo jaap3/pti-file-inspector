@@ -69,26 +69,6 @@ export const Toolbar = {
       }
     })
 
-//     frag.querySelector('button.instrument').addEventListener('click', (evt) => {
-//       const button = evt.currentTarget
-//       const labels = button.querySelectorAll('span')
-//
-//       if (editorSection.getAttribute('hidden') === '') {
-//         button.setAttribute('aria-pressed', 'true')
-//         labels[0].setAttribute('hidden', '')
-//         labels[1].removeAttribute('hidden')
-//
-//         editorSection.removeAttribute('hidden')
-//         dataSection.setAttribute('hidden', '')
-//       } else {
-//         button.setAttribute('aria-pressed', 'false')
-//         labels[0].removeAttribute('hidden')
-//         labels[1].setAttribute('hidden', '')
-//         dataSection.removeAttribute('hidden')
-//         editorSection.setAttribute('hidden', '')
-//       }
-//     })
-
     frag.querySelector('button.export-pti').addEventListener('click', () => {
       downloadFile(
         document,
