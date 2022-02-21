@@ -1,11 +1,13 @@
 html {
   overscroll-behavior: none;
+  height: 100%;
 }
 
 body {
   background: #121212;
   color: #fff;
   font-weight: lighter;
+  height: 100%;
 }
 
 .sr-only {
@@ -23,7 +25,7 @@ body {
   display: flex;
   flex-direction: column;
   max-width: 960px;
-  min-height: 100vh;
+  height: 100%;
   margin: 0 auto;
   padding: 0 16px;
 }
