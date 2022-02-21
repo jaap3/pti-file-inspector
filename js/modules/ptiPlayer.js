@@ -118,9 +118,8 @@ export async function load({ ownerDocument }, ctx, buffer, headerData) {
     source.start(0, offset ?? startOffset, duration ?? (endOffset ? endOffset - startOffset : undefined))
   }
 
-  const slices = Array.from(headerData.slices).map(absOffset)
-
   async function playSlice(sliceIdx) {
+    const slices = Array.from(headerData.slices).map(absOffset)
     const start = slices[sliceIdx]
     const end = slices[sliceIdx + 1]
     playInstrument({ offset: start, duration: end ? end - start : undefined })

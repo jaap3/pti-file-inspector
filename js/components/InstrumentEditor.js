@@ -126,6 +126,37 @@ function activateSelect(select, options, labels, { watch, data }, { isVisible = 
 }
 
 /**
+ *
+ * @param {Element} template
+ * @param {Object} header
+ * @param {Function} header.watch
+ * @param {ptiTools.HeaderParseResult} header.data
+ */
+function activateSlicer(template, audio, { watch, data }) {
+  for (let slice = 0; slice < data.numSlices; slice++) {
+    const sliceRow = template.cloneNode(true)
+    const label = sliceRow.querySelector('label')
+    const input = sliceRow.querySelector('input')
+    const output = sliceRow.querySelector('output')
+
+    const name = input.name
+    label.textContent = `${label.textContent} ${slice + 1}`
+    label.htmlFor = output.htmlFor = input.id = input.id.replace(name, `${name}.${slice}`)
+    output.name = output.name.replace(name, `${name}.${slice}`)
+    input.name = `${name}.${slice}`
+
+    template.before(sliceRow)
+
+    activateSlider(input, { watch, data }, {
+      defaultValue: 0,
+      wheelDelta: 65535 / 1000,
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
+    })
+  }
+  template.remove()
+}
+
+/**
  * Fieldset navigation
  * @param {HTMLNavElement} nav
  */
@@ -252,15 +283,7 @@ export const InstrumentEditor = {
     })
 
     /* Slice offset */
-    /* TODO: make this work */
-    // activateSlider(form.sliceOffset, header, {
-    //   defaultValue: 0,
-    //   wheelDelta: 65535 / 1000,
-    //   formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
-    //   isVisible({ samplePlayback }) {
-    //     return isSliced(samplePlayback)
-    //   }
-    // })
+    activateSlicer(form.slices.parentNode, audio, header)
 
     /* Wavetable window size */
     activateSlider(form.wavetableWindowSize, header, {

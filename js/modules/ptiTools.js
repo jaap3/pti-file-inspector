@@ -355,11 +355,29 @@ export function reactive(headerData) {
   const { proxy, revoke } = Proxy.revocable(
     headerData,
     {
+      get(obj, prop, value, receiver) {
+        if (prop.startsWith('slices.')) {
+          const idx = Number.parseInt(prop.split('.', 2).pop())
+          if (isFinite(idx)) {
+            return obj.slices[idx]
+          }
+        } else {
+          return Reflect.get(obj, prop, value, receiver)
+        }
+      },
       set(obj, prop, value, receiver) {
-        watchers.forEach((watcher) => watcher.beforeUpdate?.(prop, value))
-        Reflect.set(obj, prop, value, receiver)
-        watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
-        return true
+        if (prop.startsWith('slices.')) {
+          const idx = Number.parseInt(prop.split('.', 2).pop())
+          if (isFinite(idx)) {
+            obj.slices[idx] = value
+            watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
+            return true
+          }
+        } else {
+          Reflect.set(obj, prop, value, receiver)
+          watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
+          return true
+        }
       }
     }
   )
