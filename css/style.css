@@ -30,7 +30,8 @@ body {
 
 #app {
   display: flex;
-  height: 100vh;
+  flex-grow: 1;
+  max-height: 100vh;
   overflow: hidden;
   flex-direction: column;
 }
@@ -120,7 +121,7 @@ canvas.waveform {
   background: #fff;
 }
 
-@media (min-width: calc(2rem + calc(3.5rem * 12))) and (min-height: calc(3.5rem * 16)) {
+@media (min-width: calc(2rem + calc(3.5rem * 12))) and (min-height: calc(3.5rem * 12)) {
   .keypad-container {
     height: auto;
   }
@@ -177,8 +178,6 @@ canvas.waveform {
 .keypad-row button:focus {
   background: radial-gradient(#f9faea, #ebebd5);
   border-style: inset;
-  outline: 1px solid #651f1f;
-  outline-offset: -1px;
 }
 
 /* Editor */
@@ -252,14 +251,14 @@ fieldset {
 #pti-instrument-editor [role=tabpanel] {
   min-width: 100%;
   max-width: 960px;
-  height: 100%;
+  max-height: 100%;
   overflow: auto;
   scroll-snap-align: center;
   scroll-snap-stop: always;
 }
 
 #pti-instrument-editor form,
-#pti-instrument-editor [role=tabpanel]{
+#pti-instrument-editor [role=tabpanel] {
   scrollbar-width: thin;
   scrollbar-color: #fff #101010;
 }
@@ -360,6 +359,7 @@ input[type=range]::-moz-range-thumb {
   -webkit-appearance: none;
 }
 
+button:focus,
 select:focus,
 input[type=text]:focus,
 input[type=range]:focus {
