@@ -1,6 +1,7 @@
 html {
   overscroll-behavior: none;
-  height: 100%;
+  position: fixed;
+  inset: 0;
 }
 
 body {
