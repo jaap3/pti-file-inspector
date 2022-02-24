@@ -62,7 +62,7 @@ export function drawInstrument(canvas, headerData, buffer) {
     }
 
     if (slices) {
-      drawSlices(ctx, slices, width, height)
+      drawSlices(ctx, slices, headerData.activeSlice, width, height)
     }
 
     timeout = setTimeout(() => raf = requestAnimationFrame(render), 1 / 25)
@@ -190,14 +190,26 @@ function drawMarkers(ctx, start, end, height) {
  * @param {number} width
  * @param {number} height
  */
-function drawSlices(ctx, slices, width, height) {
+function drawSlices(ctx, slices, activeSlice, width, height) {
   ctx.save()
 
-  ctx.strokeStyle = '#65491f'
   ctx.lineWidth = 1
+  ctx.strokeStyle = '#651f1f'
 
   ctx.beginPath()
-  slices.forEach((slice) => {
+  const slice = slices[activeSlice]
+  ctx.moveTo(slice * width, 3)
+  ctx.lineTo(slice * width - 3, 0)
+  ctx.lineTo(slice * width + 3, 0)
+  ctx.lineTo(slice * width, 3)
+  ctx.lineTo(slice * width, height)
+  ctx.stroke()
+
+  ctx.strokeStyle = '#835818'
+
+  ctx.beginPath()
+  slices.forEach((slice, idx) => {
+    if (idx === activeSlice) return
     ctx.moveTo(slice * width, 3)
     ctx.lineTo(slice * width - 3, 0)
     ctx.lineTo(slice * width + 3, 0)
