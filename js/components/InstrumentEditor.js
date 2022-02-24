@@ -285,6 +285,14 @@ export const InstrumentEditor = {
     /* Slice offset */
     activateSlicer(form.slices.parentNode, audio, header)
 
+    /* Active slice */
+    activateSlider(form.activeSlice, header, {
+      formatValue: (value) => `${value + 1} of ${header.data.numSlices}`,
+      isVisible({ samplePlayback }) {
+        return isSliced(samplePlayback)
+      }
+    })
+
     /* Wavetable window size */
     activateSlider(form.wavetableWindowSize, header, {
       defaultValue: 2048,

@@ -33,6 +33,7 @@ const {
  * @property {number} delaySend
  * @property {Uint16Array} slices
  * @property {number} numSlices
+ * @property {number} activeSlice
  * @property {number} granularLength
  * @property {number} granularPosition
  * @property {number} granularShape
@@ -271,6 +272,15 @@ export function parseHeader(header) {
     set numSlices(value) {
       view.setUint8(376, value)
       headerData.numSlices = view.getUint8(376)
+    },
+
+    get activeSlice() {
+      return headerData.activeSlice ?? (headerData.activeSlice = view.getUint8(377))
+    },
+
+    set activeSlice(value) {
+      view.setUint8(377, Math.min(value, this.numSlices - 1), true)
+      headerData.activeSlice = view.getUint8(377, true)
     },
 
     get granularLength() {
