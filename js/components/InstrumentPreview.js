@@ -52,17 +52,25 @@ function render(document, player, headerData) {
       /** @type {HTMLButtonElement} */
       const button = buttonTemplate.cloneNode(true)
 
+      let play
+      if (isSliced) {
+        play = () => {
+          headerData.activeSlice = idx
+          player.playSlice(idx)
+        }
+      } else {
+        play = () => {
+          // Firefox cannot actually handle the tuning range :-(
+          // https://bugzilla.mozilla.org/show_bug.cgi?id=1624681
+          player.playInstrument({ detune: detune * 100 })
+        }
+      }
+
       const handlers = {
         stop() {
           player.stop()
         },
-        play() {
-          isSliced ?
-            player.playSlice(idx) :
-            // Firefox cannot actually handle the tuning range :-(
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=1624681
-            player.playInstrument({ detune: detune * 100 })
-        }
+        play
       }
 
       if (isSliced) {
