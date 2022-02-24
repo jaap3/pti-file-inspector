@@ -77,6 +77,39 @@ function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta =
 
 /**
  *
+ * @param {Element} template
+ * @param {*} audio
+ * @param {Object} header
+ * @param {Function} header.watch
+ * @param {ptiTools.HeaderParseResult} header.data
+ */
+function activateSlicer(template, audio, { watch, data }) {
+  for (let slice = 0; slice < data.numSlices; slice++) {
+    const sliceRow = template.cloneNode(true)
+    const label = sliceRow.querySelector('label')
+    const input = sliceRow.querySelector('input')
+    const output = sliceRow.querySelector('output')
+
+    const name = input.name
+    label.textContent = `${label.textContent} ${slice + 1}`
+    label.htmlFor = output.htmlFor = input.id = input.id.replace(name, `${name}.${slice}`)
+    output.name = output.name.replace(name, `${name}.${slice}`)
+    input.name = `${name}.${slice}`
+
+    template.before(sliceRow)
+
+    activateSlider(input, { watch, data }, {
+      defaultValue: 0,
+      wheelDelta: 65535 / 1000,
+      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+      isVisible(data) { return slice === data.activeSlice }
+    })
+  }
+  template.remove()
+}
+
+/**
+ *
  * @param {HTMLSelectElement} select
  * @param {Object} options
  * @param {Object} labels
@@ -123,37 +156,6 @@ function activateSelect(select, options, labels, { watch, data }, { isVisible = 
   document.documentElement.appendChild(a)
   a.click()
   URL.revokeObjectURL(url)
-}
-
-/**
- *
- * @param {Element} template
- * @param {Object} header
- * @param {Function} header.watch
- * @param {ptiTools.HeaderParseResult} header.data
- */
-function activateSlicer(template, audio, { watch, data }) {
-  for (let slice = 0; slice < data.numSlices; slice++) {
-    const sliceRow = template.cloneNode(true)
-    const label = sliceRow.querySelector('label')
-    const input = sliceRow.querySelector('input')
-    const output = sliceRow.querySelector('output')
-
-    const name = input.name
-    label.textContent = `${label.textContent} ${slice + 1}`
-    label.htmlFor = output.htmlFor = input.id = input.id.replace(name, `${name}.${slice}`)
-    output.name = output.name.replace(name, `${name}.${slice}`)
-    input.name = `${name}.${slice}`
-
-    template.before(sliceRow)
-
-    activateSlider(input, { watch, data }, {
-      defaultValue: 0,
-      wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1)
-    })
-  }
-  template.remove()
 }
 
 /**
