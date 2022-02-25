@@ -118,11 +118,29 @@ function withOutput(input, formatValue, { data, watch }) {
 function activateSlider(input, header, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value, isVisible = () => true } = {}) {
   const { data } = header
 
+  function incrementValue(sign) {
+    data[input.name] = Math.min(Math.max(input.min, data[input.name] + sign * wheelDelta), input.max)
+  }
+
   input.addEventListener('wheel', (e) => {
     // Only scroll when focused
     if (e.currentTarget.ownerDocument.activeElement !== input) return
     e.preventDefault()
-    data[input.name] = Math.min(Math.max(input.min, data[input.name] - Math.sign(e.deltaY) * wheelDelta), input.max)
+    incrementValue(Math.sign(-e.deltaY))
+  })
+
+  input.addEventListener('keydown', (evt) => {
+    switch (evt.code) {
+      case 'ArrowUp':
+      case 'ArrowRight':
+        incrementValue(1)
+        break
+      case 'ArrowDown':
+      case 'ArrowLeft':
+        incrementValue(-1)
+        break
+      default:
+    }
   })
 
   input.addEventListener('dblclick', () => {
