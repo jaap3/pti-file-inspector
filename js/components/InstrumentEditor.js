@@ -32,6 +32,80 @@ function getTemplate({ ownerDocument }) {
 /**
  *
  * @param {HTMLInputElement} input
+ * @param {ptiTools.HeaderParseResult} data
+ * @param {Object} options
+ * @param {Object} coerce
+ * @param {function} coerce.write Manipulate data on write (user input -> header)
+ * @param {function} coerce.read Manipulate data on read (header data -> input value)
+ * @returns
+ */
+function activateInput(input, { data, watch }, coerce = { write: (value) => value, read: (value) => value }) {
+  input.addEventListener('input', () => {
+    data[input.name] = coerce.write(input.valueAsNumber)
+  })
+
+  watch({
+    afterUpdate(prop) {
+      if (prop === input.name) {
+        input.value = coerce.read(data[input.name])
+      }
+    }
+  })
+
+  input.value = coerce.read(data[input.name])
+
+  return input
+}
+
+/**
+ *
+ * @param {HTMLInputElement} input
+ * @param {function} isVisible
+ * @param {Object} header
+ * @param {ptiTools.HeaderParseResult} header.data
+ * @param {function} header.watch
+ */
+function withVisibility(input, isVisible, { data, watch }) {
+  watch({
+    afterUpdate(prop) {
+      input.parentNode.hidden = !isVisible(data)
+    }
+  })
+
+  input.parentNode.hidden = !isVisible(data)
+
+  return input
+}
+
+/**
+ *
+ * @param {HTMLInputElement} input
+ * @param {function} formatValue
+ * @param {Object} header
+ * @param {ptiTools.HeaderParseResult} header.data
+ * @param {function} header.watch
+ */
+function withOutput(input, formatValue, { data, watch }) {
+  const output = input.form[`${input.name}-result`]
+
+  function showValue() {
+    output.value = formatValue(data[input.name])
+  }
+
+  watch({
+    afterUpdate(prop) {
+      if (prop === input.name) showValue()
+    }
+  })
+
+  showValue()
+
+  return input
+}
+
+/**
+ *
+ * @param {HTMLInputElement} input
  * @param {Object} header
  * @param {ptiTools.HeaderParseResult} header.data
  * @param {function} header.watch
@@ -41,38 +115,19 @@ function getTemplate({ ownerDocument }) {
  * @param {function} options.formatValue
  * @param {function} options.isVisible
  */
-function activateSlider(input, { data, watch }, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value, isVisible = () => true } = {}) {
-  const output = input.form[`${input.name}-result`]
-
-  function showValue() {
-    input.value = data[input.name]
-    output.value = formatValue(data[input.name])
-  }
+function activateSlider(input, header, { defaultValue = 0, wheelDelta = 1, formatValue = (value) => value, isVisible = () => true } = {}) {
+  const { data } = header
 
   input.addEventListener('wheel', (e) => {
     e.preventDefault()
     data[input.name] = Math.min(Math.max(input.min, data[input.name] - Math.sign(e.deltaY) * wheelDelta), input.max)
-    showValue()
-  })
-
-  input.addEventListener('input', () => {
-    data[input.name] = input.valueAsNumber
-    showValue()
   })
 
   input.addEventListener('dblclick', () => {
     data[input.name] = defaultValue
-    showValue()
   })
 
-  watch({
-    afterUpdate(prop) {
-      if (prop === input.name) showValue()
-      input.parentNode.hidden = !isVisible(data)
-    }
-  })
-  showValue()
-  input.parentNode.hidden = !isVisible(data)
+  withVisibility(withOutput(activateInput(input, header), formatValue, header), isVisible, header)
 }
 
 /**
@@ -102,7 +157,9 @@ function activateSlicer(template, audio, { watch, data }) {
       defaultValue: 0,
       wheelDelta: 65535 / 1000,
       formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
-      isVisible(data) { return slice === data.activeSlice }
+      isVisible({ samplePlayback, activeSlice }) {
+        return isSliced(samplePlayback) && slice === activeSlice
+      }
     })
   }
   template.remove()
@@ -133,12 +190,7 @@ function activateSelect(select, options, labels, { watch, data }, { isVisible = 
     data[select.name] = options[select.value]
   })
 
-  watch({
-    afterUpdate() {
-      select.parentNode.hidden = !isVisible(data)
-    }
-  })
-  select.parentNode.hidden = !isVisible(data)
+  withVisibility(select, isVisible, { watch, data })
 }
 
 /**
@@ -147,7 +199,7 @@ function activateSelect(select, options, labels, { watch, data }, { isVisible = 
  * @param {ArrayBuffer} file
  * @param {string} name
  */
- function downloadFile(document, file, name) {
+function downloadFile(document, file, name) {
   const url = URL.createObjectURL(file)
   const a = document.createElement('a')
   a.setAttribute('download', name)
@@ -288,12 +340,22 @@ export const InstrumentEditor = {
     activateSlicer(form.slices.parentNode, audio, header)
 
     /* Active slice */
-    activateSlider(form.activeSlice, header, {
-      formatValue: (value) => `${value + 1} of ${header.data.numSlices}`,
-      isVisible({ samplePlayback }) {
-        return isSliced(samplePlayback)
-      }
-    })
+    withVisibility(
+      withOutput(
+        activateInput(form.activeSlice, header, {
+          write(value) {
+            return value - 1
+          },
+          read(value) {
+            return value + 1
+          }
+        }),
+        (value) => `${value + 1} of ${header.data.numSlices}`,
+        header
+      ),
+      ({ samplePlayback }) => isSliced(samplePlayback),
+      header
+    )
 
     /* Wavetable window size */
     activateSlider(form.wavetableWindowSize, header, {
@@ -342,7 +404,7 @@ export const InstrumentEditor = {
     })
 
     /* Filter enabled */
-    activateSelect(form.filterEnabled, {true: 1, false: 0}, {1: 'Yes', 0: 'No'}, header)
+    activateSelect(form.filterEnabled, { true: 1, false: 0 }, { 1: 'Yes', 0: 'No' }, header)
 
     /* Filter type */
     activateSelect(form.filterType, FilterType, FILTER_TYPE_LABELS, header, {
