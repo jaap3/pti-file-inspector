@@ -279,7 +279,7 @@ export function parseHeader(header) {
     },
 
     set activeSlice(value) {
-      view.setUint8(377, Math.min(value, this.numSlices - 1), true)
+      view.setUint8(377, Math.max(0, Math.min(value, this.numSlices - 1)), true)
       headerData.activeSlice = view.getUint8(377, true)
     },
 
