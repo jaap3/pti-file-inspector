@@ -119,6 +119,8 @@ function activateSlider(input, header, { defaultValue = 0, wheelDelta = 1, forma
   const { data } = header
 
   input.addEventListener('wheel', (e) => {
+    // Only scroll when focused
+    if (e.currentTarget.ownerDocument.activeElement !== input) return
     e.preventDefault()
     data[input.name] = Math.min(Math.max(input.min, data[input.name] - Math.sign(e.deltaY) * wheelDelta), input.max)
   })
