@@ -381,3 +381,27 @@ input[type=range]:focus {
   outline: 1px solid #651f1f;
   outline-offset: -1px;
 }
+
+input[type=number] {
+  background-image: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M24%204%2040%2016%208%2016M24%2044L40%2032%208%2032Z%22%2F%3E%3C%2Fsvg%3E');
+  background-position: center right;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+@-moz-document url-prefix() {
+  /* Cannot style the spin buttons in Firefox */
+  input[type=number] {
+    appearance: textfield;
+    background-image: none;
+  }
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  opacity: 1;
+  width: 3rem;
+  height: 3rem;
+  cursor: pointer;
+}
