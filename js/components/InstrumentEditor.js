@@ -41,7 +41,10 @@ function getTemplate({ ownerDocument }) {
  */
 function activateInput(input, { data, watch }, coerce = { write: (value) => value, read: (value) => value }) {
   input.addEventListener('input', () => {
-    data[input.name] = coerce.write(input.valueAsNumber)
+    if (input.value !== '') data[input.name] = coerce.write(input.valueAsNumber)
+  })
+  input.addEventListener('blur', () => {
+    if (input.value === '') input.value = coerce.read(data[input.name])
   })
 
   watch({
@@ -367,10 +370,10 @@ export const InstrumentEditor = {
             return value - 1
           },
           read(value) {
-            return value + 1
+            return Math.min(value + 1, header.data.numSlices)
           }
         }),
-        (value) => `${value + 1} of ${header.data.numSlices}`,
+        (value) => `${Math.min(value + 1, header.data.numSlices)} of ${header.data.numSlices}`,
         header
       ),
       ({ samplePlayback }) => isSliced(samplePlayback),
