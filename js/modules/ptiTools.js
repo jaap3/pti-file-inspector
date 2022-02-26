@@ -259,10 +259,12 @@ export function parseHeader(header) {
       return headerData.slices ?? (headerData.slices = new Uint16Array(newHeader, 280, this.numSlices))
     },
 
-    set slices(value) {
-      // TODO: Figure this out
-      // this.numSlices = value.length
-      // new Uint16Array(newHeader, 280, this.numSlices)
+    setSliceOfsset(idx, value) {
+      if (idx < 0 || idx >= 48) throw new RangeError('Slice index must be between 0 and 47')
+      headerData.slices[idx] = Math.min(
+        Math.max(headerData.slices[idx - 1] ?? 0, value),
+        Math.min(headerData.slices[idx + 1] ?? 65535)
+      )
     },
 
     get numSlices() {
@@ -379,7 +381,7 @@ export function reactive(headerData) {
         if (prop.startsWith('slices.')) {
           const idx = Number.parseInt(prop.split('.', 2).pop())
           if (isFinite(idx)) {
-            obj.slices[idx] = value
+            obj.setSliceOfsset(idx, value)
             watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
             return true
           }
