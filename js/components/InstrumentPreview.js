@@ -140,7 +140,7 @@ export const InstrumentPreview = {
 
     header.watch({
       afterUpdate(prop) {
-        if (prop === 'samplePlayback' || prop === 'slices') {
+        if (prop === 'samplePlayback' || prop === 'numSlices') {
           player.stop()
           let el
           while (el = mounted.pop()) {

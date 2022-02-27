@@ -32,6 +32,7 @@ const {
  * @property {number} panning
  * @property {number} delaySend
  * @property {Uint16Array} slices
+ * @property {number} sliceOffset
  * @property {number} numSlices
  * @property {number} activeSlice
  * @property {number} granularLength
@@ -259,11 +260,14 @@ export function parseHeader(header) {
       return headerData.slices ?? (headerData.slices = new Uint16Array(newHeader, 280, this.numSlices))
     },
 
-    setSliceOfsset(idx, value) {
-      if (idx < 0 || idx >= 48) throw new RangeError('Slice index must be between 0 and 47')
-      headerData.slices[idx] = Math.min(
-        Math.max(headerData.slices[idx - 1] ?? 0, value),
-        Math.min(headerData.slices[idx + 1] ?? 65535)
+    get sliceOffset() {
+      return this.slices[this.activeSlice]
+    },
+
+    set sliceOffset(value) {
+      this.slices[this.activeSlice] = Math.min(
+        Math.max(this.slices[this.activeSlice - 1] ?? 0, value),
+        Math.min(this.slices[this.activeSlice + 1] ?? 65535)
       )
     },
 
@@ -368,28 +372,12 @@ export function reactive(headerData) {
     headerData,
     {
       get(obj, prop, value, receiver) {
-        if (prop.startsWith('slices.')) {
-          const idx = Number.parseInt(prop.split('.', 2).pop())
-          if (isFinite(idx)) {
-            return obj.slices[idx]
-          }
-        } else {
-          return Reflect.get(obj, prop, value, receiver)
-        }
+        return Reflect.get(obj, prop, value, receiver)
       },
       set(obj, prop, value, receiver) {
-        if (prop.startsWith('slices.')) {
-          const idx = Number.parseInt(prop.split('.', 2).pop())
-          if (isFinite(idx)) {
-            obj.setSliceOfsset(idx, value)
-            watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
-            return true
-          }
-        } else {
-          Reflect.set(obj, prop, value, receiver)
-          watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
-          return true
-        }
+        Reflect.set(obj, prop, value, receiver)
+        watchers.forEach((watcher) => watcher.afterUpdate?.(prop))
+        return true
       }
     }
   )

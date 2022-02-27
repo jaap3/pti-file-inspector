@@ -155,37 +155,23 @@ function activateSlider(input, header, { defaultValue = 0, wheelDelta = 1, forma
 
 /**
  *
- * @param {Element} template
+ * @param {Element} sliceRow
  * @param {*} audio
  * @param {Object} header
  * @param {Function} header.watch
  * @param {ptiTools.HeaderParseResult} header.data
  */
-function activateSlicer(template, audio, { watch, data }) {
-  for (let slice = 0; slice < data.numSlices; slice++) {
-    const sliceRow = template.cloneNode(true)
-    const label = sliceRow.querySelector('label')
-    const input = sliceRow.querySelector('input')
-    const output = sliceRow.querySelector('output')
+function activateSlicer(sliceRow, audio, { watch, data }) {
+  const input = sliceRow.querySelector('input')
 
-    const name = input.name
-    label.textContent = `${label.textContent} ${slice + 1}`
-    label.htmlFor = output.htmlFor = input.id = input.id.replace(name, `${name}.${slice}`)
-    output.name = output.name.replace(name, `${name}.${slice}`)
-    input.name = `${name}.${slice}`
-
-    template.before(sliceRow)
-
-    activateSlider(input, { watch, data }, {
-      defaultValue: 0,
-      wheelDelta: 65535 / 1000,
-      formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
-      isVisible({ samplePlayback, activeSlice }) {
-        return isSliced(samplePlayback) && slice === activeSlice
-      }
-    })
-  }
-  template.remove()
+  activateSlider(input, { watch, data }, {
+    defaultValue: 0,
+    wheelDelta: 65535 / 1000,
+    formatValue: (value) => displayMilliseconds(relOffset(value) * audio.length / 44.1),
+    isVisible({ samplePlayback }) {
+      return isSliced(samplePlayback)
+    }
+  })
 }
 
 /**
@@ -360,7 +346,7 @@ export const InstrumentEditor = {
     })
 
     /* Slice offset */
-    activateSlicer(form.slices.parentNode, audio, header)
+    activateSlicer(form.sliceOffset.parentNode, audio, header)
 
     /* Active slice */
     withVisibility(
