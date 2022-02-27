@@ -260,17 +260,6 @@ export function parseHeader(header) {
       return headerData.slices ?? (headerData.slices = new Uint16Array(newHeader, 280, this.numSlices))
     },
 
-    get sliceOffset() {
-      return this.slices[this.activeSlice]
-    },
-
-    set sliceOffset(value) {
-      this.slices[this.activeSlice] = Math.min(
-        Math.max(this.slices[this.activeSlice - 1] ?? 0, value),
-        Math.min(this.slices[this.activeSlice + 1] ?? 65535)
-      )
-    },
-
     get numSlices() {
       return headerData.numSlices ?? (headerData.numSlices = view.getUint8(376))
     },
@@ -287,6 +276,17 @@ export function parseHeader(header) {
     set activeSlice(value) {
       view.setUint8(377, Math.max(0, Math.min(value, this.numSlices - 1)), true)
       headerData.activeSlice = view.getUint8(377, true)
+    },
+
+    get sliceOffset() {
+      return this.slices[this.activeSlice]
+    },
+
+    set sliceOffset(value) {
+      this.slices[this.activeSlice] = Math.min(
+        Math.max(this.slices[this.activeSlice - 1] ?? 0, value),
+        Math.min(this.slices[this.activeSlice + 1] ?? 65535)
+      )
     },
 
     get granularLength() {
