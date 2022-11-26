@@ -344,11 +344,11 @@ export function parseHeader(header) {
     },
 
     get bitDepth() {
-      return headerData.bitDepth ?? (headerData.bitDepth = view.getUint8(386))
+      return headerData.bitDepth ?? (headerData.bitDepth = view.getUint8(386) || 16)
     },
 
     set bitDepth(value) {
-      view.setUint8(386, value)
+      view.setUint8(386, Math.max(1, Math.min(16, value)))
       headerData.bitDepth = view.getUint8(386)
     },
 
