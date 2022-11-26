@@ -100,14 +100,14 @@ function renderError(message, { userDangerousHTML = false } = {}) {
   const p = document.createElement('p')
   p.className = 'error'
   p[userDangerousHTML ? 'innerHTML' : 'innerText'] = message
-  dataSection.appendChild(p)
+  displaySection.appendChild(p)
+  displaySection.removeAttribute('hidden')
   mounted.push(() => p.remove())
 }
 
 /**
 /* DOM mount points, used by renderInstrument
  */
-const dataSection = document.getElementById('pti-instrument-data')
 const previewSection = document.getElementById('pti-instrument-preview')
 const displaySection = document.getElementById('pti-instrument-display')
 const editorSection = document.getElementById('pti-instrument-editor')
